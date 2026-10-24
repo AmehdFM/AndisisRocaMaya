@@ -1,0 +1,163 @@
+<UserControl x:Class="SistemaRocaMaya.Views.ClientesAbonosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+    <UserControl.Resources>
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="52" />
+            <Setter Property="Background" Value="#2A6F9E" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F3F6F8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="82" />
+            <RowDefinition Height="80" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="28,0" VerticalAlignment="Center">
+            <TextBlock Text="P07 · Clientes y abonos" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
+            <TextBlock Text="Consulta las cuentas de fiado y revisa sus abonos" Margin="0,4,0,0"
+                       FontSize="12" Foreground="#718391" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Margin="28,0,28,12" Padding="18,10" Background="#E7F0F5"
+                BorderBrush="#D4E3EC" BorderThickness="0,1,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="CUENTAS CON SALDO" FontSize="10" FontWeight="Bold" Foreground="#5C7484" />
+                    <TextBlock Text="{Binding CuentasConSaldo, StringFormat='{}{0} clientes'}" Margin="0,3,0,0"
+                               FontSize="15" FontWeight="SemiBold" Foreground="#20394B" />
+                </StackPanel>
+                <Border Grid.Column="1" Width="1" Margin="18,0" Background="#C7D9E3" />
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="SALDO TOTAL PENDIENTE" FontSize="10" FontWeight="Bold" Foreground="#5C7484" />
+                    <TextBlock Text="{Binding SaldoTotalPendienteTexto}" Margin="0,3,0,0" FontSize="17"
+                               FontWeight="Bold" Foreground="#1F7A45" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="28,2,28,26">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.1*" />
+                <ColumnDefinition Width="0.9*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,24,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="52" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Clientes" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
+                    <TextBlock Text="Selecciona una cuenta para ver sus detalles" Margin="0,3,0,0"
+                               FontSize="11" Foreground="#718391" />
+                </StackPanel>
+                <TextBox Grid.Row="1" Height="44" Padding="13,0" VerticalContentAlignment="Center"
+                         Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="13" Background="White" BorderBrush="#D5E0E7" BorderThickness="1" />
+                <Border Grid.Row="2" Margin="0,10,0,0" Background="White" BorderBrush="#DCE4E9" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ClientesFiltrados}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Padding="0" Margin="0" Background="Transparent" BorderThickness="0"
+                                            HorizontalContentAlignment="Stretch" Cursor="Hand"
+                                            Command="{Binding DataContext.SeleccionarClienteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Border Padding="15,13" BorderBrush="#E8EDF1" BorderThickness="0,0,0,1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="White" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding EstaSeleccionado}" Value="True">
+                                                            <Setter Property="Background" Value="#E8F1F6" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Nombre}" FontSize="13" FontWeight="SemiBold" Foreground="#20394B" />
+                                                    <TextBlock Text="{Binding Dni, StringFormat='DNI: {0}'}" Margin="0,4,0,0"
+                                                               FontSize="11" Foreground="#718391" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding EstadoTexto}" FontSize="10" Foreground="#718391" HorizontalAlignment="Right" />
+                                                    <TextBlock Text="{Binding SaldoPendienteTexto}" Margin="0,3,0,0" FontSize="13"
+                                                               FontWeight="SemiBold" Foreground="#1F7A45" HorizontalAlignment="Right" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Detalle de la cuenta" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
+                <TextBlock Text="Saldo y actividad reciente" Margin="0,3,0,10" FontSize="11" Foreground="#718391" />
+
+                <Border Padding="18" Background="White" BorderBrush="#DCE4E9" BorderThickness="0,1,0,1">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding ClienteNombre}" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="#20394B" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding ClienteDni}" Margin="0,4,0,0" FontSize="11" Foreground="#718391" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding EstadoCuentaTexto}" FontSize="11"
+                                       Foreground="#526B7C" VerticalAlignment="Center" />
+                        </Grid>
+                        <Border Height="1" Background="#E6ECEF" Margin="0,16,0,12" />
+                        <TextBlock Text="SALDO PENDIENTE" FontSize="10" FontWeight="Bold" Foreground="#718391" />
+                        <TextBlock Text="{Binding SaldoSeleccionadoTexto}" Margin="0,4,0,0" FontSize="27"
+                                   FontWeight="Bold" Foreground="#1F7A45" />
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock Text="Último abono" FontSize="11" Foreground="#718391" />
+                            <TextBlock Grid.Column="1" Text="{Binding UltimoAbonoTexto}" FontSize="11"
+                                       Foreground="#526B7C" TextAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Abonos recientes" Margin="0,18,0,8" FontSize="14" FontWeight="SemiBold" Foreground="#20394B" />
+                <Border Background="White" BorderBrush="#DCE4E9" BorderThickness="0,1,0,1" Padding="14,3">
+                    <StackPanel>
+                        <Grid Margin="0,9">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="María López" FontSize="12" FontWeight="SemiBold" Foreground="#314B5E" /><TextBlock Text="18 oct. 2026" Margin="0,2,0,0" FontSize="10" Foreground="#718391" /></StackPanel>
+                            <TextBlock Grid.Column="1" Text="L 100.00" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#1F7A45" />
+                        </Grid>
+                        <Border Height="1" Background="#E8EDF1" />
+                        <Grid Margin="0,9">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Ana Martínez" FontSize="12" FontWeight="SemiBold" Foreground="#314B5E" /><TextBlock Text="12 oct. 2026" Margin="0,2,0,0" FontSize="10" Foreground="#718391" /></StackPanel>
+                            <TextBlock Grid.Column="1" Text="L 75.00" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#1F7A45" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Button Margin="0,16,0,0" Style="{StaticResource PrimaryButtonStyle}" Content="Registrar abono"
+                        IsEnabled="{Binding TieneClienteSeleccionado}"
+                        Command="{Binding DataContext.OpenAbonoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        AutomationProperties.Name="Continuar a P08 para registrar un abono" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
