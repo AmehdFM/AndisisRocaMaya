@@ -29,8 +29,8 @@
             <StackPanel Margin="22,16">
                 <TextBlock Text="Nombre" FontSize="11" Foreground="#526A7A" Margin="0,0,0,4" />
                 <TextBox x:Name="NameBox" />
-                <TextBlock Text="ID del producto" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
-                <TextBox x:Name="IdBox" />
+                <TextBlock x:Name="IdPreviewText" FontSize="10" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}"
+                           Margin="0,8,0,0" />
                 <TextBlock Text="Precio de venta" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
                 <TextBox x:Name="PriceBox" />
                 <TextBlock Text="Cantidad inicial (opcional)" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
@@ -41,7 +41,7 @@
                 <TextBlock Text="Fecha de vencimiento (opcional)" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
                 <DatePicker x:Name="ExpirationDatePicker" Height="32" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
                 <TextBlock x:Name="ValidationText" Margin="0,9,0,0" FontSize="10" Foreground="#9B2C2C"
-                           Text="Revisa el ID, nombre, precio y cantidad." Visibility="Collapsed" />
+                           Text="Revisa el nombre, precio y cantidad." Visibility="Collapsed" />
             </StackPanel>
         </ScrollViewer>
         <Border Grid.Row="2" Background="White" Padding="20,12">

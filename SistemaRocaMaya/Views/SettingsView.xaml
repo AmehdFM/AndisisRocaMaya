@@ -6,7 +6,6 @@
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,18">
             <TextBlock Text="Configuración" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <TextBlock Text="Usuarios y roles de demostración" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
         </StackPanel>
         <TabControl Grid.Row="1" Background="Transparent" BorderBrush="#D8E3EA">
             <TabItem Header="Usuarios">

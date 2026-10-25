@@ -6,7 +6,6 @@
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="78" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,16">
             <TextBlock Text="Inventario" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <TextBlock Text="Existencias e historial de movimientos por producto" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
         </StackPanel>
         <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="16,10">
             <Grid>

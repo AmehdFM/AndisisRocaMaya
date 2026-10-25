@@ -6,7 +6,6 @@
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="80" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,16">
             <TextBlock Text="Ventas" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <TextBlock Text="Ventas registradas y cierres de caja de esta sesión" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
         </StackPanel>
         <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="18,10">
             <Grid>

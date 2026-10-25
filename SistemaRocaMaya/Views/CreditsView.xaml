@@ -10,8 +10,6 @@
         </Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,16">
             <TextBlock Text="Crédito" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <TextBlock Text="Saldos pendientes e historial de cargos y abonos" Margin="0,4,0,0"
-                       FontSize="12" Foreground="#526A7A" />
         </StackPanel>
 
         <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="18,12">

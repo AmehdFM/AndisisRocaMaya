@@ -13,7 +13,6 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="Clientes" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <TextBlock Text="Personas y empresas" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
             </StackPanel>
             <Button Grid.Column="1" Content="＋  Crear cliente" Click="CreateCustomer_Click"
                     Height="40" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0"

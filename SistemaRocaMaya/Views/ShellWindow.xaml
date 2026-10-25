@@ -208,7 +208,6 @@
 
                     <StackPanel Visibility="{Binding PlaceholderVisibility}" VerticalAlignment="Top">
                         <TextBlock Text="{Binding CurrentSectionTitle}" FontSize="27" FontWeight="Bold" Foreground="#20394B" />
-                        <TextBlock Text="Prototipo de navegación" Margin="0,6,0,22" FontSize="13" Foreground="#718391" />
                         <Border Background="White" BorderBrush="#E2E8ED" BorderThickness="0,1,0,1" Padding="24,20">
                             <StackPanel>
                                 <TextBlock Text="Esta sección se detallará en su paso de diseño." FontSize="15" Foreground="#314B5E" />

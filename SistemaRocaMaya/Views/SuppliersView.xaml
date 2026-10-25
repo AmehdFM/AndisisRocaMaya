@@ -8,7 +8,6 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="Proveedores" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <TextBlock Text="Contactos e historial de compras" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
             </StackPanel>
             <Button Grid.Column="1" Content="＋  Nuevo proveedor" Click="CreateSupplier_Click"
                     Height="40" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0"

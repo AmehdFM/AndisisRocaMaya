@@ -8,7 +8,6 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="Compras" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <TextBlock Text="Registra entradas y actualiza existencias" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
             </StackPanel>
             <Button Grid.Column="1" Content="＋  Crear producto" Click="CreateProduct_Click"
                     Height="40" Padding="14,0" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}"
@@ -24,7 +23,8 @@
                         <StackPanel Margin="0,0,10,0">
                             <TextBlock Text="Proveedor" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" Margin="0,0,0,3" />
                             <ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
-                                      DisplayMemberPath="Name" Height="34" Padding="8,0" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
+                                      DisplayMemberPath="Name" Height="28" MinHeight="28" Padding="6,0" VerticalContentAlignment="Center"
+                                      Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                             <TextBlock Text="Fecha de compra" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" Margin="0,0,0,3" />

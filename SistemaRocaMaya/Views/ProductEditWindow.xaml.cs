@@ -16,13 +16,13 @@ public partial class ProductEditWindow : Window
         InitializeComponent();
         _store = store;
         PurchaseDatePicker.SelectedDate = DateTime.Today;
+        IdPreviewText.Text = $"Código automático: {_store.NextProductId}";
     }
 
     private void Create_Click(object sender, RoutedEventArgs e)
     {
-        var id = IdBox.Text.Trim();
         var name = NameBox.Text.Trim();
-        if (id.Length == 0 || name.Length == 0
+        if (name.Length == 0
             || !decimal.TryParse(PriceBox.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var price)
             || price <= 0
             || !int.TryParse(QuantityBox.Text, out var quantity)
@@ -35,7 +35,6 @@ public partial class ProductEditWindow : Window
         try
         {
             CreatedProduct = _store.CreateProduct(
-                id,
                 name,
                 price,
                 quantity,

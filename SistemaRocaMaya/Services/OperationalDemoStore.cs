@@ -8,6 +8,7 @@ public sealed class OperationalDemoStore : ObservableObject
 {
     private static readonly decimal[] DemoDenominations = [1m, 2m, 5m, 10m, 20m, 50m, 100m, 200m, 500m];
     private int _nextCustomerId = 1;
+    private int _nextProductId = 1;
     private int _nextSupplierId = 1;
     private int _nextPurchaseId = 1;
     private int _nextSaleId = 1;
@@ -38,6 +39,8 @@ public sealed class OperationalDemoStore : ObservableObject
 
     public bool IsCashOpen => ActiveCashSession is not null;
 
+    public string NextProductId => $"PR-{_nextProductId:000}";
+
     public static IReadOnlyList<decimal> CashDenominations => DemoDenominations;
 
     private OperationalDemoStore()
@@ -53,19 +56,14 @@ public sealed class OperationalDemoStore : ObservableObject
     }
 
     public ProductRecord CreateProduct(
-        string id,
         string name,
         decimal salePrice,
         int initialQuantity = 0,
         DateTime? purchaseDate = null,
         DateTime? expirationDate = null)
     {
-        if (Products.Any(product => product.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidOperationException("Ya existe un producto con ese ID.");
-        }
-
-        var product = new ProductRecord(id.Trim(), name.Trim(), salePrice);
+        var product = new ProductRecord(NextProductId, name.Trim(), salePrice);
+        _nextProductId++;
         Products.Add(product);
         if (initialQuantity > 0)
         {
@@ -250,12 +248,12 @@ public sealed class OperationalDemoStore : ObservableObject
         var distributor = CreateSupplier("Distribuidora Central", "2234-1200", "Ana Rivera");
         var dairySupplier = CreateSupplier("Lácteos del Norte", "2238-4455", "Luis Mejía");
 
-        var cocaCola = CreateProduct("PR-001", "Coca-Cola 600 ml", 22m);
-        var rice = CreateProduct("PR-002", "Arroz 1 libra", 23.50m);
-        var beans = CreateProduct("PR-003", "Frijoles 1 libra", 34m);
-        var milk = CreateProduct("PR-004", "Leche entera 946 ml", 31m);
-        var coffee = CreateProduct("PR-005", "Café molido 400 g", 76m);
-        var bread = CreateProduct("PR-006", "Pan blanco", 14m);
+        var cocaCola = CreateProduct("Coca-Cola 600 ml", 22m);
+        var rice = CreateProduct("Arroz 1 libra", 23.50m);
+        var beans = CreateProduct("Frijoles 1 libra", 34m);
+        var milk = CreateProduct("Leche entera 946 ml", 31m);
+        var coffee = CreateProduct("Café molido 400 g", 76m);
+        var bread = CreateProduct("Pan blanco", 14m);
 
         var yesterday = DateTime.Today.AddDays(-1);
         RecordPurchase(distributor, yesterday, [

@@ -16,14 +16,12 @@
 
     <Grid Background="#F3F6F8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="86" />
+            <RowDefinition Height="64" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="28,0" VerticalAlignment="Center">
             <TextBlock Text="P04 · Registrar fiado" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
-            <TextBlock Text="Selecciona al cliente y revisa el saldo antes de confirmar" Margin="0,4,0,0"
-                       FontSize="12" Foreground="#718391" />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="28,0,28,26">
@@ -40,7 +38,6 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="0,0,0,12">
                     <TextBlock Text="Cliente" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
-                    <TextBlock Text="Busca por nombre o DNI" Margin="0,3,0,0" FontSize="11" Foreground="#718391" />
                 </StackPanel>
 
                 <TextBox Grid.Row="1" Height="44" Padding="13,0" VerticalContentAlignment="Center"
