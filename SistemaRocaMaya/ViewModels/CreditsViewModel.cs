@@ -21,6 +21,7 @@ public sealed class CreditsViewModel : ObservableObject
     public ListCollectionView CustomersWithCredit { get; }
     public string TotalCreditText => OperationalDemoStore.FormatMoney(Store.Customers.Sum(customer => customer.Balance));
     public int CustomersWithBalance => Store.Customers.Count(customer => customer.Balance > 0);
+    public int TotalCreditMovements => Store.Customers.Sum(customer => customer.CreditHistory.Count);
     public string PaymentAmountText
     {
         get => _paymentAmountText;
@@ -91,6 +92,7 @@ public sealed class CreditsViewModel : ObservableObject
         foreach (var customer in Store.Customers)
         {
             customer.PropertyChanged += Customer_PropertyChanged;
+            customer.CreditHistory.CollectionChanged += CreditHistory_CollectionChanged;
         }
     }
 
@@ -139,11 +141,18 @@ public sealed class CreditsViewModel : ObservableObject
             foreach (CustomerRecord customer in e.NewItems)
             {
                 customer.PropertyChanged += Customer_PropertyChanged;
+                customer.CreditHistory.CollectionChanged += CreditHistory_CollectionChanged;
             }
         }
         CustomersWithCredit.Refresh();
         OnPropertyChanged(nameof(TotalCreditText));
         OnPropertyChanged(nameof(CustomersWithBalance));
+        OnPropertyChanged(nameof(TotalCreditMovements));
+    }
+
+    private void CreditHistory_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(TotalCreditMovements));
     }
 
     private void Customer_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -153,6 +162,7 @@ public sealed class CreditsViewModel : ObservableObject
             CustomersWithCredit.Refresh();
             OnPropertyChanged(nameof(TotalCreditText));
             OnPropertyChanged(nameof(CustomersWithBalance));
+            OnPropertyChanged(nameof(TotalCreditMovements));
             OnPropertyChanged(nameof(SelectedCustomerBalanceText));
             OnPropertyChanged(nameof(HasSelectedCustomer));
             RecordPaymentCommand.NotifyCanExecuteChanged();
