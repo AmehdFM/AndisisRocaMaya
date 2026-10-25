@@ -25,8 +25,7 @@
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="Buscar por nombre, teléfono o identidad/RTN" />
 
-        <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
-            <Grid>
+        <Grid Grid.Row="2" Background="White">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="38" />
                     <RowDefinition Height="*" />
@@ -71,7 +70,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-            </Grid>
-        </Border>
+        </Grid>
     </Grid>
 </UserControl>

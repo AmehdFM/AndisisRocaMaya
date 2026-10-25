@@ -11,10 +11,8 @@
             <TabItem Header="Usuarios">
                 <Grid Margin="14">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                    <Border Background="{StaticResource RocaMayaCreamBrush}" BorderBrush="#D8CDAF" BorderThickness="1" Padding="12" Margin="0,0,0,12">
-                        <TextBlock Text="El login reconoce dos cuentas de demostración: Administrador y Empleado."
-                                   FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
-                    </Border>
+                    <TextBlock Text="El login reconoce dos cuentas de demostración: Administrador y Empleado."
+                               Margin="0,0,0,12" FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
                     <Grid Grid.Row="1" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="200" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">

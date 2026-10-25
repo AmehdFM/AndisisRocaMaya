@@ -44,8 +44,7 @@
                          Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
                          FontSize="13" Background="White" BorderBrush="#D5E0E7" BorderThickness="1" />
 
-                <Border Grid.Row="2" Margin="0,10,0,0" Background="White" BorderBrush="#DCE4E9" BorderThickness="1">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="2" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding ClientesFiltrados}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -86,15 +85,13 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                </Border>
             </Grid>
 
             <StackPanel Grid.Column="1">
                 <TextBlock Text="Resumen de la cuenta" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
                 <TextBlock Text="Datos de demostración · no se guardarán" Margin="0,3,0,12" FontSize="11" Foreground="#718391" />
 
-                <Border Background="#E7F0F5" Padding="20" BorderBrush="#D4E3EC" BorderThickness="1">
-                    <StackPanel>
+                <StackPanel>
                         <TextBlock Text="CLIENTE SELECCIONADO" FontSize="10" FontWeight="Bold" Foreground="#5C7484" />
                         <TextBlock Text="{Binding ClienteResumen}" Margin="0,7,0,18" FontSize="14"
                                    FontWeight="SemiBold" Foreground="#20394B" TextWrapping="Wrap" />
@@ -117,18 +114,13 @@
                             <TextBlock Grid.Column="1" Text="{Binding SaldoNuevoTexto}" FontSize="17" FontWeight="Bold"
                                        Foreground="#1F7A45" />
                         </Grid>
-                    </StackPanel>
-                </Border>
+                </StackPanel>
 
-                <Border Margin="0,12,0,0" Padding="12,10" Background="#F7F9FA" BorderBrush="#E1E8EC" BorderThickness="1">
-                    <TextBlock Text="{Binding MensajeEstado}" FontSize="12" Foreground="#526B7C" TextWrapping="Wrap" />
-                </Border>
+                <TextBlock Text="{Binding MensajeEstado}" Margin="0,12,0,0" FontSize="12" Foreground="#526B7C" TextWrapping="Wrap" />
 
-                <Border Margin="0,10,0,0" Padding="12,10" Background="#EAF4EE" BorderBrush="#CDE4D5" BorderThickness="1"
-                        Visibility="{Binding ConfirmacionVisibility}">
-                    <TextBlock Text="Fiado preparado para el ticket de demostración." FontSize="12"
-                               FontWeight="SemiBold" Foreground="#276442" TextWrapping="Wrap" />
-                </Border>
+                <TextBlock Margin="0,10,0,0" Visibility="{Binding ConfirmacionVisibility}"
+                           Text="Fiado preparado para el ticket de demostración." FontSize="12"
+                           FontWeight="SemiBold" Foreground="#276442" TextWrapping="Wrap" />
 
                 <Button Margin="0,18,0,0" Style="{StaticResource PrimaryActionStyle}"
                         Content="Registrar fiado" Command="{Binding RegistrarFiadoCommand}"

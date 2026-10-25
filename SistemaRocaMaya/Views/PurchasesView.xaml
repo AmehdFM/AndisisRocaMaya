@@ -17,8 +17,7 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.65*" /><ColumnDefinition Width="0.85*" /></Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Margin="0,0,18,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="#EAF3F8" Padding="12" Margin="0,0,0,10">
-                    <Grid>
+                <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel Margin="0,0,10,0">
                             <TextBlock Text="Proveedor" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" Margin="0,0,0,3" />
@@ -36,8 +35,7 @@
                                     Height="34" Padding="12,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
                                     FontSize="11" FontWeight="SemiBold" />
                         </StackPanel>
-                    </Grid>
-                </Border>
+                </Grid>
 
                 <TextBox Grid.Row="1" Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
                          Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
@@ -47,7 +45,7 @@
                 <DataGrid Grid.Row="2" ItemsSource="{Binding ProductRowsView}" AutoGenerateColumns="False"
                           CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
                           GridLinesVisibility="Horizontal" RowHeaderWidth="0" Background="White"
-                          BorderBrush="#D8E3EA" BorderThickness="1" FontSize="11"
+                          BorderBrush="#D8E3EA" BorderThickness="0" FontSize="11"
                           HorizontalGridLinesBrush="#E5E9EC" VerticalGridLinesBrush="Transparent">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="PRODUCTO" Binding="{Binding Name}" Width="1.5*" IsReadOnly="True" />
@@ -76,13 +74,11 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Border Grid.Row="3" Margin="0,10,0,0" Padding="12,9" Background="{StaticResource RocaMayaCreamBrush}">
-                    <Grid>
+                <Grid Grid.Row="3" Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <TextBlock Text="Total de compra" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding PurchaseTotalText}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                    </Grid>
-                </Border>
+                </Grid>
             </Grid>
 
             <Grid Grid.Column="1">
@@ -95,7 +91,7 @@
                          Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
                          Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                          ToolTip="Buscar por proveedor, número o fecha" />
-                <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="0,1,0,0">
+                <Grid Grid.Row="2" Background="Transparent">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding PurchasesView}">
                             <ItemsControl.ItemTemplate>
@@ -115,7 +111,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                </Border>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
