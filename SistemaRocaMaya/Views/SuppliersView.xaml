@@ -1,0 +1,82 @@
+<UserControl x:Class="SistemaRocaMaya.Views.SuppliersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+    <Grid Background="#F3F6F8" Margin="30,20">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <Grid Margin="0,0,0,18">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Proveedores" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+                <TextBlock Text="Contactos e historial de compras" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="＋  Nuevo proveedor" Click="CreateSupplier_Click"
+                    Height="40" Padding="14,0" Background="#080818" BorderThickness="0"
+                    Foreground="White" FontWeight="SemiBold" Cursor="Hand" />
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="0.85*" /><ColumnDefinition Width="1.15*" /></Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="0,0,18,0">
+                <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
+                         VerticalContentAlignment="Center" Background="White" BorderBrush="#58B8E8"
+                         ToolTip="Buscar proveedor por nombre" />
+                <Border Grid.Row="1" Margin="0,10,0,0" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                    <ListBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
+                             Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,12" BorderBrush="#E5E9EC" BorderThickness="0,0,0,1">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="#080818" />
+                                        <TextBlock Text="{Binding Phone}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedSupplier.Name, TargetNullValue='Selecciona un proveedor'}"
+                                       FontSize="16" FontWeight="SemiBold" Foreground="#080818" />
+                            <TextBlock Text="{Binding SelectedSupplier.Contact, StringFormat='Contacto: {0}'}" Margin="0,5,0,0" FontSize="11" Foreground="#526A7A" />
+                            <TextBlock Text="{Binding SelectedSupplier.Phone, StringFormat='Teléfono: {0}'}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedSupplier.Purchases.Count, StringFormat='Compras: {0}'}"
+                                   VerticalAlignment="Center" Foreground="#3888C0" FontSize="11" />
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="1" Text="Historial de compras" Margin="0,16,0,8" FontSize="14"
+                           FontWeight="SemiBold" Foreground="#080818" />
+                <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding SelectedSupplier.Purchases}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="14,12" BorderBrush="#E5E9EC" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
+                                                <TextBlock Text="{Binding DateText}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
+                                                <TextBlock Text="{Binding Lines.Count, StringFormat='{}{0} productos'}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" VerticalAlignment="Center"
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="#3888C0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

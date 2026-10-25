@@ -11,6 +11,7 @@
         WindowState="Maximized"
         WindowStyle="{Binding ShellWindowStyle}"
         PreviewKeyDown="Window_PreviewKeyDown"
+        Closing="ShellWindow_Closing"
         Background="#F3F6F8"
         FontFamily="Segoe UI">
     <Window.Resources>
@@ -147,7 +148,7 @@
 
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                 <Grid Margin="30,8,30,32">
-                    <StackPanel Visibility="{Binding DashboardVisibility}">
+                    <StackPanel Visibility="Collapsed">
                         <TextBlock Text="Resumen" Margin="0,0,0,20"
                                    FontSize="27" FontWeight="Bold" Foreground="#20394B" />
 
@@ -219,12 +220,27 @@
                 </Grid>
             </ScrollViewer>
 
+            <views:DashboardView Grid.Row="0"
+                                 Visibility="{Binding DataContext.DashboardVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+
             <views:PosView Grid.Row="0" DataContext="{Binding PosViewModel}"
                            Visibility="{Binding DataContext.PosVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:FiadoView Grid.Row="0" DataContext="{Binding FiadoViewModel}"
                              Visibility="{Binding DataContext.FiadoVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <views:ClientesAbonosView Grid.Row="0" DataContext="{Binding ClientesAbonosViewModel}"
-                                      Visibility="{Binding DataContext.ClientesAbonosVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:CustomersView Grid.Row="0"
+                                 Visibility="{Binding DataContext.CustomersVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:CreditsView Grid.Row="0"
+                               Visibility="{Binding DataContext.CreditsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:PurchasesView Grid.Row="0"
+                                 Visibility="{Binding DataContext.PurchasesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:SuppliersView Grid.Row="0"
+                                 Visibility="{Binding DataContext.SuppliersVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:InventoryView Grid.Row="0"
+                                 Visibility="{Binding DataContext.InventoryVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:SalesView Grid.Row="0"
+                             Visibility="{Binding DataContext.SalesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:SettingsView Grid.Row="0"
+                                Visibility="{Binding DataContext.SettingsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
         </Grid>
     </Grid>
 </Window>

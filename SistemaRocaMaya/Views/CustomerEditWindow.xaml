@@ -1,0 +1,61 @@
+<Window x:Class="SistemaRocaMaya.Views.CustomerEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cliente · Roca Maya" Width="420" Height="500"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource RocaMayaCreamBrush}" FontFamily="Segoe UI">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#58B8E8" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Border Background="{StaticResource RocaMayaBlueSecondaryBrush}" Padding="20,0">
+            <TextBlock x:Name="TitleText" Text="Nuevo cliente" Foreground="White" FontSize="17"
+                       FontWeight="SemiBold" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Row="1" Margin="22,18">
+            <TextBlock Text="Nombre" FontSize="11" Foreground="#526A7A" Margin="0,0,0,4" />
+            <TextBox x:Name="NameBox" />
+            <TextBlock Text="Teléfono" FontSize="11" Foreground="#526A7A" Margin="0,12,0,4" />
+            <TextBox x:Name="PhoneBox" />
+            <TextBlock Text="Tipo de cliente" FontSize="11" Foreground="#526A7A" Margin="0,12,0,4" />
+            <ComboBox x:Name="TypeBox" Height="36" Padding="8,0" SelectedIndex="0"
+                      SelectionChanged="TypeBox_SelectionChanged" Background="White" BorderBrush="#58B8E8">
+                <ComboBoxItem Content="Persona" Tag="Person" />
+                <ComboBoxItem Content="Empresa" Tag="Company" />
+            </ComboBox>
+            <TextBlock x:Name="IdentificationLabel" Text="Identidad" FontSize="11" Foreground="#526A7A"
+                       Margin="0,12,0,4" />
+            <TextBox x:Name="IdentificationBox" />
+            <TextBlock x:Name="ValidationText" Text="Completa los datos del cliente."
+                       Foreground="#9B2C2C" FontSize="11" Margin="0,10,0,0" Visibility="Collapsed" />
+        </StackPanel>
+        <Border Grid.Row="2" Background="White" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CancelButton" Content="Cancelar" IsCancel="True" Click="Cancel_Click"
+                        Margin="0,0,8,0" Background="White" BorderBrush="#C8DCE8"
+                        Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <Button x:Name="PrimaryButton" Content="Crear cliente" Click="Create_Click"
+                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

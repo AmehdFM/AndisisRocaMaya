@@ -1,0 +1,44 @@
+<UserControl x:Class="SistemaRocaMaya.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+    <Grid Background="#F3F6F8" Margin="30,20">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="Configuración" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+            <TextBlock Text="Usuarios y roles de demostración" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
+        </StackPanel>
+        <TabControl Grid.Row="1" Background="Transparent" BorderBrush="#D8E3EA">
+            <TabItem Header="Usuarios">
+                <Grid Margin="14">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <Border Background="#EFE5D0" BorderBrush="#D8CDAF" BorderThickness="1" Padding="12" Margin="0,0,0,12">
+                        <TextBlock Text="Los usuarios y permisos se muestran como datos de demostración; el inicio de sesión todavía no valida cuentas."
+                                   FontSize="11" Foreground="#080818" TextWrapping="Wrap" />
+                    </Border>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" AutoGenerateColumns="False"
+                              IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
+                              Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="USUARIO" Binding="{Binding Nombre}" Width="2*" />
+                            <DataGridTextColumn Header="ROL" Binding="{Binding Rol.Nombre}" Width="1.2*" />
+                            <DataGridCheckBoxColumn Header="ACTIVO" Binding="{Binding Activo}" Width="0.8*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Roles">
+                <Grid Margin="14">
+                    <DataGrid ItemsSource="{Binding Roles}" AutoGenerateColumns="False"
+                              IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
+                              Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ROL" Binding="{Binding Nombre}" Width="0.9*" />
+                            <DataGridTextColumn Header="PERMISOS DE DEMOSTRACIÓN" Binding="{Binding PermisosTexto}" Width="3*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

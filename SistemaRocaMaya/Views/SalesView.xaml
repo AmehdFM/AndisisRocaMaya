@@ -1,0 +1,98 @@
+<UserControl x:Class="SistemaRocaMaya.Views.SalesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+    <Grid Background="#F3F6F8" Margin="30,20">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="80" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,16">
+            <TextBlock Text="Ventas" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+            <TextBlock Text="Ventas registradas y cierres de caja de esta sesión" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
+        </StackPanel>
+        <Border Grid.Row="1" Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="18,10">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="VENTAS REGISTRADAS" FontSize="10" FontWeight="Bold" Foreground="#526A7A" />
+                    <TextBlock Text="{Binding SalesCount}" Margin="0,3,0,0" FontSize="19" FontWeight="Bold" Foreground="#080818" />
+                </StackPanel>
+                <Border Grid.Column="1" Background="#D8E3EA" />
+                <StackPanel Grid.Column="2" Margin="18,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="TOTAL VENDIDO" FontSize="10" FontWeight="Bold" Foreground="#526A7A" />
+                    <TextBlock Text="{Binding TotalSalesText}" Margin="0,3,0,0" FontSize="19" FontWeight="Bold" Foreground="#3888C0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+        <TabControl Grid.Row="2" Margin="0,16,0,0" Background="Transparent" BorderBrush="#D8E3EA">
+            <TabItem Header="Ventas">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /><RowDefinition Height="112" /></Grid.RowDefinitions>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
+                             VerticalContentAlignment="Center" Background="White" BorderBrush="#58B8E8"
+                             ToolTip="Buscar por ticket o cliente" />
+                    <DataGrid Grid.Row="1" Margin="0,10,0,10" ItemsSource="{Binding Sales}"
+                              SelectedItem="{Binding SelectedSale}" AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
+                              Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="TICKET" Binding="{Binding Ticket}" Width="0.8*" />
+                            <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="1.3*" />
+                            <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.5*" />
+                            <DataGridTextColumn Header="PAGO" Binding="{Binding PaymentText}" Width="0.8*" />
+                            <DataGridTextColumn Header="TOTAL" Binding="{Binding TotalText}" Width="1*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="12,8">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                            <TextBlock Text="Detalle de la venta seleccionada" FontSize="11" FontWeight="SemiBold" Foreground="#080818" />
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedSaleLines}" Margin="0,5,0,0">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="9,5" Margin="0,0,8,0" Background="#EFE5D0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding ProductName}" FontSize="10" Foreground="#080818" />
+                                                <TextBlock Text=" · " FontSize="10" Foreground="#526A7A" />
+                                                <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="#080818" />
+                                                <TextBlock Text=" · " FontSize="10" Foreground="#526A7A" />
+                                                <TextBlock Text="{Binding LineTotalText}" FontSize="10" Foreground="#080818" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Cierres de caja">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.4*" /><ColumnDefinition Width="0.9*" /></Grid.ColumnDefinitions>
+                    <DataGrid ItemsSource="{Binding CashSessions}" SelectedItem="{Binding SelectedSession}"
+                              AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                              HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
+                              BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal" Margin="0,0,12,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.3*" />
+                            <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.3*" />
+                            <DataGridTextColumn Header="EFECTIVO CONTADO" Binding="{Binding ClosingAmountText}" Width="1*" />
+                            <DataGridTextColumn Header="DIFERENCIA" Binding="{Binding DifferenceText}" Width="1*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Sesión seleccionada" FontSize="14" FontWeight="SemiBold" Foreground="#080818" Margin="0,0,0,8" />
+                        <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="14">
+                            <StackPanel>
+                                <TextBlock Text="{Binding SelectedSession.OpeningAmountText, StringFormat='Fondo inicial: {0}'}" FontSize="11" Foreground="#526A7A" />
+                                <TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='Ventas al contado: L {0:N2}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
+                                <TextBlock Text="{Binding SelectedSession.ExpectedAmountText, StringFormat='Efectivo esperado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
+                                <TextBlock Text="{Binding SelectedSession.ClosingAmountText, StringFormat='Efectivo contado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
+                                <TextBlock Text="{Binding SelectedSession.DifferenceText, StringFormat='Diferencia: {0}'}" Margin="0,6,0,0" FontSize="13" FontWeight="Bold" Foreground="#3888C0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

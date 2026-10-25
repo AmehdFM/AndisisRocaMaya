@@ -33,11 +33,21 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="Caja" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
             </StackPanel>
-            <Button Grid.Column="1" MinWidth="150" Height="40" Padding="14,0"
+            <StackPanel Grid.Column="1" Margin="0,0,14,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding CashStatusText}" FontSize="10" Foreground="#526A7A"
+                           HorizontalAlignment="Right" Margin="0,0,0,4" />
+                <Button Content="{Binding CashActionLabel}" Click="ToggleCashSession_Click"
+                        MinWidth="112" Height="32" Padding="12,0" HorizontalAlignment="Right"
+                        Background="#080818" BorderThickness="0" Foreground="White"
+                        FontSize="11" FontWeight="SemiBold" Cursor="Hand" />
+            </StackPanel>
+            <Button Grid.Column="2" MinWidth="150" Height="40" Padding="14,0"
                     Background="#E8F1F6" BorderBrush="#C8DCE8" BorderThickness="1"
                     Foreground="#3888C0" FontSize="12" FontWeight="SemiBold"
                     Command="{Binding DataContext.ToggleFocusCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -199,6 +209,7 @@
                             </Button>
                         </StackPanel>
                         <Button Style="{StaticResource CheckoutButtonStyle}" Content="Cobrar" Margin="0,12,0,0"
+                                IsEnabled="{Binding IsCashOpen}"
                                 Click="Checkout_Click" />
                     </StackPanel>
                 </Grid>

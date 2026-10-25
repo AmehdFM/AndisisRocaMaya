@@ -1,31 +1,24 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Models;
+using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
 
 public sealed class PosViewModel : ObservableObject
 {
-    public ObservableCollection<PosProductViewModel> Products { get; } =
-    [
-        new("Coca-Cola 600 ml", "Bebidas", 22.00m, "CO"),
-        new("Arroz 1 libra", "Abarrotes", 23.50m, "AR"),
-        new("Frijoles 1 libra", "Abarrotes", 34.00m, "FR"),
-        new("Leche entera 946 ml", "Lácteos", 31.00m, "LE"),
-        new("Café molido 400 g", "Abarrotes", 76.00m, "CA"),
-        new("Pan blanco", "Panadería", 14.00m, "PA")
-    ];
+    private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
+
+    public ObservableCollection<PosProductViewModel> Products { get; } = [];
 
     public ObservableCollection<CartItemViewModel> CartItems { get; } = [];
 
     public ObservableCollection<string> PaymentMethods { get; } = ["Contado", "Crédito"];
 
-    public ObservableCollection<PosCustomerViewModel> Customers { get; } =
-    [
-        new("María López", "9999-1234"),
-        new("Carlos Méndez", "9888-4321")
-    ];
+    public ObservableCollection<CustomerRecord> Customers => _store.Customers;
 
     private string _selectedPaymentMethod = "Contado";
     public string SelectedPaymentMethod
@@ -40,12 +33,18 @@ public sealed class PosViewModel : ObservableObject
         }
     }
 
-    private PosCustomerViewModel? _selectedCustomer;
-    public PosCustomerViewModel? SelectedCustomer
+    private CustomerRecord? _selectedCustomer;
+    public CustomerRecord? SelectedCustomer
     {
         get => _selectedCustomer;
         set => SetProperty(ref _selectedCustomer, value);
     }
+
+    public bool IsCashOpen => _store.IsCashOpen;
+    public string CashActionLabel => IsCashOpen ? "Cerrar caja" : "Abrir caja";
+    public string CashStatusText => IsCashOpen
+        ? $"Caja abierta · {_store.ActiveCashSession!.OpeningAmountText} inicial"
+        : "Caja cerrada";
 
     public System.Windows.Visibility CreditDetailsVisibility => SelectedPaymentMethod == "Crédito"
         ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
@@ -61,15 +60,39 @@ public sealed class PosViewModel : ObservableObject
     public IRelayCommand ClearCartCommand { get; }
     public PosViewModel()
     {
+        foreach (var product in _store.Products)
+        {
+            Products.Add(new PosProductViewModel(product));
+        }
+        _store.Products.CollectionChanged += OnProductsChanged;
+        _store.PropertyChanged += Store_PropertyChanged;
+
         AddProductCommand = new RelayCommand<PosProductViewModel?>(AddProduct);
         RemoveCartItemCommand = new RelayCommand<CartItemViewModel?>(RemoveCartItem);
         ClearCartCommand = new RelayCommand(ClearCart);
         SelectedCustomer = Customers[0];
 
-        // Initial lines are sample data so the prototype shows the intended cart layout.
-        AddProduct(Products[0]);
-        AddProduct(Products[5]);
-        AddProduct(Products[5]);
+    }
+
+    private void Store_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(OperationalDemoStore.IsCashOpen))
+        {
+            OnPropertyChanged(nameof(IsCashOpen));
+            OnPropertyChanged(nameof(CashActionLabel));
+            OnPropertyChanged(nameof(CashStatusText));
+        }
+    }
+
+    private void OnProductsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
+        {
+            foreach (ProductRecord product in e.NewItems)
+            {
+                Products.Add(new PosProductViewModel(product));
+            }
+        }
     }
 
     private void AddProduct(PosProductViewModel? product)
@@ -79,10 +102,10 @@ public sealed class PosViewModel : ObservableObject
             return;
         }
 
-        var cartItem = CartItems.FirstOrDefault(item => item.Name == product.Name);
+        var cartItem = CartItems.FirstOrDefault(item => item.Product.Id == product.Product.Id);
         if (cartItem is null)
         {
-            CartItems.Add(new CartItemViewModel(product.Name, product.Price, product.Quantity));
+            CartItems.Add(new CartItemViewModel(product.Product, product.Quantity));
         }
         else
         {
@@ -116,15 +139,11 @@ public sealed class PosViewModel : ObservableObject
 
 public sealed class PosProductViewModel : ObservableObject
 {
-    public string Name { get; }
-
-    public string Category { get; }
-
-    public decimal Price { get; }
-
+    public ProductRecord Product { get; }
+    public string Name => Product.Name;
+    public decimal Price => Product.SalePrice;
     public string PriceText => PosViewModel.FormatMoney(Price);
-
-    public string Icon { get; }
+    public string StockText => Product.StockText;
 
     private int _quantity = 1;
     public int Quantity
@@ -133,20 +152,10 @@ public sealed class PosProductViewModel : ObservableObject
         set { if (value > 0) SetProperty(ref _quantity, value); }
     }
 
-    public PosProductViewModel(string name, string category, decimal price, string icon)
+    public PosProductViewModel(ProductRecord product)
     {
-        Name = name;
-        Category = category;
-        Price = price;
-        Icon = icon;
+        Product = product;
     }
-}
-
-public sealed class PosCustomerViewModel(string name, string phone)
-{
-    public string Name { get; } = name;
-    public string Phone { get; } = phone;
-    public string DisplayText => $"{Name} · {Phone}";
 }
 
 public sealed class CartItemViewModel : ObservableObject
@@ -154,6 +163,8 @@ public sealed class CartItemViewModel : ObservableObject
     private int _quantity = 1;
 
     public string Name { get; }
+
+    public ProductRecord Product { get; }
 
     public decimal UnitPrice { get; }
 
@@ -174,10 +185,11 @@ public sealed class CartItemViewModel : ObservableObject
 
     public string LineTotalText => PosViewModel.FormatMoney(Quantity * UnitPrice);
 
-    public CartItemViewModel(string name, decimal unitPrice, int quantity = 1)
+    public CartItemViewModel(ProductRecord product, int quantity = 1)
     {
-        Name = name;
-        UnitPrice = unitPrice;
+        Product = product;
+        Name = product.Name;
+        UnitPrice = product.SalePrice;
         Quantity = quantity;
     }
 }

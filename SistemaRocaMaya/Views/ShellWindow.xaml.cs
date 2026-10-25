@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.ComponentModel;
+using SistemaRocaMaya.Services;
 using SistemaRocaMaya.ViewModels;
 
 namespace SistemaRocaMaya.Views;
@@ -15,8 +17,59 @@ public partial class ShellWindow : Window
 
     private void SignOut_Click(object sender, RoutedEventArgs e)
     {
+        if (!TryCloseOpenCashSession())
+        {
+            return;
+        }
+
         new MainWindow().Show();
         Close();
+    }
+
+    private void ShellWindow_Closing(object? sender, CancelEventArgs e)
+    {
+        if (!TryCloseOpenCashSession())
+        {
+            e.Cancel = true;
+        }
+    }
+
+    private bool TryCloseOpenCashSession()
+    {
+        var store = OperationalDemoStore.Instance;
+        if (!store.IsCashOpen)
+        {
+            return true;
+        }
+
+        var answer = MessageBox.Show(this,
+            "Hay una caja abierta. ¿Deseas contar y cerrar la caja antes de salir? Si eliges No, la aplicación seguirá abierta.",
+            "Caja abierta", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (answer != MessageBoxResult.Yes)
+        {
+            return false;
+        }
+
+        var dialog = new CashSessionWindow(true, store.ActiveCashSession!.ExpectedAmount)
+        {
+            Owner = this
+        };
+        if (dialog.ShowDialog() != true)
+        {
+            return false;
+        }
+
+        try
+        {
+            store.CloseCashSession(dialog.CashCounts);
+            return true;
+        }
+        catch (InvalidOperationException exception)
+        {
+            MessageBox.Show(this, exception.Message, "No se pudo cerrar la caja",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
     }
 
     private void ToggleSidebar_Click(object sender, RoutedEventArgs e)

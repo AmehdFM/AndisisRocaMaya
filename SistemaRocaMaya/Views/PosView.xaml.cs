@@ -1,5 +1,7 @@
 using System.Windows.Controls;
 using System.Windows;
+using SistemaRocaMaya.Models;
+using SistemaRocaMaya.Services;
 using SistemaRocaMaya.ViewModels;
 
 namespace SistemaRocaMaya.Views;
@@ -18,7 +20,7 @@ public partial class PosView : UserControl
             return;
         }
 
-        var dialog = new CustomerPickerWindow(viewModel.Customers, viewModel.SelectedCustomer)
+        var dialog = new CustomerPickerWindow(OperationalDemoStore.Instance, viewModel.SelectedCustomer)
         {
             Owner = Window.GetWindow(this)
         };
@@ -31,19 +33,94 @@ public partial class PosView : UserControl
 
     private void Checkout_Click(object sender, RoutedEventArgs e)
     {
-        if (DataContext is not PosViewModel viewModel || viewModel.SelectedPaymentMethod != "Contado")
+        if (DataContext is not PosViewModel viewModel)
         {
             return;
         }
 
-        var dialog = new CashCheckoutWindow(viewModel.TotalAmount)
+        if (!viewModel.IsCashOpen || viewModel.CartItems.Count == 0)
+        {
+            return;
+        }
+
+        var store = OperationalDemoStore.Instance;
+        if (viewModel.SelectedPaymentMethod == "Contado")
+        {
+            var cashDialog = new CashCheckoutWindow(viewModel.TotalAmount)
+            {
+                Owner = Window.GetWindow(this)
+            };
+            if (cashDialog.ShowDialog() != true)
+            {
+                return;
+            }
+        }
+
+        if (viewModel.SelectedPaymentMethod == "Crédito")
+        {
+            if (viewModel.SelectedCustomer is null)
+            {
+                MessageBox.Show(Window.GetWindow(this), "Selecciona un cliente para registrar la venta a crédito.",
+                    "Cliente requerido", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show(Window.GetWindow(this),
+                $"¿Registrar {OperationalDemoStore.FormatMoney(viewModel.TotalAmount)} a crédito para {viewModel.SelectedCustomer.Name}?",
+                "Confirmar crédito", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes)
+            {
+                return;
+            }
+        }
+
+        var paymentType = viewModel.SelectedPaymentMethod == "Crédito"
+            ? SalePaymentType.Credit
+            : SalePaymentType.Cash;
+        try
+        {
+            store.RecordSale(
+                paymentType,
+                paymentType == SalePaymentType.Credit ? viewModel.SelectedCustomer : null,
+                viewModel.CartItems.Select(item => new SaleLineInput(item.Product, item.Quantity, item.UnitPrice)).ToArray());
+            viewModel.ClearCartCommand.Execute(null);
+        }
+        catch (InvalidOperationException exception)
+        {
+            MessageBox.Show(Window.GetWindow(this), exception.Message, "No se pudo registrar la venta",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void ToggleCashSession_Click(object sender, RoutedEventArgs e)
+    {
+        var store = OperationalDemoStore.Instance;
+        var isClosing = store.IsCashOpen;
+        var expectedAmount = store.ActiveCashSession?.ExpectedAmount ?? 0m;
+        var dialog = new CashSessionWindow(isClosing, expectedAmount)
         {
             Owner = Window.GetWindow(this)
         };
 
-        if (dialog.ShowDialog() == true)
+        if (dialog.ShowDialog() != true)
         {
-            viewModel.ClearCartCommand.Execute(null);
+            return;
+        }
+
+        try
+        {
+            if (isClosing)
+            {
+                store.CloseCashSession(dialog.CashCounts);
+            }
+            else
+            {
+                store.OpenCashSession(dialog.CashCounts);
+            }
+        }
+        catch (InvalidOperationException exception)
+        {
+            MessageBox.Show(Window.GetWindow(this), exception.Message, "Caja", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

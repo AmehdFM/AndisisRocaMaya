@@ -1,0 +1,78 @@
+<UserControl x:Class="SistemaRocaMaya.Views.CustomersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+    <Grid Background="#F3F6F8" Margin="30,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Clientes" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+                <TextBlock Text="Personas y empresas" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="＋  Crear cliente" Click="CreateCustomer_Click"
+                    Height="40" Padding="14,0" Background="#080818" BorderThickness="0"
+                    Foreground="White" FontWeight="SemiBold" Cursor="Hand" />
+        </Grid>
+
+        <TextBox Grid.Row="1" Height="38" Margin="0,0,0,14" Padding="12,0"
+                 VerticalContentAlignment="Center" FontSize="13" Background="White"
+                 BorderBrush="#58B8E8" BorderThickness="1"
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="Buscar cliente por nombre" />
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="38" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Background="#EFE5D0" Margin="0,0,0,1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.1*" />
+                        <ColumnDefinition Width="1.4*" />
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="CLIENTE" Margin="14,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#080818" />
+                    <TextBlock Grid.Column="1" Text="TIPO" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#080818" />
+                    <TextBlock Grid.Column="2" Text="IDENTIDAD / RTN" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#080818" />
+                    <TextBlock Grid.Column="3" Text="TELÉFONO" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#080818" />
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Customers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E5E9EC" BorderThickness="0,0,0,1" Padding="0,5">
+                                    <Grid MinHeight="46">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1.1*" />
+                                            <ColumnDefinition Width="1.4*" />
+                                            <ColumnDefinition Width="1.2*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" Margin="14,0" VerticalAlignment="Center"
+                                                   FontSize="12" FontWeight="SemiBold" Foreground="#080818" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding TypeLabel}" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                                        <TextBlock Grid.Column="2" Text="{Binding TaxOrIdentity}" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Phone}" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                                        <Button Grid.Column="4" Content="Ver" Tag="{Binding}" Click="ViewCustomer_Click"
+                                                Height="30" Padding="10,0" Margin="6,0,10,0" Background="White"
+                                                BorderBrush="#3888C0" Foreground="#080818" FontSize="11" Cursor="Hand" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

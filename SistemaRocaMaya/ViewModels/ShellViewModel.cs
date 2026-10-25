@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -19,6 +20,8 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public ClientesAbonosViewModel ClientesAbonosViewModel { get; } = new();
 
+    public OperationalDemoStore OperationalStore { get; } = OperationalDemoStore.Instance;
+
     public NavigationItemViewModel? PosMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Caja");
 
     public NavigationItemViewModel? InventoryMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Inventario");
@@ -33,7 +36,13 @@ public sealed partial class ShellViewModel : ObservableObject
                 OnPropertyChanged(nameof(DashboardVisibility));
                 OnPropertyChanged(nameof(PlaceholderVisibility));
                 OnPropertyChanged(nameof(FiadoVisibility));
-                OnPropertyChanged(nameof(ClientesAbonosVisibility));
+                OnPropertyChanged(nameof(CustomersVisibility));
+                OnPropertyChanged(nameof(CreditsVisibility));
+                OnPropertyChanged(nameof(InventoryVisibility));
+                OnPropertyChanged(nameof(PurchasesVisibility));
+                OnPropertyChanged(nameof(SuppliersVisibility));
+                OnPropertyChanged(nameof(SalesVisibility));
+                OnPropertyChanged(nameof(SettingsVisibility));
             }
         }
     }
@@ -54,7 +63,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility DashboardVisibility => CurrentSectionTitle == "Resumen" && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && !_isFocusMode
+    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && CurrentSectionTitle != "Crédito" && CurrentSectionTitle != "Compras" && CurrentSectionTitle != "Proveedores" && CurrentSectionTitle != "Inventario" && CurrentSectionTitle != "Ventas" && CurrentSectionTitle != "Configuración" && !_isFocusMode
         ? Visibility.Visible
         : Visibility.Collapsed;
 
@@ -62,7 +71,19 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility FiadoVisibility => CurrentSectionTitle == "P04 · Fiado" ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility ClientesAbonosVisibility => CurrentSectionTitle == "Clientes" ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility CustomersVisibility => CurrentSectionTitle == "Clientes" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility CreditsVisibility => CurrentSectionTitle == "Crédito" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility PurchasesVisibility => CurrentSectionTitle == "Compras" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility SuppliersVisibility => CurrentSectionTitle == "Proveedores" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility InventoryVisibility => CurrentSectionTitle == "Inventario" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility SalesVisibility => CurrentSectionTitle == "Ventas" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility SettingsVisibility => CurrentSectionTitle == "Configuración" ? Visibility.Visible : Visibility.Collapsed;
 
     public bool IsFocusMode => _isFocusMode;
 
@@ -161,7 +182,8 @@ public sealed partial class ShellViewModel : ObservableObject
         CurrentSectionTitle = title;
         OnPropertyChanged(nameof(PosVisibility));
         OnPropertyChanged(nameof(FiadoVisibility));
-        OnPropertyChanged(nameof(ClientesAbonosVisibility));
+        OnPropertyChanged(nameof(CustomersVisibility));
+        OnPropertyChanged(nameof(CreditsVisibility));
         ToggleFocusCommand.NotifyCanExecuteChanged();
 
         foreach (var item in MenuItems)
@@ -178,9 +200,11 @@ public sealed partial class ShellViewModel : ObservableObject
 
         MenuItems.Add(new NavigationItemViewModel("Caja", "▣", "Caja"));
         MenuItems.Add(new NavigationItemViewModel("Clientes", "♙", "Clientes"));
-
+        MenuItems.Add(new NavigationItemViewModel("Compras", "＋", "Compras"));
+        MenuItems.Add(new NavigationItemViewModel("Crédito", "◷", "Crédito"));
+        MenuItems.Add(new NavigationItemViewModel("Proveedores", "♧", "Proveedores"));
         MenuItems.Add(new NavigationItemViewModel("Inventario", "▤", "Inventario"));
-
+        MenuItems.Add(new NavigationItemViewModel("Ventas", "▣", "Ventas"));
         MenuItems.Add(new NavigationItemViewModel("Configuración", "⚙", "Configuración"));
         OnPropertyChanged(nameof(PosMenuItem));
         OnPropertyChanged(nameof(InventoryMenuItem));

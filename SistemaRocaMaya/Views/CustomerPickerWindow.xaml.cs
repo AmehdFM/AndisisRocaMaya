@@ -3,24 +3,28 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using SistemaRocaMaya.Models;
+using SistemaRocaMaya.Services;
 using SistemaRocaMaya.ViewModels;
 
 namespace SistemaRocaMaya.Views;
 
 public partial class CustomerPickerWindow : Window
 {
-    private readonly ObservableCollection<PosCustomerViewModel> _customers;
+    private readonly OperationalDemoStore _store;
+    private readonly ObservableCollection<CustomerRecord> _customers;
     private ICollectionView? _customersView;
 
-    public PosCustomerViewModel? SelectedCustomer { get; private set; }
+    public CustomerRecord? SelectedCustomer { get; private set; }
 
     public CustomerPickerWindow(
-        ObservableCollection<PosCustomerViewModel> customers,
-        PosCustomerViewModel? selectedCustomer)
+        OperationalDemoStore store,
+        CustomerRecord? selectedCustomer)
     {
         InitializeComponent();
-        _customers = customers;
-        var customersView = CollectionViewSource.GetDefaultView(_customers);
+        _store = store;
+        _customers = store.Customers;
+        var customersView = new ListCollectionView(_customers);
         _customersView = customersView;
         customersView.Filter = FilterCustomer;
         CustomersList.ItemsSource = customersView;
@@ -30,7 +34,7 @@ public partial class CustomerPickerWindow : Window
 
     private bool FilterCustomer(object item)
     {
-        if (item is not PosCustomerViewModel customer)
+        if (item is not CustomerRecord customer)
         {
             return false;
         }
@@ -38,7 +42,8 @@ public partial class CustomerPickerWindow : Window
         var filter = SearchBox.Text.Trim();
         return filter.Length == 0
             || customer.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase)
-            || customer.Phone.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
+            || customer.Phone.Contains(filter, StringComparison.CurrentCultureIgnoreCase)
+            || customer.TaxOrIdentity.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -66,7 +71,7 @@ public partial class CustomerPickerWindow : Window
 
     private void Select_Click(object sender, RoutedEventArgs e)
     {
-        if (CustomersList.SelectedItem is PosCustomerViewModel customer)
+        if (CustomersList.SelectedItem is CustomerRecord customer)
         {
             SelectedCustomer = customer;
             DialogResult = true;
@@ -77,16 +82,26 @@ public partial class CustomerPickerWindow : Window
     {
         var name = NameBox.Text.Trim();
         var phone = PhoneBox.Text.Trim();
-        if (name.Length == 0 || phone.Length == 0)
+        var identification = IdentificationBox.Text.Trim();
+        if (name.Length == 0 || phone.Length == 0 || identification.Length == 0
+            || TypeBox.SelectedItem is not ComboBoxItem selectedType)
         {
             ValidationText.Visibility = Visibility.Visible;
             return;
         }
 
-        var customer = new PosCustomerViewModel(name, phone);
-        _customers.Add(customer);
+        var type = selectedType.Tag?.ToString() == "Company" ? CustomerType.Company : CustomerType.Person;
+        var customer = _store.CreateCustomer(name, phone, type, identification);
         SelectedCustomer = customer;
         DialogResult = true;
+    }
+
+    private void TypeBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (IdentificationLabel is not null && TypeBox.SelectedItem is ComboBoxItem selectedType)
+        {
+            IdentificationLabel.Text = selectedType.Tag?.ToString() == "Company" ? "RTN" : "Identidad";
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

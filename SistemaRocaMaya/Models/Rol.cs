@@ -7,4 +7,6 @@ public class Rol
     public string Nombre { get; set; } = string.Empty;
 
     public List<string> Permisos { get; set; } = [];
+
+    public string PermisosTexto => string.Join(" · ", Permisos);
 }

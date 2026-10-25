@@ -1,0 +1,56 @@
+<Window x:Class="SistemaRocaMaya.Views.ProductEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nuevo producto · Roca Maya" Width="440" Height="570"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource RocaMayaCreamBrush}" FontFamily="Segoe UI">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#58B8E8" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="56" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <Border Background="{StaticResource RocaMayaBlueSecondaryBrush}" Padding="20,0">
+            <TextBlock Text="Nuevo producto" FontSize="17" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
+        </Border>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="22,16">
+                <TextBlock Text="Nombre" FontSize="11" Foreground="#526A7A" Margin="0,0,0,4" />
+                <TextBox x:Name="NameBox" />
+                <TextBlock Text="ID del producto" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
+                <TextBox x:Name="IdBox" />
+                <TextBlock Text="Precio de venta" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
+                <TextBox x:Name="PriceBox" />
+                <TextBlock Text="Cantidad inicial (opcional)" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
+                <TextBox x:Name="QuantityBox" Text="0" />
+                <TextBlock Text="Fecha de ingreso" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
+                <DatePicker x:Name="PurchaseDatePicker" Height="32"
+                            Background="White" BorderBrush="#58B8E8" />
+                <TextBlock Text="Fecha de vencimiento (opcional)" FontSize="11" Foreground="#526A7A" Margin="0,10,0,4" />
+                <DatePicker x:Name="ExpirationDatePicker" Height="32" Background="White" BorderBrush="#58B8E8" />
+                <TextBlock x:Name="ValidationText" Margin="0,9,0,0" FontSize="10" Foreground="#9B2C2C"
+                           Text="Revisa el ID, nombre, precio y cantidad." Visibility="Collapsed" />
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="2" Background="White" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancelar" IsCancel="True" Click="Cancel_Click" Margin="0,0,8,0"
+                        Background="White" BorderBrush="#C8DCE8" Foreground="#080818" />
+                <Button Content="Crear producto" Click="Create_Click"
+                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
