@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 using SistemaRocaMaya.ViewModels;
 
@@ -9,5 +10,23 @@ public partial class CreditsView : UserControl
     {
         InitializeComponent();
         DataContext = new CreditsViewModel();
+    }
+
+    private void RecordPayment_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not CreditsViewModel viewModel || viewModel.SelectedCustomer is not { } customer)
+        {
+            return;
+        }
+
+        var dialog = new CreditPaymentWindow(customer.Name, customer.Balance)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            viewModel.RecordPayment(dialog.PaymentAmount);
+        }
     }
 }

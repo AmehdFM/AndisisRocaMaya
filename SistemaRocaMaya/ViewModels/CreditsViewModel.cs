@@ -1,6 +1,5 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Globalization;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,26 +12,11 @@ public sealed class CreditsViewModel : ObservableObject
 {
     private string _searchText = "";
     private string _historySearchText = "";
-    private string _paymentAmountText = "";
     private string _statusMessage = "";
     private CustomerRecord? _selectedCustomer;
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView CustomersWithCredit { get; }
-    public string TotalCreditText => OperationalDemoStore.FormatMoney(Store.Customers.Sum(customer => customer.Balance));
-    public int CustomersWithBalance => Store.Customers.Count(customer => customer.Balance > 0);
-    public int TotalCreditMovements => Store.Customers.Sum(customer => customer.CreditHistory.Count);
-    public string PaymentAmountText
-    {
-        get => _paymentAmountText;
-        set
-        {
-            if (SetProperty(ref _paymentAmountText, value))
-            {
-                RecordPaymentCommand.NotifyCanExecuteChanged();
-            }
-        }
-    }
     public string StatusMessage
     {
         get => _statusMessage;
@@ -51,7 +35,6 @@ public sealed class CreditsViewModel : ObservableObject
                 OnPropertyChanged(nameof(SelectedCustomerHistory));
                 OnPropertyChanged(nameof(HasSelectedCustomer));
                 OnPropertyChanged(nameof(IsCustomerSelected));
-                RecordPaymentCommand.NotifyCanExecuteChanged();
             }
         }
     }
@@ -66,7 +49,6 @@ public sealed class CreditsViewModel : ObservableObject
         }
     }
     public bool HasSelectedCustomer => SelectedCustomer is not null && SelectedCustomer.Balance > 0;
-    public IRelayCommand RecordPaymentCommand { get; }
     public IRelayCommand ShowCustomerListCommand { get; }
     public bool IsCustomerSelected => SelectedCustomer is not null;
 
@@ -86,13 +68,11 @@ public sealed class CreditsViewModel : ObservableObject
     {
         CustomersWithCredit = new ListCollectionView(Store.Customers);
         CustomersWithCredit.Filter = FilterCustomer;
-        RecordPaymentCommand = new RelayCommand(RecordPayment, CanRecordPayment);
         ShowCustomerListCommand = new RelayCommand(() => SelectedCustomer = null);
         Store.Customers.CollectionChanged += Customers_CollectionChanged;
         foreach (var customer in Store.Customers)
         {
             customer.PropertyChanged += Customer_PropertyChanged;
-            customer.CreditHistory.CollectionChanged += CreditHistory_CollectionChanged;
         }
     }
 
@@ -109,29 +89,25 @@ public sealed class CreditsViewModel : ObservableObject
             || movement.TypeLabel.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
             || movement.Date.ToString("dd/MM/yyyy").Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
-    private bool CanRecordPayment() => SelectedCustomer is not null
-        && decimal.TryParse(PaymentAmountText, NumberStyles.Number, CultureInfo.CurrentCulture, out var amount)
-        && amount > 0
-        && amount <= SelectedCustomer.Balance;
-
-    private void RecordPayment()
+    public void RecordPayment(decimal amount)
     {
-        if (SelectedCustomer is null
-            || !decimal.TryParse(PaymentAmountText, NumberStyles.Number, CultureInfo.CurrentCulture, out var amount))
+        if (SelectedCustomer is null)
         {
             return;
         }
 
-        Store.RecordCreditPayment(SelectedCustomer, amount);
-        PaymentAmountText = "";
-        StatusMessage = "Abono registrado.";
-        OnPropertyChanged(nameof(TotalCreditText));
-        OnPropertyChanged(nameof(CustomersWithBalance));
-        OnPropertyChanged(nameof(SelectedCustomerBalanceText));
-        OnPropertyChanged(nameof(HasSelectedCustomer));
-        OnPropertyChanged(nameof(SelectedCustomerHistory));
-        CustomersWithCredit.Refresh();
-        RecordPaymentCommand.NotifyCanExecuteChanged();
+        try
+        {
+            Store.RecordCreditPayment(SelectedCustomer, amount);
+            StatusMessage = "Abono registrado.";
+            OnPropertyChanged(nameof(SelectedCustomerBalanceText));
+            OnPropertyChanged(nameof(HasSelectedCustomer));
+            CustomersWithCredit.Refresh();
+        }
+        catch (InvalidOperationException exception)
+        {
+            StatusMessage = exception.Message;
+        }
     }
 
     private void Customers_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -141,18 +117,9 @@ public sealed class CreditsViewModel : ObservableObject
             foreach (CustomerRecord customer in e.NewItems)
             {
                 customer.PropertyChanged += Customer_PropertyChanged;
-                customer.CreditHistory.CollectionChanged += CreditHistory_CollectionChanged;
             }
         }
         CustomersWithCredit.Refresh();
-        OnPropertyChanged(nameof(TotalCreditText));
-        OnPropertyChanged(nameof(CustomersWithBalance));
-        OnPropertyChanged(nameof(TotalCreditMovements));
-    }
-
-    private void CreditHistory_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(TotalCreditMovements));
     }
 
     private void Customer_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -160,12 +127,8 @@ public sealed class CreditsViewModel : ObservableObject
         if (e.PropertyName == nameof(CustomerRecord.Balance))
         {
             CustomersWithCredit.Refresh();
-            OnPropertyChanged(nameof(TotalCreditText));
-            OnPropertyChanged(nameof(CustomersWithBalance));
-            OnPropertyChanged(nameof(TotalCreditMovements));
             OnPropertyChanged(nameof(SelectedCustomerBalanceText));
             OnPropertyChanged(nameof(HasSelectedCustomer));
-            RecordPaymentCommand.NotifyCanExecuteChanged();
         }
     }
 }

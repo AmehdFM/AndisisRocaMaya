@@ -23,32 +23,11 @@
                     </Style>
                 </Grid.Style>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="82" />
                     <RowDefinition Height="42" />
                     <RowDefinition Height="36" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Background="#EAF3F8">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                    <StackPanel Margin="16,0" VerticalAlignment="Center">
-                        <TextBlock Text="SALDO POR COBRAR" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" />
-                        <TextBlock Text="{Binding TotalCreditText}" Margin="0,4,0,0" FontSize="21" FontWeight="SemiBold"
-                                   Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                    </StackPanel>
-                    <Border Grid.Column="1" Margin="0,14" Background="#B9D6E5" />
-                    <StackPanel Grid.Column="2" Margin="20,0" VerticalAlignment="Center">
-                        <TextBlock Text="CLIENTES CON SALDO" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" />
-                        <TextBlock Text="{Binding CustomersWithBalance}" Margin="0,4,0,0" FontSize="21" FontWeight="SemiBold"
-                                   Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                    </StackPanel>
-                    <Border Grid.Column="3" Margin="0,14" Background="#B9D6E5" />
-                    <StackPanel Grid.Column="4" Margin="20,0" VerticalAlignment="Center">
-                        <TextBlock Text="MOVIMIENTOS REGISTRADOS" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" />
-                        <TextBlock Text="{Binding TotalCreditMovements}" Margin="0,4,0,0" FontSize="21" FontWeight="SemiBold"
-                                   Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Row="1" Margin="0,12,0,0">
+                <Grid Grid.Row="0">
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
                              VerticalContentAlignment="Center" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                              ToolTip="Buscar por nombre, teléfono o identidad/RTN" />
@@ -66,14 +45,14 @@
                         </TextBlock.Style>
                     </TextBlock>
                 </Grid>
-                <Grid Grid.Row="2" Margin="0,14,0,0" Background="{StaticResource RocaMayaCreamBrush}">
+                <Grid Grid.Row="1" Margin="0,12,0,0" Background="{StaticResource RocaMayaCreamBrush}">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1.5*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="32" /></Grid.ColumnDefinitions>
                     <TextBlock Text="CLIENTE" Margin="14,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     <TextBlock Grid.Column="1" Text="CONTACTO" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     <TextBlock Grid.Column="2" Text="ACTIVIDAD" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     <TextBlock Grid.Column="3" Text="SALDO PENDIENTE" Margin="0,0,14,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 </Grid>
-                <ListBox Grid.Row="3" ItemsSource="{Binding CustomersWithCredit}" SelectedItem="{Binding SelectedCustomer}"
+                <ListBox Grid.Row="2" Margin="0,0,0,0" ItemsSource="{Binding CustomersWithCredit}" SelectedItem="{Binding SelectedCustomer}"
                          Background="White" BorderThickness="0" HorizontalContentAlignment="Stretch"
                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListBox.ItemContainerStyle>
@@ -155,17 +134,12 @@
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="150" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Registrar abono" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding StatusMessage}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
-                        </StackPanel>
-                        <TextBox Grid.Column="1" Text="{Binding PaymentAmountText, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="36" Padding="8,0" VerticalContentAlignment="Center" Background="White"
-                                 BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" ToolTip="Monto del abono" />
-                        <Button Grid.Column="2" Content="Aplicar" Command="{Binding RecordPaymentCommand}"
-                                IsEnabled="{Binding HasSelectedCustomer}" Height="36" Margin="8,0,0,0" Padding="12,0"
-                                Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" FontSize="11" />
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                    <Button Grid.Column="1" Content="＋  Registrar abono" Click="RecordPayment_Click"
+                            IsEnabled="{Binding HasSelectedCustomer}" Height="40" Padding="16,0"
+                            Background="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="0"
+                            Foreground="White" FontSize="12" FontWeight="SemiBold" Cursor="Hand" />
                 </Grid>
                 <TextBox Grid.Row="2" Text="{Binding HistorySearchText, UpdateSourceTrigger=PropertyChanged}"
                          Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
