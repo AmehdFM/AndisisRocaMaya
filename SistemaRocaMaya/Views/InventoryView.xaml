@@ -4,9 +4,14 @@
              FontFamily="Segoe UI">
     <Grid Background="#F3F6F8" Margin="30,20">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="78" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-        <StackPanel Margin="0,0,0,16">
-            <TextBlock Text="Inventario" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-        </StackPanel>
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBlock Text="Inventario" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}"
+                       VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="＋  Crear producto" Click="CreateProduct_Click"
+                    Height="40" Padding="14,0" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}"
+                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" Cursor="Hand" />
+        </Grid>
         <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="16,10">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
