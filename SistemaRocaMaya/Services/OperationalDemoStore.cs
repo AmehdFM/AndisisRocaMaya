@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SistemaRocaMaya.Models;
 
@@ -6,6 +7,7 @@ namespace SistemaRocaMaya.Services;
 
 public sealed class OperationalDemoStore : ObservableObject
 {
+    public static CultureInfo HondurasCulture { get; } = CultureInfo.GetCultureInfo("es-HN");
     private static readonly decimal[] DemoDenominations = [1m, 2m, 5m, 10m, 20m, 50m, 100m, 200m, 500m];
     private int _nextCustomerId = 1;
     private int _nextProductId = 1;
@@ -209,7 +211,7 @@ public sealed class OperationalDemoStore : ObservableObject
             .OrderBy(row => row.Batch.ExpirationDate);
     }
 
-    public static string FormatMoney(decimal amount) => $"L {amount:0.00}";
+    public static string FormatMoney(decimal amount) => $"L {amount.ToString("#,##0.00", HondurasCulture)}";
 
     private void AddStock(
         ProductRecord product,

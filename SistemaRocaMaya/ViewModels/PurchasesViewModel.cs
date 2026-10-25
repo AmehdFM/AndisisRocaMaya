@@ -191,7 +191,7 @@ public sealed class PurchaseEntryViewModel : ObservableObject
         set => SetProperty(ref _expirationDate, value);
     }
     public decimal LineTotal => int.TryParse(QuantityText, out var quantity)
-        && decimal.TryParse(UnitCostText, NumberStyles.Number, CultureInfo.CurrentCulture, out var cost)
+        && decimal.TryParse(UnitCostText, NumberStyles.Number, OperationalDemoStore.HondurasCulture, out var cost)
         ? quantity * cost
         : 0m;
 
@@ -213,7 +213,7 @@ public sealed class PurchaseEntryViewModel : ObservableObject
     {
         input = new PurchaseLineInput(Product, 0, 0m, ExpirationDate);
         if (!int.TryParse(QuantityText, out var quantity) || quantity <= 0
-            || !decimal.TryParse(UnitCostText, NumberStyles.Number, CultureInfo.CurrentCulture, out var cost)
+            || !decimal.TryParse(UnitCostText, NumberStyles.Number, OperationalDemoStore.HondurasCulture, out var cost)
             || cost < 0)
         {
             return false;
