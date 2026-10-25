@@ -19,6 +19,37 @@ public sealed class PosViewModel : ObservableObject
 
     public ObservableCollection<CartItemViewModel> CartItems { get; } = [];
 
+    public ObservableCollection<string> PaymentMethods { get; } = ["Contado", "Crédito"];
+
+    public ObservableCollection<PosCustomerViewModel> Customers { get; } =
+    [
+        new("María López", "9999-1234"),
+        new("Carlos Méndez", "9888-4321")
+    ];
+
+    private string _selectedPaymentMethod = "Contado";
+    public string SelectedPaymentMethod
+    {
+        get => _selectedPaymentMethod;
+        set
+        {
+            if (SetProperty(ref _selectedPaymentMethod, value))
+            {
+                OnPropertyChanged(nameof(CreditDetailsVisibility));
+            }
+        }
+    }
+
+    private PosCustomerViewModel? _selectedCustomer;
+    public PosCustomerViewModel? SelectedCustomer
+    {
+        get => _selectedCustomer;
+        set => SetProperty(ref _selectedCustomer, value);
+    }
+
+    public System.Windows.Visibility CreditDetailsVisibility => SelectedPaymentMethod == "Crédito"
+        ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
     public string TotalText => FormatMoney(CartItems.Sum(item => item.Quantity * item.UnitPrice));
 
     public decimal TotalAmount => CartItems.Sum(item => item.Quantity * item.UnitPrice);
@@ -28,12 +59,12 @@ public sealed class PosViewModel : ObservableObject
     public IRelayCommand<CartItemViewModel?> RemoveCartItemCommand { get; }
 
     public IRelayCommand ClearCartCommand { get; }
-
     public PosViewModel()
     {
         AddProductCommand = new RelayCommand<PosProductViewModel?>(AddProduct);
         RemoveCartItemCommand = new RelayCommand<CartItemViewModel?>(RemoveCartItem);
         ClearCartCommand = new RelayCommand(ClearCart);
+        SelectedCustomer = Customers[0];
 
         // Initial lines are sample data so the prototype shows the intended cart layout.
         AddProduct(Products[0]);
@@ -51,12 +82,14 @@ public sealed class PosViewModel : ObservableObject
         var cartItem = CartItems.FirstOrDefault(item => item.Name == product.Name);
         if (cartItem is null)
         {
-            CartItems.Add(new CartItemViewModel(product.Name, product.Price));
+            CartItems.Add(new CartItemViewModel(product.Name, product.Price, product.Quantity));
         }
         else
         {
-            cartItem.Quantity++;
+            cartItem.Quantity += product.Quantity;
         }
+
+        product.Quantity = 1;
 
         OnPropertyChanged(nameof(TotalText));
         OnPropertyChanged(nameof(TotalAmount));
@@ -81,7 +114,7 @@ public sealed class PosViewModel : ObservableObject
     internal static string FormatMoney(decimal amount) => $"L {amount:0.00}";
 }
 
-public sealed class PosProductViewModel
+public sealed class PosProductViewModel : ObservableObject
 {
     public string Name { get; }
 
@@ -93,6 +126,13 @@ public sealed class PosProductViewModel
 
     public string Icon { get; }
 
+    private int _quantity = 1;
+    public int Quantity
+    {
+        get => _quantity;
+        set { if (value > 0) SetProperty(ref _quantity, value); }
+    }
+
     public PosProductViewModel(string name, string category, decimal price, string icon)
     {
         Name = name;
@@ -100,6 +140,13 @@ public sealed class PosProductViewModel
         Price = price;
         Icon = icon;
     }
+}
+
+public sealed class PosCustomerViewModel(string name, string phone)
+{
+    public string Name { get; } = name;
+    public string Phone { get; } = phone;
+    public string DisplayText => $"{Name} · {Phone}";
 }
 
 public sealed class CartItemViewModel : ObservableObject
@@ -127,9 +174,10 @@ public sealed class CartItemViewModel : ObservableObject
 
     public string LineTotalText => PosViewModel.FormatMoney(Quantity * UnitPrice);
 
-    public CartItemViewModel(string name, decimal unitPrice)
+    public CartItemViewModel(string name, decimal unitPrice, int quantity = 1)
     {
         Name = name;
         UnitPrice = unitPrice;
+        Quantity = quantity;
     }
 }

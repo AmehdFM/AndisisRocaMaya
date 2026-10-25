@@ -6,6 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Assets/ColorPalette.xaml" />
                 <ResourceDictionary Source="Assets/RocaMayaLogo.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

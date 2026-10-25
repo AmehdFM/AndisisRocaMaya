@@ -10,15 +10,17 @@
         Width="800"
         MinHeight="480"
         MinWidth="700"
+        ResizeMode="NoResize"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        Background="#0B1E38">
+        Background="{StaticResource RocaMayaBlackPrimaryBrush}">
     <Window.Resources>
         <Style x:Key="LoginTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="44" />
             <Setter Property="Padding" Value="14,0" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="#172B45" />
-            <Setter Property="CaretBrush" Value="#1478D4" />
+            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
+            <Setter Property="CaretBrush" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -26,36 +28,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="FieldBorder"
-                                Background="#F7FAFE"
-                                BorderBrush="#DCE7F3"
+                                Background="{StaticResource RocaMayaCreamBrush}"
+                                BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                                 BorderThickness="1"
-                                CornerRadius="11">
-                            <Grid>
-                                <ScrollViewer x:Name="PART_ContentHost"
-                                              Margin="13,0"
-                                              VerticalAlignment="Center" />
-                                <TextBlock Margin="14,0"
-                                           VerticalAlignment="Center"
-                                           IsHitTestVisible="False"
-                                           Foreground="#637A94"
-                                           Text="{TemplateBinding Tag}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="13,0"
+                                          VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2C8CE0" />
-                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
+                                <Setter TargetName="FieldBorder" Property="BorderThickness" Value="2" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="FieldBorder" Property="Opacity" Value="0.55" />
@@ -70,8 +54,8 @@
             <Setter Property="Height" Value="44" />
             <Setter Property="Padding" Value="14,0" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="#172B45" />
-            <Setter Property="CaretBrush" Value="#1478D4" />
+            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
+            <Setter Property="CaretBrush" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -79,18 +63,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
                         <Border x:Name="FieldBorder"
-                                Background="#F7FAFE"
-                                BorderBrush="#DCE7F3"
+                                Background="{StaticResource RocaMayaCreamBrush}"
+                                BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                                 BorderThickness="1"
-                                CornerRadius="11">
+                                CornerRadius="4">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="13,0"
                                           VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2C8CE0" />
-                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
+                                <Setter TargetName="FieldBorder" Property="BorderThickness" Value="2" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="FieldBorder" Property="Opacity" Value="0.55" />
@@ -104,11 +88,11 @@
         <Style x:Key="LoginButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="48" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Foreground" Value="{StaticResource RocaMayaCreamBrush}" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Background" Value="#1478D4" />
-            <Setter Property="BorderBrush" Value="#1478D4" />
+            <Setter Property="Background" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -117,33 +101,19 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="11">
-                            <Grid Margin="18,0">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center" />
-                                <Path Width="11"
-                                      Height="11"
-                                      Margin="0,0,2,0"
-                                      HorizontalAlignment="Right"
-                                      VerticalAlignment="Center"
-                                      Data="M1,5.5 L9,5.5 M5.5,2 L9,5.5 L5.5,9"
-                                      Stroke="White"
-                                      StrokeThickness="1.7"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      StrokeLineJoin="Round"
-                                      IsHitTestVisible="False" />
-                            </Grid>
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="Background" Value="#0C68BD" />
+                                <Setter TargetName="ButtonSurface" Property="Background" Value="{StaticResource RocaMayaBlackPureBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="Background" Value="#095BA8" />
+                                <Setter TargetName="ButtonSurface" Property="Background" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#F1BD59" />
+                                <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="{StaticResource RocaMayaCreamBrush}" />
                                 <Setter TargetName="ButtonSurface" Property="BorderThickness" Value="2" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -157,34 +127,41 @@
     </Window.Resources>
 
     <Grid ClipToBounds="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0D2543" Offset="0" />
-                <GradientStop Color="#124B7D" Offset="0.57" />
-                <GradientStop Color="#187EB8" Offset="1" />
+                <GradientStop Color="{StaticResource RocaMayaBlackPrimary}" Offset="0" />
+                <GradientStop Color="{StaticResource RocaMayaBlueSecondary}" Offset="0.58" />
+                <GradientStop Color="{StaticResource RocaMayaBluePrimary}" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
 
-        <Canvas IsHitTestVisible="False" Opacity="0.19">
-            <Ellipse Width="330" Height="330" Canvas.Left="-135" Canvas.Top="-177"
-                     Stroke="#94D9F5" StrokeThickness="1.2" />
-            <Ellipse Width="250" Height="250" Canvas.Left="-95" Canvas.Top="-137"
-                     Stroke="#94D9F5" StrokeThickness="1.2" />
-            <Ellipse Width="420" Height="420" Canvas.Right="-172" Canvas.Bottom="-252"
-                     Stroke="#A8E7FA" StrokeThickness="1.2" />
-            <Ellipse Width="310" Height="310" Canvas.Right="-117" Canvas.Bottom="-197"
-                     Stroke="#A8E7FA" StrokeThickness="1.2" />
-        </Canvas>
+        <Image Grid.Column="0"
+               MaxWidth="380"
+               MaxHeight="840"
+               Margin="0,0,20,0"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Source="{StaticResource RocaMayaLogo}"
+               Stretch="Uniform"
+               Opacity="0.2"
+               IsHitTestVisible="False" />
 
-        <Border Width="430"
+        <Border Grid.Column="1"
+                Width="430"
                 Margin="24,16"
                 Padding="34,16,34,16"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Background="#FFFFFF"
-                CornerRadius="22">
+                Background="{StaticResource RocaMayaCreamBrush}"
+                CornerRadius="10">
             <Border.Effect>
-                <DropShadowEffect Color="#07182C"
+                <DropShadowEffect Color="{StaticResource RocaMayaBlackPure}"
                                   Opacity="0.28"
                                   BlurRadius="28"
                                   ShadowDepth="12" />
@@ -198,76 +175,42 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="52" Height="64" CornerRadius="12" Background="#1478D4">
-                        <Image Width="42"
-                               Height="60"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Stretch="Uniform"
-                               Source="{StaticResource RocaMayaLogo}"
-                               AutomationProperties.Name="Logo de Consulfarma Rocamaya" />
-                    </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="ROCA MAYA"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="#183453" />
-                        <TextBlock Margin="0,2,0,0"
-                                   Text="SISTEMA DE GESTIÓN"
-                                   FontSize="9"
-                                   FontWeight="SemiBold"
-                                   Foreground="#6C8098" />
-                    </StackPanel>
-                </StackPanel>
+                <TextBlock Grid.Row="0"
+                           Margin="0,0,0,18"
+                           Text="Roca Maya"
+                           FontSize="25"
+                           FontWeight="Normal"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
 
                 <TextBlock Grid.Row="1"
-                           Margin="0,12,0,0"
-                           Text="Bienvenido"
-                           FontSize="26"
-                           FontWeight="Bold"
-                           Foreground="#112A46" />
-                <TextBlock Grid.Row="2"
-                           Margin="0,2,0,12"
-                           Text="Ingresa tus datos para continuar"
-                           FontSize="13"
-                           Foreground="#667B94" />
-
-                <TextBlock Grid.Row="3"
                            Margin="0,0,0,5"
                            Text="Usuario"
                            FontSize="12"
-                           FontWeight="SemiBold"
-                           Foreground="#304963" />
-                <TextBox Grid.Row="4"
+                           FontWeight="Normal"
+                           Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <TextBox Grid.Row="2"
                          Style="{StaticResource LoginTextBoxStyle}"
-                         Tag="Tu nombre de usuario"
                          AutomationProperties.Name="Usuario" />
 
-                <TextBlock Grid.Row="5"
-                           Margin="0,10,0,5"
+                <TextBlock Grid.Row="3"
+                           Margin="0,15,0,5"
                            Text="Contraseña"
                            FontSize="12"
-                           FontWeight="SemiBold"
-                           Foreground="#304963" />
-                <PasswordBox Grid.Row="6"
+                           FontWeight="Normal"
+                           Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <PasswordBox Grid.Row="4"
                              Style="{StaticResource LoginPasswordBoxStyle}"
                              AutomationProperties.Name="Contraseña" />
 
-                <StackPanel Grid.Row="7" Margin="0,12,0,0">
-                    <Button Style="{StaticResource LoginButtonStyle}"
-                            Content="Iniciar sesión"
-                            Click="SignIn_Click" />
-                    <TextBlock Margin="0,8,0,0"
-                               HorizontalAlignment="Center"
-                               Text="Acceso exclusivo para personal autorizado"
-                               FontSize="11"
-                               Foreground="#667B94" />
-                </StackPanel>
+                <Button Grid.Row="5"
+                        Margin="0,20,0,0"
+                        Style="{StaticResource LoginButtonStyle}"
+                        Content="Iniciar sesión"
+                        Click="SignIn_Click" />
             </Grid>
         </Border>
     </Grid>

@@ -9,7 +9,7 @@ public sealed partial class ShellViewModel : ObservableObject
 {
     private bool _isSidebarExpanded = true;
     private bool _isFocusMode;
-    private string _currentSectionTitle = "Panel gerencial";
+    private string _currentSectionTitle = "Resumen";
 
     public ObservableCollection<NavigationItemViewModel> MenuItems { get; } = [];
 
@@ -19,7 +19,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public ClientesAbonosViewModel ClientesAbonosViewModel { get; } = new();
 
-    public NavigationItemViewModel? PosMenuItem => MenuItems.FirstOrDefault(item => item.Title == "POS / Caja");
+    public NavigationItemViewModel? PosMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Caja");
 
     public NavigationItemViewModel? InventoryMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Inventario");
 
@@ -40,11 +40,11 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public string RoleLabel => "Gerencia";
 
-    public string ReturnFromFiadoLabel => "Volver al panel gerencial";
+    public string ReturnFromFiadoLabel => "Volver al resumen";
 
-    public GridLength SidebarColumnWidth => _isFocusMode ? new GridLength(0) : _isSidebarExpanded ? new GridLength(248) : new GridLength(72);
+    public GridLength SidebarColumnWidth => _isFocusMode ? new GridLength(0) : _isSidebarExpanded ? new GridLength(232) : new GridLength(64);
 
-    public GridLength HeaderRowHeight => _isFocusMode ? new GridLength(0) : new GridLength(68);
+    public HorizontalAlignment SidebarToggleAlignment => _isSidebarExpanded ? HorizontalAlignment.Right : HorizontalAlignment.Center;
 
     public Visibility SidebarTextVisibility => _isSidebarExpanded && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
@@ -52,23 +52,23 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility FocusInstructionsVisibility => _isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility DashboardVisibility => CurrentSectionTitle == "Panel gerencial" && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility DashboardVisibility => CurrentSectionTitle == "Resumen" && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Panel gerencial" && CurrentSectionTitle != "POS / Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes y abonos" && !_isFocusMode
+    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && !_isFocusMode
         ? Visibility.Visible
         : Visibility.Collapsed;
 
-    public Visibility PosVisibility => CurrentSectionTitle == "POS / Caja" ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility PosVisibility => CurrentSectionTitle == "Caja" ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility FiadoVisibility => CurrentSectionTitle == "P04 · Fiado" ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility ClientesAbonosVisibility => CurrentSectionTitle == "Clientes y abonos" ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility ClientesAbonosVisibility => CurrentSectionTitle == "Clientes" ? Visibility.Visible : Visibility.Collapsed;
 
     public bool IsFocusMode => _isFocusMode;
 
     public WindowStyle ShellWindowStyle => _isFocusMode ? WindowStyle.None : WindowStyle.SingleBorderWindow;
 
-    public string FocusButtonLabel => _isFocusMode ? "Salir de enfoque  ·  Esc" : "Modo enfoque  ⛶";
+    public string FocusButtonLabel => _isFocusMode ? "Salir del enfoque" : "Modo enfoque  ⛶";
 
     public IRelayCommand ToggleSidebarCommand { get; }
 
@@ -90,21 +90,22 @@ public sealed partial class ShellViewModel : ObservableObject
         ToggleFocusCommand = new RelayCommand(ToggleFocus, CanToggleFocus);
         ExitFocusCommand = new RelayCommand(ExitFocus);
         OpenFiadoCommand = new RelayCommand(OpenFiado);
-        ReturnFromFiadoCommand = new RelayCommand(() => SelectSection("Panel gerencial"));
+        ReturnFromFiadoCommand = new RelayCommand(() => SelectSection("Resumen"));
         OpenAbonoCommand = new RelayCommand(() => SelectSection("P08 · Registrar abono"));
         NavigateCommand = new RelayCommand<NavigationItemViewModel?>(Navigate);
         LoadMenuItems();
-        SelectSection("Panel gerencial");
+        SelectSection("Resumen");
     }
 
     private void ToggleSidebar()
     {
         _isSidebarExpanded = !_isSidebarExpanded;
         OnPropertyChanged(nameof(SidebarColumnWidth));
+        OnPropertyChanged(nameof(SidebarToggleAlignment));
         OnPropertyChanged(nameof(SidebarTextVisibility));
     }
 
-    private bool CanToggleFocus() => CurrentSectionTitle == "POS / Caja";
+    private bool CanToggleFocus() => CurrentSectionTitle == "Caja";
 
     private void ToggleFocus()
     {
@@ -118,7 +119,6 @@ public sealed partial class ShellViewModel : ObservableObject
         OnPropertyChanged(nameof(ShellWindowStyle));
         OnPropertyChanged(nameof(FocusButtonLabel));
         OnPropertyChanged(nameof(SidebarColumnWidth));
-        OnPropertyChanged(nameof(HeaderRowHeight));
         OnPropertyChanged(nameof(SidebarTextVisibility));
         OnPropertyChanged(nameof(ShellChromeVisibility));
         OnPropertyChanged(nameof(FocusInstructionsVisibility));
@@ -153,7 +153,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     private void SelectSection(string title)
     {
-        if (_isFocusMode && title != "POS / Caja")
+        if (_isFocusMode && title != "Caja")
         {
             ExitFocus();
         }
@@ -174,18 +174,12 @@ public sealed partial class ShellViewModel : ObservableObject
     {
         MenuItems.Clear();
 
-        MenuItems.Add(new NavigationItemViewModel("Panel gerencial", "▦", "Panel gerencial"));
+        MenuItems.Add(new NavigationItemViewModel("Resumen", "▦", "Resumen"));
 
-        MenuItems.Add(new NavigationItemViewModel("POS / Caja", "▣", "POS / Caja"));
-        MenuItems.Add(new NavigationItemViewModel("Registrar fiado", "◷", "P04 · Fiado"));
-        MenuItems.Add(new NavigationItemViewModel("Clientes y abonos", "♙", "Clientes y abonos"));
-        MenuItems.Add(new NavigationItemViewModel("Lista de precios", "＄", "Lista de precios"));
+        MenuItems.Add(new NavigationItemViewModel("Caja", "▣", "Caja"));
+        MenuItems.Add(new NavigationItemViewModel("Clientes", "♙", "Clientes"));
 
         MenuItems.Add(new NavigationItemViewModel("Inventario", "▤", "Inventario"));
-        MenuItems.Add(new NavigationItemViewModel("Fiados y cobranza", "◷", "Fiados y cobranza"));
-        MenuItems.Add(new NavigationItemViewModel("Contabilidad", "≡", "Contabilidad"));
-        MenuItems.Add(new NavigationItemViewModel("Caja diaria", "＄", "Caja diaria"));
-        MenuItems.Add(new NavigationItemViewModel("Usuarios y roles", "♙", "Usuarios y roles"));
 
         MenuItems.Add(new NavigationItemViewModel("Configuración", "⚙", "Configuración"));
         OnPropertyChanged(nameof(PosMenuItem));

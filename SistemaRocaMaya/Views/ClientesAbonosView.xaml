@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="28,0" VerticalAlignment="Center">
-            <TextBlock Text="P07 · Clientes y abonos" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
+            <TextBlock Text="Clientes" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
             <TextBlock Text="Consulta las cuentas de fiado y revisa sus abonos" Margin="0,4,0,0"
                        FontSize="12" Foreground="#718391" />
         </StackPanel>

@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="RocaMayaBluePrimary">#58B8E8</Color>
+    <Color x:Key="RocaMayaBlueBright">#68C8E8</Color>
+    <Color x:Key="RocaMayaBlueSecondary">#3888C0</Color>
+    <Color x:Key="RocaMayaBlackPrimary">#080818</Color>
+    <Color x:Key="RocaMayaBlackPure">#080808</Color>
+    <Color x:Key="RocaMayaCream">#EFE5D0</Color>
+
+    <SolidColorBrush x:Key="RocaMayaBluePrimaryBrush" Color="{StaticResource RocaMayaBluePrimary}" />
+    <SolidColorBrush x:Key="RocaMayaBlueBrightBrush" Color="{StaticResource RocaMayaBlueBright}" />
+    <SolidColorBrush x:Key="RocaMayaBlueSecondaryBrush" Color="{StaticResource RocaMayaBlueSecondary}" />
+    <SolidColorBrush x:Key="RocaMayaBlackPrimaryBrush" Color="{StaticResource RocaMayaBlackPrimary}" />
+    <SolidColorBrush x:Key="RocaMayaBlackPureBrush" Color="{StaticResource RocaMayaBlackPure}" />
+    <SolidColorBrush x:Key="RocaMayaCreamBrush" Color="{StaticResource RocaMayaCream}" />
+</ResourceDictionary>
