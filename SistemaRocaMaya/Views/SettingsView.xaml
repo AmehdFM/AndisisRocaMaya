@@ -10,12 +10,29 @@
         <TabControl Grid.Row="1" Background="Transparent" BorderBrush="#D8E3EA">
             <TabItem Header="Usuarios">
                 <Grid Margin="14">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                     <Border Background="{StaticResource RocaMayaCreamBrush}" BorderBrush="#D8CDAF" BorderThickness="1" Padding="12" Margin="0,0,0,12">
-                        <TextBlock Text="Los usuarios y permisos se muestran como datos de demostración; el inicio de sesión todavía no valida cuentas."
+                        <TextBlock Text="El login reconoce dos cuentas de demostración: Administrador y Empleado."
                                    FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
                     </Border>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" AutoGenerateColumns="False"
+                    <Grid Grid.Row="1" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="200" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Código de autorización del supervisor" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                            <TextBlock Text="Se solicita al empleado para abrir caja o conceder crédito sin permiso directo."
+                                       Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <PasswordBox x:Name="AuthorizationCodeBox" Grid.Column="1" MaxLength="4" Height="34"
+                                     Padding="8,0" VerticalContentAlignment="Center" Background="White"
+                                     BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" PreviewTextInput="AuthorizationCode_PreviewTextInput" />
+                        <Button Grid.Column="2" Content="Guardar código" Click="SaveAuthorizationCode_Click"
+                                Height="34" Margin="8,0,0,0" Padding="12,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}"
+                                BorderThickness="0" Foreground="White" />
+                        <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding AuthorizationCodeStatus}"
+                                   Margin="0,40,0,0" FontSize="10" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                    </Grid>
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Users}" AutoGenerateColumns="False"
                               IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
                               Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
                         <DataGrid.Columns>
@@ -29,11 +46,15 @@
             <TabItem Header="Roles">
                 <Grid Margin="14">
                     <DataGrid ItemsSource="{Binding Roles}" AutoGenerateColumns="False"
-                              IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
+                              IsReadOnly="False" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
                               Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ROL" Binding="{Binding Nombre}" Width="0.9*" />
-                            <DataGridTextColumn Header="PERMISOS DE DEMOSTRACIÓN" Binding="{Binding PermisosTexto}" Width="3*" />
+                            <DataGridTextColumn Header="ROL" Binding="{Binding Nombre}" Width="0.8*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="PANTALLAS" Binding="{Binding PermisosTexto}" Width="1.7*" IsReadOnly="True" />
+                            <DataGridCheckBoxColumn Header="ABRIR CAJA" Binding="{Binding PuedeAbrirCaja, UpdateSourceTrigger=PropertyChanged}" Width="0.9*" />
+                            <DataGridCheckBoxColumn Header="CONCEDER CRÉDITO" Binding="{Binding PuedeVenderCredito, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
+                            <DataGridCheckBoxColumn Header="CREAR PRODUCTOS" Binding="{Binding PuedeCrearProductos, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
+                            <DataGridCheckBoxColumn Header="CREAR CLIENTES" Binding="{Binding PuedeCrearClientes, UpdateSourceTrigger=PropertyChanged}" Width="1.0*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

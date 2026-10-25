@@ -11,6 +11,7 @@ namespace SistemaRocaMaya.ViewModels;
 public sealed class PosViewModel : ObservableObject
 {
     private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
+    private readonly Rol _currentRole;
 
     public ObservableCollection<PosProductViewModel> Products { get; } = [];
 
@@ -58,8 +59,13 @@ public sealed class PosViewModel : ObservableObject
     public IRelayCommand<CartItemViewModel?> RemoveCartItemCommand { get; }
 
     public IRelayCommand ClearCartCommand { get; }
-    public PosViewModel()
+    public bool CanSellOnCredit => _currentRole.PuedeVenderCredito;
+    public bool CanOpenCash => _currentRole.PuedeAbrirCaja;
+
+    public PosViewModel(Rol currentRole)
     {
+        _currentRole = currentRole;
+        _currentRole.PropertyChanged += CurrentRole_PropertyChanged;
         foreach (var product in _store.Products)
         {
             Products.Add(new PosProductViewModel(product));
@@ -72,6 +78,15 @@ public sealed class PosViewModel : ObservableObject
         ClearCartCommand = new RelayCommand(ClearCart);
         SelectedCustomer = Customers[0];
 
+    }
+
+    private void CurrentRole_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Rol.PuedeVenderCredito) || e.PropertyName == nameof(Rol.PuedeAbrirCaja))
+        {
+            OnPropertyChanged(nameof(CanSellOnCredit));
+            OnPropertyChanged(nameof(CanOpenCash));
+        }
     }
 
     private void Store_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

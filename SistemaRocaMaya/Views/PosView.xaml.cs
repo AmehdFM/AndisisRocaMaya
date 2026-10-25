@@ -65,6 +65,15 @@ public partial class PosView : UserControl
                 return;
             }
 
+            if (!viewModel.CanSellOnCredit)
+            {
+                var authorization = new AuthorizationCodeWindow("conceder esta venta a crédito")
+                {
+                    Owner = Window.GetWindow(this)
+                };
+                if (authorization.ShowDialog() != true) return;
+            }
+
             var confirm = MessageBox.Show(Window.GetWindow(this),
                 $"¿Registrar {OperationalDemoStore.FormatMoney(viewModel.TotalAmount)} a crédito para {viewModel.SelectedCustomer.Name}?",
                 "Confirmar crédito", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -94,8 +103,19 @@ public partial class PosView : UserControl
 
     private void ToggleCashSession_Click(object sender, RoutedEventArgs e)
     {
+        if (DataContext is not PosViewModel viewModel) return;
+
         var store = OperationalDemoStore.Instance;
         var isClosing = store.IsCashOpen;
+        if (!isClosing && !viewModel.CanOpenCash)
+        {
+            var authorization = new AuthorizationCodeWindow("abrir la caja")
+            {
+                Owner = Window.GetWindow(this)
+            };
+            if (authorization.ShowDialog() != true) return;
+        }
+
         var expectedAmount = store.ActiveCashSession?.ExpectedAmount ?? 0m;
         var dialog = new CashSessionWindow(isClosing, expectedAmount)
         {

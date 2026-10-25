@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
+using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
 using SistemaRocaMaya.ViewModels;
 
@@ -9,10 +10,10 @@ namespace SistemaRocaMaya.Views;
 
 public partial class ShellWindow : Window
 {
-    public ShellWindow()
+    public ShellWindow(Usuario user)
     {
         InitializeComponent();
-        DataContext = new ShellViewModel();
+        DataContext = new ShellViewModel(user);
     }
 
     private void SignOut_Click(object sender, RoutedEventArgs e)

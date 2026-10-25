@@ -12,10 +12,14 @@ public partial class CustomersView : UserControl
     {
         InitializeComponent();
         DataContext = new CustomersViewModel();
+        CreateCustomerButton.Visibility = SettingsViewModel.Instance.CurrentUser?.Rol?.PuedeCrearClientes == true
+            ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void CreateCustomer_Click(object sender, RoutedEventArgs e)
     {
+        if (SettingsViewModel.Instance.CurrentUser?.Rol?.PuedeCrearClientes != true) return;
+
         var dialog = new CustomerEditWindow(OperationalDemoStore.Instance)
         {
             Owner = Window.GetWindow(this)

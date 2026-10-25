@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
@@ -11,10 +12,11 @@ public sealed partial class ShellViewModel : ObservableObject
     private bool _isSidebarExpanded = true;
     private bool _isFocusMode;
     private string _currentSectionTitle = "Resumen";
+    private readonly Rol _currentRole;
 
     public ObservableCollection<NavigationItemViewModel> MenuItems { get; } = [];
 
-    public PosViewModel PosViewModel { get; } = new();
+    public PosViewModel PosViewModel { get; }
 
     public FiadoViewModel FiadoViewModel { get; } = new();
 
@@ -47,7 +49,7 @@ public sealed partial class ShellViewModel : ObservableObject
         }
     }
 
-    public string RoleLabel => "Gerencia";
+    public string RoleLabel => _currentRole.Nombre;
 
     public string ReturnFromFiadoLabel => "Volver al resumen";
 
@@ -105,17 +107,19 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public IRelayCommand<NavigationItemViewModel?> NavigateCommand { get; }
 
-    public ShellViewModel()
+    public ShellViewModel(Usuario currentUser)
     {
+        _currentRole = currentUser.Rol ?? throw new InvalidOperationException("El usuario no tiene un rol asignado.");
+        PosViewModel = new PosViewModel(_currentRole);
         ToggleSidebarCommand = new RelayCommand(ToggleSidebar);
         ToggleFocusCommand = new RelayCommand(ToggleFocus, CanToggleFocus);
         ExitFocusCommand = new RelayCommand(ExitFocus);
         OpenFiadoCommand = new RelayCommand(OpenFiado);
-        ReturnFromFiadoCommand = new RelayCommand(() => SelectSection("Resumen"));
+        ReturnFromFiadoCommand = new RelayCommand(() => SelectSection(_currentRole.PuedeAcceder("Resumen") ? "Resumen" : "Caja"));
         OpenAbonoCommand = new RelayCommand(() => SelectSection("P08 · Registrar abono"));
         NavigateCommand = new RelayCommand<NavigationItemViewModel?>(Navigate);
         LoadMenuItems();
-        SelectSection("Resumen");
+        SelectSection(_currentRole.PuedeAcceder("Resumen") ? "Resumen" : "Caja");
     }
 
     private void ToggleSidebar()
@@ -168,12 +172,26 @@ public sealed partial class ShellViewModel : ObservableObject
 
     private void OpenFiado()
     {
+        if (!_currentRole.PuedeVenderCredito || !_currentRole.PuedeAcceder("Caja"))
+        {
+            return;
+        }
+
         FiadoViewModel.PrepararVenta(PosViewModel.TotalAmount);
         SelectSection("P04 · Fiado");
     }
 
     private void SelectSection(string title)
     {
+        if (title == "P04 · Fiado")
+        {
+            if (!_currentRole.PuedeVenderCredito || !_currentRole.PuedeAcceder("Caja")) return;
+        }
+        else if (!_currentRole.PuedeAcceder(title))
+        {
+            return;
+        }
+
         if (_isFocusMode && title != "Caja")
         {
             ExitFocus();
@@ -196,18 +214,25 @@ public sealed partial class ShellViewModel : ObservableObject
     {
         MenuItems.Clear();
 
-        MenuItems.Add(new NavigationItemViewModel("Resumen", "▦", "Resumen"));
-
-        MenuItems.Add(new NavigationItemViewModel("Caja", "▣", "Caja"));
-        MenuItems.Add(new NavigationItemViewModel("Clientes", "♙", "Clientes"));
-        MenuItems.Add(new NavigationItemViewModel("Compras", "＋", "Compras"));
-        MenuItems.Add(new NavigationItemViewModel("Crédito", "◷", "Crédito"));
-        MenuItems.Add(new NavigationItemViewModel("Proveedores", "♧", "Proveedores"));
-        MenuItems.Add(new NavigationItemViewModel("Inventario", "▤", "Inventario"));
-        MenuItems.Add(new NavigationItemViewModel("Ventas", "▣", "Ventas"));
-        MenuItems.Add(new NavigationItemViewModel("Configuración", "⚙", "Configuración"));
+        AddMenuItem("Resumen", "▦");
+        AddMenuItem("Caja", "▣");
+        AddMenuItem("Clientes", "♙");
+        AddMenuItem("Compras", "＋");
+        AddMenuItem("Crédito", "◷");
+        AddMenuItem("Proveedores", "♧");
+        AddMenuItem("Inventario", "▤");
+        AddMenuItem("Ventas", "▣");
+        AddMenuItem("Configuración", "⚙");
         OnPropertyChanged(nameof(PosMenuItem));
         OnPropertyChanged(nameof(InventoryMenuItem));
+    }
+
+    private void AddMenuItem(string title, string icon)
+    {
+        if (_currentRole.PuedeAcceder(title))
+        {
+            MenuItems.Add(new NavigationItemViewModel(title, icon, title));
+        }
     }
 }
 

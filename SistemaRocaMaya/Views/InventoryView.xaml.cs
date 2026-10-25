@@ -14,10 +14,14 @@ public partial class InventoryView : UserControl
         InitializeComponent();
         _viewModel = new InventoryViewModel();
         DataContext = _viewModel;
+        CreateProductButton.Visibility = SettingsViewModel.Instance.CurrentUser?.Rol?.PuedeCrearProductos == true
+            ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void CreateProduct_Click(object sender, RoutedEventArgs e)
     {
+        if (SettingsViewModel.Instance.CurrentUser?.Rol?.PuedeCrearProductos != true) return;
+
         var dialog = new ProductEditWindow(OperationalDemoStore.Instance)
         {
             Owner = Window.GetWindow(this)

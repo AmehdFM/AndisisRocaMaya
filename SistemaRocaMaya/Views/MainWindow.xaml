@@ -175,6 +175,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
@@ -193,6 +194,7 @@
                            FontWeight="Normal"
                            Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <TextBox Grid.Row="2"
+                         x:Name="UsernameBox"
                          Style="{StaticResource LoginTextBoxStyle}"
                          AutomationProperties.Name="Usuario" />
 
@@ -203,6 +205,7 @@
                            FontWeight="Normal"
                            Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <PasswordBox Grid.Row="4"
+                             x:Name="PasswordInput"
                              Style="{StaticResource LoginPasswordBoxStyle}"
                              AutomationProperties.Name="Contraseña" />
 
@@ -211,6 +214,8 @@
                         Style="{StaticResource LoginButtonStyle}"
                         Content="Iniciar sesión"
                         Click="SignIn_Click" />
+                <TextBlock Grid.Row="6" Margin="0,8,0,0" TextAlignment="Center" FontSize="9"
+                           Foreground="#526A7A" Text="Demo: Administrador / Admin1234 · Empleado / Empleado1234" />
             </Grid>
         </Border>
     </Grid>

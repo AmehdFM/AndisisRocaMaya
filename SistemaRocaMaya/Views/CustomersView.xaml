@@ -14,7 +14,7 @@
             <StackPanel>
                 <TextBlock Text="Clientes" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
             </StackPanel>
-            <Button Grid.Column="1" Content="＋  Crear cliente" Click="CreateCustomer_Click"
+            <Button x:Name="CreateCustomerButton" Grid.Column="1" Content="＋  Crear cliente" Click="CreateCustomer_Click"
                     Height="40" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0"
                     Foreground="White" FontWeight="SemiBold" Cursor="Hand" />
         </Grid>
