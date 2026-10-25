@@ -24,8 +24,6 @@ public sealed class SalesViewModel : ObservableObject
             if (SetProperty(ref _sessionSearchText, value)) CashSessions.Refresh();
         }
     }
-    public string TotalSalesText => OperationalDemoStore.FormatMoney(Store.Sales.Sum(sale => sale.Total));
-    public int SalesCount => Store.Sales.Count;
     public string SearchText
     {
         get => _searchText;
@@ -91,8 +89,6 @@ public sealed class SalesViewModel : ObservableObject
     private void Sales_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         Sales.Refresh();
-        OnPropertyChanged(nameof(TotalSalesText));
-        OnPropertyChanged(nameof(SalesCount));
     }
 
     private void CashSessions_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

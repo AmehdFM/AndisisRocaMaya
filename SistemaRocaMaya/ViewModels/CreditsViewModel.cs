@@ -49,6 +49,7 @@ public sealed class CreditsViewModel : ObservableObject
                 OnPropertyChanged(nameof(SelectedCustomerBalanceText));
                 OnPropertyChanged(nameof(SelectedCustomerHistory));
                 OnPropertyChanged(nameof(HasSelectedCustomer));
+                OnPropertyChanged(nameof(IsCustomerSelected));
                 RecordPaymentCommand.NotifyCanExecuteChanged();
             }
         }
@@ -65,6 +66,8 @@ public sealed class CreditsViewModel : ObservableObject
     }
     public bool HasSelectedCustomer => SelectedCustomer is not null && SelectedCustomer.Balance > 0;
     public IRelayCommand RecordPaymentCommand { get; }
+    public IRelayCommand ShowCustomerListCommand { get; }
+    public bool IsCustomerSelected => SelectedCustomer is not null;
 
     public string SearchText
     {
@@ -83,12 +86,12 @@ public sealed class CreditsViewModel : ObservableObject
         CustomersWithCredit = new ListCollectionView(Store.Customers);
         CustomersWithCredit.Filter = FilterCustomer;
         RecordPaymentCommand = new RelayCommand(RecordPayment, CanRecordPayment);
+        ShowCustomerListCommand = new RelayCommand(() => SelectedCustomer = null);
         Store.Customers.CollectionChanged += Customers_CollectionChanged;
         foreach (var customer in Store.Customers)
         {
             customer.PropertyChanged += Customer_PropertyChanged;
         }
-        SelectedCustomer = Store.Customers.FirstOrDefault(customer => customer.Balance > 0);
     }
 
     private bool FilterCustomer(object item) => item is CustomerRecord customer
