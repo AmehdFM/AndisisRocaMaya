@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
@@ -15,10 +16,30 @@ public sealed class PurchasesViewModel : ObservableObject
     private SupplierRecord? _selectedSupplier;
     private DateTime? _purchaseDate = DateTime.Today;
     private string _statusMessage = "";
+    private string _productSearchText = "";
+    private string _historySearchText = "";
 
     public ObservableCollection<SupplierRecord> Suppliers => _store.Suppliers;
     public ObservableCollection<PurchaseEntryViewModel> ProductRows { get; } = [];
     public ObservableCollection<PurchaseRecord> Purchases => _store.Purchases;
+    public ICollectionView ProductRowsView { get; }
+    public ICollectionView PurchasesView { get; }
+    public string ProductSearchText
+    {
+        get => _productSearchText;
+        set
+        {
+            if (SetProperty(ref _productSearchText, value)) ProductRowsView.Refresh();
+        }
+    }
+    public string HistorySearchText
+    {
+        get => _historySearchText;
+        set
+        {
+            if (SetProperty(ref _historySearchText, value)) PurchasesView.Refresh();
+        }
+    }
     public SupplierRecord? SelectedSupplier
     {
         get => _selectedSupplier;
@@ -51,6 +72,11 @@ public sealed class PurchasesViewModel : ObservableObject
 
     public PurchasesViewModel()
     {
+        ProductRowsView = CollectionViewSource.GetDefaultView(ProductRows);
+        ProductRowsView.Filter = FilterProductRow;
+        PurchasesView = CollectionViewSource.GetDefaultView(Purchases);
+        PurchasesView.Filter = FilterPurchase;
+        _store.Purchases.CollectionChanged += (_, _) => PurchasesView.Refresh();
         foreach (var product in _store.Products)
         {
             AddRow(product);
@@ -59,6 +85,17 @@ public sealed class PurchasesViewModel : ObservableObject
         RegisterPurchaseCommand = new RelayCommand(RegisterPurchase, CanRegisterPurchase);
         SelectedSupplier = Suppliers.FirstOrDefault();
     }
+
+    private bool FilterProductRow(object item) => item is PurchaseEntryViewModel row
+        && (string.IsNullOrWhiteSpace(ProductSearchText)
+            || row.Name.Contains(ProductSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || row.ProductId.Contains(ProductSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+    private bool FilterPurchase(object item) => item is PurchaseRecord purchase
+        && (string.IsNullOrWhiteSpace(HistorySearchText)
+            || purchase.Supplier.Name.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || purchase.Number.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || purchase.DateText.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
     public void AddRow(ProductRecord product)
     {

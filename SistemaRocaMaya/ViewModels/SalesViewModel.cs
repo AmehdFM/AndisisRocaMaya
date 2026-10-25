@@ -9,12 +9,21 @@ namespace SistemaRocaMaya.ViewModels;
 public sealed class SalesViewModel : ObservableObject
 {
     private string _searchText = "";
+    private string _sessionSearchText = "";
     private SaleRecord? _selectedSale;
     private CashSessionRecord? _selectedSession;
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView Sales { get; }
-    public IEnumerable<CashSessionRecord> CashSessions => Store.CashSessions;
+    public ListCollectionView CashSessions { get; }
+    public string SessionSearchText
+    {
+        get => _sessionSearchText;
+        set
+        {
+            if (SetProperty(ref _sessionSearchText, value)) CashSessions.Refresh();
+        }
+    }
     public string TotalSalesText => OperationalDemoStore.FormatMoney(Store.Sales.Sum(sale => sale.Total));
     public int SalesCount => Store.Sales.Count;
     public string SearchText
@@ -59,6 +68,8 @@ public sealed class SalesViewModel : ObservableObject
     {
         Sales = new ListCollectionView(Store.Sales);
         Sales.Filter = FilterSale;
+        CashSessions = new ListCollectionView(Store.CashSessions);
+        CashSessions.Filter = FilterSession;
         Store.Sales.CollectionChanged += Sales_CollectionChanged;
         Store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
         SelectedSale = Store.Sales.FirstOrDefault();
@@ -68,7 +79,14 @@ public sealed class SalesViewModel : ObservableObject
     private bool FilterSale(object item) => item is SaleRecord sale
         && (string.IsNullOrWhiteSpace(SearchText)
             || sale.Ticket.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
-            || sale.CustomerName.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+            || sale.CustomerName.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || sale.DateText.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || sale.PaymentText.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+    private bool FilterSession(object item) => item is CashSessionRecord session
+        && (string.IsNullOrWhiteSpace(SessionSearchText)
+            || session.OpenedText.Contains(SessionSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || session.ClosedText.Contains(SessionSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
     private void Sales_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -80,6 +98,7 @@ public sealed class SalesViewModel : ObservableObject
     private void CashSessions_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertyChanged(nameof(CashSessions));
+        CashSessions.Refresh();
         if (e.NewItems is not null && e.NewItems.Count > 0)
         {
             SelectedSession = (CashSessionRecord)e.NewItems[0]!;

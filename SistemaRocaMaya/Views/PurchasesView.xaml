@@ -7,39 +7,44 @@
         <Grid Margin="0,0,0,16">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="Compras" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+                <TextBlock Text="Compras" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <TextBlock Text="Registra entradas y actualiza existencias" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
             </StackPanel>
             <Button Grid.Column="1" Content="＋  Crear producto" Click="CreateProduct_Click"
-                    Height="40" Padding="14,0" Background="White" BorderBrush="#3888C0"
-                    Foreground="#080818" FontWeight="SemiBold" Cursor="Hand" />
+                    Height="40" Padding="14,0" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}"
+                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" Cursor="Hand" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.65*" /><ColumnDefinition Width="0.85*" /></Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Margin="0,0,18,0">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="12" Margin="0,0,0,10">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Border Background="#EAF3F8" Padding="12" Margin="0,0,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel Margin="0,0,10,0">
                             <TextBlock Text="Proveedor" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" Margin="0,0,0,3" />
                             <ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
-                                      DisplayMemberPath="Name" Height="34" Padding="8,0" Background="White" BorderBrush="#58B8E8" />
+                                      DisplayMemberPath="Name" Height="34" Padding="8,0" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                             <TextBlock Text="Fecha de compra" FontSize="10" FontWeight="SemiBold" Foreground="#526A7A" Margin="0,0,0,3" />
-                            <DatePicker SelectedDate="{Binding PurchaseDate}" Height="34" Background="White" BorderBrush="#58B8E8" />
+                            <DatePicker SelectedDate="{Binding PurchaseDate}" Height="34" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
-                            <TextBlock Text="{Binding StatusMessage}" FontSize="9" Foreground="#3888C0" Margin="0,0,0,4" />
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" Margin="0,0,0,4" />
                             <Button Content="Registrar compra" Command="{Binding RegisterPurchaseCommand}"
-                                    Height="34" Padding="12,0" Background="#080818" BorderThickness="0" Foreground="White"
+                                    Height="34" Padding="12,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
                                     FontSize="11" FontWeight="SemiBold" />
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <DataGrid Grid.Row="1" ItemsSource="{Binding ProductRows}" AutoGenerateColumns="False"
+                <TextBox Grid.Row="1" Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
+                         Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
+                         ToolTip="Filtrar productos por nombre o ID; las cantidades escritas se conservan" />
+
+                <DataGrid Grid.Row="2" ItemsSource="{Binding ProductRowsView}" AutoGenerateColumns="False"
                           CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
                           GridLinesVisibility="Horizontal" RowHeaderWidth="0" Background="White"
                           BorderBrush="#D8E3EA" BorderThickness="1" FontSize="11"
@@ -52,14 +57,14 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate><TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                                        Height="30" Padding="5,0" VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Center" BorderBrush="#58B8E8" /></DataTemplate>
+                                                       HorizontalContentAlignment="Center" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="COSTO UNIT." Width="0.9*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate><TextBox Text="{Binding UnitCostText, UpdateSourceTrigger=PropertyChanged}"
                                                        Height="30" Padding="5,0" VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Right" BorderBrush="#58B8E8" /></DataTemplate>
+                                                       HorizontalContentAlignment="Right" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="VENCE" Width="1.05*">
@@ -71,38 +76,41 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Border Grid.Row="2" Margin="0,10,0,0" Padding="12,9" Background="#EFE5D0" BorderBrush="#D8CDAF" BorderThickness="1">
+                <Border Grid.Row="3" Margin="0,10,0,0" Padding="12,9" Background="{StaticResource RocaMayaCreamBrush}">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="Total de compra" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
-                        <TextBlock Grid.Column="1" Text="{Binding PurchaseTotalText}" FontSize="15" FontWeight="Bold" Foreground="#3888C0" />
+                        <TextBlock Text="Total de compra" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="{Binding PurchaseTotalText}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                     </Grid>
                 </Border>
             </Grid>
 
             <Grid Grid.Column="1">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                 <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Compras recientes" FontSize="15" FontWeight="SemiBold" Foreground="#080818" />
+                    <TextBlock Text="Compras recientes" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     <TextBlock Text="Los registros permanecen mientras la aplicación está abierta" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                 </StackPanel>
-                <Border Grid.Row="1" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                <TextBox Grid.Row="1" Text="{Binding HistorySearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
+                         Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
+                         ToolTip="Buscar por proveedor, número o fecha" />
+                <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="0,1,0,0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding Purchases}">
+                        <ItemsControl ItemsSource="{Binding PurchasesView}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="12,11" BorderBrush="#E5E9EC" BorderThickness="0,0,0,1">
-                                        <Grid>
+                                    <Grid MinHeight="58" Margin="10,0" >
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Supplier.Name}" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
+                                                <TextBlock Text="{Binding Supplier.Name}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                                 <TextBlock Text="{Binding Number, StringFormat='Compra {0}'}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                                                 <TextBlock Text="{Binding DateText}" Margin="0,2,0,0" FontSize="10" Foreground="#526A7A" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Text="{Binding TotalText}" VerticalAlignment="Center" FontSize="11"
-                                                       FontWeight="SemiBold" Foreground="#3888C0" />
-                                        </Grid>
-                                    </Border>
+                                                       FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                        <Border Height="1" VerticalAlignment="Bottom" Background="#E5E9EC" Grid.ColumnSpan="2" />
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

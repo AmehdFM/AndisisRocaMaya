@@ -10,6 +10,7 @@ namespace SistemaRocaMaya.ViewModels;
 public sealed class InventoryViewModel : ObservableObject
 {
     private string _searchText = "";
+    private string _historySearchText = "";
     private ProductRecord? _selectedProduct;
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
@@ -32,13 +33,21 @@ public sealed class InventoryViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedProduct, value))
             {
+                SelectedProductHistory = new ListCollectionView(value?.History ?? new System.Collections.ObjectModel.ObservableCollection<InventoryMovementRecord>());
+                SelectedProductHistory.Filter = FilterMovement;
                 OnPropertyChanged(nameof(SelectedProductHistory));
             }
         }
     }
-    public IEnumerable<InventoryMovementRecord> SelectedProductHistory => SelectedProduct is null
-        ? Array.Empty<InventoryMovementRecord>()
-        : SelectedProduct.History;
+    public ListCollectionView SelectedProductHistory { get; private set; } = new(Array.Empty<InventoryMovementRecord>());
+    public string HistorySearchText
+    {
+        get => _historySearchText;
+        set
+        {
+            if (SetProperty(ref _historySearchText, value)) SelectedProductHistory.Refresh();
+        }
+    }
     public int ProductCount => Store.Products.Count;
     public int TotalStockUnits => Store.Products.Sum(product => product.Stock);
     public int ExpiringBatchCount => Store.GetExpiringBatches().Count();
@@ -59,6 +68,12 @@ public sealed class InventoryViewModel : ObservableObject
         && (string.IsNullOrWhiteSpace(SearchText)
             || product.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
             || product.Id.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+    private bool FilterMovement(object item) => item is InventoryMovementRecord movement
+        && (string.IsNullOrWhiteSpace(HistorySearchText)
+            || movement.Movement.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || movement.Reference.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || movement.DateText.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
     private void Products_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {

@@ -10,7 +10,7 @@
             <Setter Property="Padding" Value="10,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#58B8E8" />
+            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
         </Style>
         <Style TargetType="Button">
             <Setter Property="Height" Value="38" />
@@ -38,7 +38,7 @@
         <Border Grid.Row="2" Background="White" Padding="20,12">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Cancelar" IsCancel="True" Click="Cancel_Click" Margin="0,0,8,0"
-                        Background="White" BorderBrush="#C8DCE8" Foreground="#080818" />
+                        Background="White" BorderBrush="#C8DCE8" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <Button Content="Crear proveedor" Click="Create_Click"
                         Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
             </StackPanel>

@@ -29,16 +29,16 @@
                         <TextBlock Text="Apertura + ventas al contado" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                     </StackPanel>
                     <TextBlock Grid.Column="1" Text="{Binding ExpectedAmountText}" VerticalAlignment="Center" FontSize="18"
-                               FontWeight="Bold" Foreground="#080818" />
+                               FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 </Grid>
             </Border>
             <Grid Grid.Row="1" Margin="0,10,0,8">
                 <Grid.RowDefinitions><RowDefinition Height="32" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                <Grid Background="#EFE5D0">
+                <Grid Background="{StaticResource RocaMayaCreamBrush}">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="75" /><ColumnDefinition Width="105" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="DENOMINACIÓN" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
-                    <TextBlock Grid.Column="1" Text="CANTIDAD" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
-                    <TextBlock Grid.Column="2" Text="SUBTOTAL" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="9" FontWeight="Bold" Foreground="#080818" />
+                    <TextBlock Text="DENOMINACIÓN" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                    <TextBlock Grid.Column="1" Text="CANTIDAD" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                    <TextBlock Grid.Column="2" Text="SUBTOTAL" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 </Grid>
                 <Border Grid.Row="1" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
                     <ItemsControl ItemsSource="{Binding Rows}">
@@ -46,10 +46,10 @@
                             <DataTemplate>
                                 <Grid MinHeight="39" Margin="10,0" >
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="75" /><ColumnDefinition Width="105" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding DenominationText}" VerticalAlignment="Center" FontSize="12" Foreground="#080818" />
+                                    <TextBlock Text="{Binding DenominationText}" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                     <TextBox Grid.Column="1" Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                              Height="29" Padding="4,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                             Background="White" BorderBrush="#58B8E8" />
+                                             Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
                                     <TextBlock Grid.Column="2" Text="{Binding SubtotalText}" Margin="0,0,2,0" VerticalAlignment="Center"
                                                HorizontalAlignment="Right" FontSize="11" Foreground="#526A7A" />
                                 </Grid>
@@ -70,7 +70,7 @@
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <Button Content="Cancelar" IsCancel="True" Click="Cancel_Click" Background="White"
-                        BorderBrush="#C8DCE8" Foreground="#080818" />
+                        BorderBrush="#C8DCE8" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <Button Grid.Column="1" Content="{Binding ActionLabel}" Click="Confirm_Click"
                         Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
             </Grid>

@@ -12,6 +12,7 @@ namespace SistemaRocaMaya.ViewModels;
 public sealed class CreditsViewModel : ObservableObject
 {
     private string _searchText = "";
+    private string _historySearchText = "";
     private string _paymentAmountText = "";
     private string _statusMessage = "";
     private CustomerRecord? _selectedCustomer;
@@ -43,6 +44,8 @@ public sealed class CreditsViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedCustomer, value))
             {
+                SelectedCustomerHistory = new ListCollectionView(value?.CreditHistory ?? new System.Collections.ObjectModel.ObservableCollection<CreditMovementRecord>());
+                SelectedCustomerHistory.Filter = FilterMovement;
                 OnPropertyChanged(nameof(SelectedCustomerBalanceText));
                 OnPropertyChanged(nameof(SelectedCustomerHistory));
                 OnPropertyChanged(nameof(HasSelectedCustomer));
@@ -51,9 +54,15 @@ public sealed class CreditsViewModel : ObservableObject
         }
     }
     public string SelectedCustomerBalanceText => OperationalDemoStore.FormatMoney(SelectedCustomer?.Balance ?? 0m);
-    public IEnumerable<CreditMovementRecord> SelectedCustomerHistory => SelectedCustomer is null
-        ? Array.Empty<CreditMovementRecord>()
-        : SelectedCustomer.CreditHistory;
+    public ListCollectionView SelectedCustomerHistory { get; private set; } = new(Array.Empty<CreditMovementRecord>());
+    public string HistorySearchText
+    {
+        get => _historySearchText;
+        set
+        {
+            if (SetProperty(ref _historySearchText, value)) SelectedCustomerHistory.Refresh();
+        }
+    }
     public bool HasSelectedCustomer => SelectedCustomer is not null && SelectedCustomer.Balance > 0;
     public IRelayCommand RecordPaymentCommand { get; }
 
@@ -85,7 +94,15 @@ public sealed class CreditsViewModel : ObservableObject
     private bool FilterCustomer(object item) => item is CustomerRecord customer
         && customer.Balance > 0
         && (string.IsNullOrWhiteSpace(SearchText)
-            || customer.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+            || customer.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || customer.Phone.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || customer.TaxOrIdentity.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+    private bool FilterMovement(object item) => item is CreditMovementRecord movement
+        && (string.IsNullOrWhiteSpace(HistorySearchText)
+            || movement.Description.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || movement.TypeLabel.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || movement.Date.ToString("dd/MM/yyyy").Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
     private bool CanRecordPayment() => SelectedCustomer is not null
         && decimal.TryParse(PaymentAmountText, NumberStyles.Number, CultureInfo.CurrentCulture, out var amount)

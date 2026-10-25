@@ -17,7 +17,7 @@
             <Setter Property="Padding" Value="10,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#58B8E8" />
+            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
         </Style>
     </Window.Resources>
 
@@ -38,7 +38,7 @@
             <TextBox x:Name="PhoneBox" />
             <TextBlock Text="Tipo de cliente" FontSize="11" Foreground="#526A7A" Margin="0,12,0,4" />
             <ComboBox x:Name="TypeBox" Height="36" Padding="8,0" SelectedIndex="0"
-                      SelectionChanged="TypeBox_SelectionChanged" Background="White" BorderBrush="#58B8E8">
+                      SelectionChanged="TypeBox_SelectionChanged" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}">
                 <ComboBoxItem Content="Persona" Tag="Person" />
                 <ComboBoxItem Content="Empresa" Tag="Company" />
             </ComboBox>

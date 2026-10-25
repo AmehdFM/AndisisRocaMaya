@@ -9,12 +9,12 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,16">
-            <TextBlock Text="Crédito" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+            <TextBlock Text="Crédito" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
             <TextBlock Text="Saldos pendientes e historial de cargos y abonos" Margin="0,4,0,0"
                        FontSize="12" Foreground="#526A7A" />
         </StackPanel>
 
-        <Border Grid.Row="1" Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="18,12">
+        <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="18,12">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                 <StackPanel VerticalAlignment="Center">
@@ -36,7 +36,7 @@
             <Grid Grid.Column="0" Margin="0,0,16,0">
                 <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
-                         VerticalContentAlignment="Center" Background="White" BorderBrush="#58B8E8"
+                         VerticalContentAlignment="Center" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                          ToolTip="Buscar cliente" />
                 <Border Grid.Row="1" Margin="0,10,0,0" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
                     <ListBox ItemsSource="{Binding CustomersWithCredit}" SelectedItem="{Binding SelectedCustomer}"
@@ -47,11 +47,11 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
+                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                             <TextBlock Text="{Binding TypeLabel}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding BalanceText}" VerticalAlignment="Center"
-                                                   FontSize="12" FontWeight="SemiBold" Foreground="#3888C0" />
+                                                   FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -64,51 +64,56 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="38" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="16">
+                <Border Background="Transparent" BorderThickness="0" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="{Binding SelectedCustomer.Name, TargetNullValue='Selecciona un cliente'}"
-                                       FontSize="16" FontWeight="SemiBold" Foreground="#080818" />
+                                       FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             <TextBlock Text="{Binding SelectedCustomer.Phone}" Margin="0,4,0,0" FontSize="11" Foreground="#526A7A" />
                             <TextBlock Text="{Binding SelectedCustomer.TaxOrIdentity}" Margin="0,2,0,0" FontSize="11" Foreground="#526A7A" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <TextBlock Text="SALDO PENDIENTE" FontSize="9" FontWeight="Bold" Foreground="#526A7A" />
                             <TextBlock Text="{Binding SelectedCustomerBalanceText}" Margin="0,3,0,0" FontSize="20"
-                                       FontWeight="Bold" Foreground="#3888C0" />
+                                       FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Border Grid.Row="1" Margin="0,10,0,12" Padding="12" Background="#EFE5D0"
-                        BorderBrush="#D8CDAF" BorderThickness="1">
+                <Border Grid.Row="1" Margin="0,10,0,12" Padding="12" Background="#EAF3F8"
+                        BorderThickness="0">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="130" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Registrar abono" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
+                            <TextBlock Text="Registrar abono" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             <TextBlock Text="{Binding StatusMessage}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                         </StackPanel>
                         <TextBox Grid.Column="1" Text="{Binding PaymentAmountText, UpdateSourceTrigger=PropertyChanged}"
                                  Height="36" Padding="8,0" VerticalContentAlignment="Center" Background="White"
-                                 BorderBrush="#58B8E8" ToolTip="Monto del abono" />
+                                 BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" ToolTip="Monto del abono" />
                         <Button Grid.Column="2" Content="Aplicar" Command="{Binding RecordPaymentCommand}"
                                 IsEnabled="{Binding HasSelectedCustomer}" Height="36" Margin="8,0,0,0" Padding="12,0"
                                 Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
                                 FontSize="11" />
                     </Grid>
                 </Border>
-                <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                <TextBox Grid.Row="2" Text="{Binding HistorySearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
+                         Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
+                         ToolTip="Buscar en movimientos por descripción, tipo o fecha" />
+                <Border Grid.Row="3" Background="White" BorderBrush="#D8E3EA" BorderThickness="0,1,0,0">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="36" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                        <Border Background="#EFE5D0">
+                        <Border Background="{StaticResource RocaMayaCreamBrush}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <TextBlock Text="FECHA" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
-                                <TextBlock Grid.Column="1" Text="MOVIMIENTO" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
-                                <TextBlock Grid.Column="2" Text="MONTO" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
-                                <TextBlock Grid.Column="3" Text="SALDO" Margin="0,0,12,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="#080818" />
+                                <TextBlock Text="FECHA" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Grid.Column="1" Text="MOVIMIENTO" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Grid.Column="2" Text="MONTO" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Grid.Column="3" Text="SALDO" Margin="0,0,12,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             </Grid>
                         </Border>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -119,11 +124,11 @@
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Date, StringFormat='{}{0:dd/MM/yy}'}" VerticalAlignment="Center" FontSize="10" Foreground="#526A7A" />
                                             <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding TypeLabel}" FontSize="11" FontWeight="SemiBold" Foreground="#080818" />
+                                                <TextBlock Text="{Binding TypeLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                                 <TextBlock Text="{Binding Description}" FontSize="9" Foreground="#526A7A" />
                                             </StackPanel>
-                                            <TextBlock Grid.Column="2" Text="{Binding AmountText}" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="10" Foreground="#3888C0" />
-                                            <TextBlock Grid.Column="3" Text="{Binding BalanceText}" VerticalAlignment="Center" FontSize="10" Foreground="#080818" />
+                                            <TextBlock Grid.Column="2" Text="{Binding AmountText}" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                            <TextBlock Grid.Column="3" Text="{Binding BalanceText}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

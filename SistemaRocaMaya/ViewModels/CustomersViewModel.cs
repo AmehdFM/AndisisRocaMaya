@@ -33,5 +33,7 @@ public sealed class CustomersViewModel : ObservableObject
 
     private bool FilterCustomer(object item) => item is CustomerRecord customer
         && (string.IsNullOrWhiteSpace(SearchText)
-            || customer.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+            || customer.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || customer.Phone.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
+            || customer.TaxOrIdentity.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 }

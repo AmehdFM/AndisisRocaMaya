@@ -44,12 +44,12 @@
                            HorizontalAlignment="Right" Margin="0,0,0,4" />
                 <Button Content="{Binding CashActionLabel}" Click="ToggleCashSession_Click"
                         MinWidth="112" Height="32" Padding="12,0" HorizontalAlignment="Right"
-                        Background="#080818" BorderThickness="0" Foreground="White"
+                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
                         FontSize="11" FontWeight="SemiBold" Cursor="Hand" />
             </StackPanel>
             <Button Grid.Column="2" MinWidth="150" Height="40" Padding="14,0"
                     Background="#E8F1F6" BorderBrush="#C8DCE8" BorderThickness="1"
-                    Foreground="#3888C0" FontSize="12" FontWeight="SemiBold"
+                    Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" FontSize="12" FontWeight="SemiBold"
                     Command="{Binding DataContext.ToggleFocusCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     Content="{Binding DataContext.FocusButtonLabel, RelativeSource={RelativeSource AncestorType=Window}}"
                     />
@@ -142,13 +142,12 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0" Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Venta actual" FontSize="17" FontWeight="Bold" Foreground="#20394B" />
-                        </StackPanel>
-                        <Button Grid.Column="1" Content="Vaciar" Height="48" MinWidth="72" Command="{Binding ClearCartCommand}"
-                                Background="Transparent" BorderThickness="0" Foreground="#2A6F9E"
-                                FontSize="12" FontWeight="SemiBold" Cursor="Hand" />
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Button Content="Vaciar" Height="34" MinWidth="68" Margin="0,0,12,0" Command="{Binding ClearCartCommand}"
+                                Background="{StaticResource RocaMayaDangerSoftBrush}" BorderThickness="0" Foreground="{StaticResource RocaMayaDangerBrush}"
+                                FontSize="11" FontWeight="SemiBold" Cursor="Hand" />
+                        <TextBlock Grid.Column="1" Text="Venta actual" VerticalAlignment="Center" FontSize="17"
+                                   FontWeight="Bold" Foreground="#20394B" />
                     </Grid>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -165,12 +164,12 @@
                                             <TextBlock Text="{Binding QuantityAndPriceText}" Margin="0,3,0,0" FontSize="11" Foreground="#718391" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="×" Margin="0,0,8,0" Width="32" Height="32"
+                                                    Command="{Binding DataContext.RemoveCartItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}" Background="{StaticResource RocaMayaDangerSoftBrush}" BorderThickness="0"
+                                                    Foreground="{StaticResource RocaMayaDangerBrush}" FontSize="17" Cursor="Hand" />
                                             <TextBlock Text="{Binding LineTotalText}" Foreground="#1F7A45" FontSize="12"
                                                        FontWeight="SemiBold" VerticalAlignment="Center" />
-                                            <Button Content="×" Margin="6,0,0,0" Width="48" Height="48"
-                                                    Command="{Binding DataContext.RemoveCartItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}" Background="Transparent" BorderThickness="0"
-                                                    Foreground="#718391" FontSize="17" Cursor="Hand" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -197,14 +196,14 @@
                         <StackPanel Margin="0,10,0,0" Visibility="{Binding CreditDetailsVisibility}">
                             <TextBlock Text="Cliente" Margin="0,0,0,4" FontSize="11" FontWeight="SemiBold" Foreground="#526A7A" />
                             <Button Height="30" Padding="8,0" HorizontalContentAlignment="Stretch"
-                                    Background="White" BorderBrush="#58B8E8" Foreground="#080818"
+                                    Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}"
                                     Click="ChooseCustomer_Click">
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding SelectedCustomer.DisplayText, TargetNullValue='Seleccionar cliente'}"
                                                VerticalAlignment="Center" FontSize="12" />
                                     <TextBlock Grid.Column="1" Text="Elegir  ▾" Margin="8,0,0,0" VerticalAlignment="Center"
-                                               Foreground="#3888C0" FontSize="11" />
+                                               Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" FontSize="11" />
                                 </Grid>
                             </Button>
                         </StackPanel>

@@ -6,6 +6,8 @@
     <Color x:Key="RocaMayaBlackPrimary">#080818</Color>
     <Color x:Key="RocaMayaBlackPure">#080808</Color>
     <Color x:Key="RocaMayaCream">#EFE5D0</Color>
+    <Color x:Key="RocaMayaDanger">#B42318</Color>
+    <Color x:Key="RocaMayaDangerSoft">#FEE4E2</Color>
 
     <SolidColorBrush x:Key="RocaMayaBluePrimaryBrush" Color="{StaticResource RocaMayaBluePrimary}" />
     <SolidColorBrush x:Key="RocaMayaBlueBrightBrush" Color="{StaticResource RocaMayaBlueBright}" />
@@ -13,4 +15,6 @@
     <SolidColorBrush x:Key="RocaMayaBlackPrimaryBrush" Color="{StaticResource RocaMayaBlackPrimary}" />
     <SolidColorBrush x:Key="RocaMayaBlackPureBrush" Color="{StaticResource RocaMayaBlackPure}" />
     <SolidColorBrush x:Key="RocaMayaCreamBrush" Color="{StaticResource RocaMayaCream}" />
+    <SolidColorBrush x:Key="RocaMayaDangerBrush" Color="{StaticResource RocaMayaDanger}" />
+    <SolidColorBrush x:Key="RocaMayaDangerSoftBrush" Color="{StaticResource RocaMayaDangerSoft}" />
 </ResourceDictionary>

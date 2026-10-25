@@ -7,11 +7,11 @@
         <Grid Margin="0,0,0,18">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="Proveedores" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+                <TextBlock Text="Proveedores" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <TextBlock Text="Contactos e historial de compras" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
             </StackPanel>
             <Button Grid.Column="1" Content="＋  Nuevo proveedor" Click="CreateSupplier_Click"
-                    Height="40" Padding="14,0" Background="#080818" BorderThickness="0"
+                    Height="40" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0"
                     Foreground="White" FontWeight="SemiBold" Cursor="Hand" />
         </Grid>
         <Grid Grid.Row="1">
@@ -19,8 +19,8 @@
             <Grid Grid.Column="0" Margin="0,0,18,0">
                 <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
-                         VerticalContentAlignment="Center" Background="White" BorderBrush="#58B8E8"
-                         ToolTip="Buscar proveedor por nombre" />
+                         VerticalContentAlignment="Center" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
+                         ToolTip="Buscar proveedor por nombre, teléfono o contacto" />
                 <Border Grid.Row="1" Margin="0,10,0,0" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
                     <ListBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
                              Background="Transparent" BorderThickness="0">
@@ -28,7 +28,7 @@
                             <DataTemplate>
                                 <Border Padding="12,12" BorderBrush="#E5E9EC" BorderThickness="0,0,0,1">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="#080818" />
+                                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                         <TextBlock Text="{Binding Phone}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
                                     </StackPanel>
                                 </Border>
@@ -38,37 +38,41 @@
                 </Border>
             </Grid>
             <Grid Grid.Column="1">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="16">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Border Background="Transparent" BorderThickness="0" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="{Binding SelectedSupplier.Name, TargetNullValue='Selecciona un proveedor'}"
-                                       FontSize="16" FontWeight="SemiBold" Foreground="#080818" />
+                                       FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             <TextBlock Text="{Binding SelectedSupplier.Contact, StringFormat='Contacto: {0}'}" Margin="0,5,0,0" FontSize="11" Foreground="#526A7A" />
                             <TextBlock Text="{Binding SelectedSupplier.Phone, StringFormat='Teléfono: {0}'}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
                         </StackPanel>
                         <TextBlock Grid.Column="1" Text="{Binding SelectedSupplier.Purchases.Count, StringFormat='Compras: {0}'}"
-                                   VerticalAlignment="Center" Foreground="#3888C0" FontSize="11" />
+                                   VerticalAlignment="Center" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" FontSize="11" />
                     </Grid>
                 </Border>
                 <TextBlock Grid.Row="1" Text="Historial de compras" Margin="0,16,0,8" FontSize="14"
-                           FontWeight="SemiBold" Foreground="#080818" />
-                <Border Grid.Row="2" Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                           FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <TextBox Grid.Row="2" Text="{Binding PurchaseSearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
+                         Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
+                         ToolTip="Filtrar por número o fecha" />
+                <Border Grid.Row="3" Background="White" BorderBrush="#D8E3EA" BorderThickness="0,1,0,0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding SelectedSupplier.Purchases}">
+                        <ItemsControl ItemsSource="{Binding SelectedSupplierPurchases}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="14,12" BorderBrush="#E5E9EC" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="SemiBold" Foreground="#080818" />
+                                                <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                                 <TextBlock Text="{Binding DateText}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                                                 <TextBlock Text="{Binding Lines.Count, StringFormat='{}{0} productos'}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Text="{Binding TotalText}" VerticalAlignment="Center"
-                                                       FontSize="13" FontWeight="SemiBold" Foreground="#3888C0" />
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

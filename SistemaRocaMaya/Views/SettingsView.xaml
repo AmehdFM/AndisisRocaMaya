@@ -5,16 +5,16 @@
     <Grid Background="#F3F6F8" Margin="30,20">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,18">
-            <TextBlock Text="Configuración" FontSize="26" FontWeight="Bold" Foreground="#080818" />
+            <TextBlock Text="Configuración" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
             <TextBlock Text="Usuarios y roles de demostración" Margin="0,4,0,0" FontSize="12" Foreground="#526A7A" />
         </StackPanel>
         <TabControl Grid.Row="1" Background="Transparent" BorderBrush="#D8E3EA">
             <TabItem Header="Usuarios">
                 <Grid Margin="14">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                    <Border Background="#EFE5D0" BorderBrush="#D8CDAF" BorderThickness="1" Padding="12" Margin="0,0,0,12">
+                    <Border Background="{StaticResource RocaMayaCreamBrush}" BorderBrush="#D8CDAF" BorderThickness="1" Padding="12" Margin="0,0,0,12">
                         <TextBlock Text="Los usuarios y permisos se muestran como datos de demostración; el inicio de sesión todavía no valida cuentas."
-                                   FontSize="11" Foreground="#080818" TextWrapping="Wrap" />
+                                   FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
                     </Border>
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" AutoGenerateColumns="False"
                               IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
