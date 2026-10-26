@@ -24,6 +24,8 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public OperationalDemoStore OperationalStore { get; } = OperationalDemoStore.Instance;
 
+    public AccountingViewModel AccountingViewModel { get; } = new();
+
     public NavigationItemViewModel? PosMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Caja");
 
     public NavigationItemViewModel? InventoryMenuItem => MenuItems.FirstOrDefault(item => item.Title == "Inventario");
@@ -45,6 +47,7 @@ public sealed partial class ShellViewModel : ObservableObject
                 OnPropertyChanged(nameof(SuppliersVisibility));
                 OnPropertyChanged(nameof(SalesVisibility));
                 OnPropertyChanged(nameof(SettingsVisibility));
+                OnPropertyChanged(nameof(AccountingVisibility));
             }
         }
     }
@@ -65,7 +68,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility DashboardVisibility => CurrentSectionTitle == "Resumen" && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && CurrentSectionTitle != "Crédito" && CurrentSectionTitle != "Compras" && CurrentSectionTitle != "Proveedores" && CurrentSectionTitle != "Inventario" && CurrentSectionTitle != "Ventas" && CurrentSectionTitle != "Configuración" && !_isFocusMode
+    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && CurrentSectionTitle != "Crédito" && CurrentSectionTitle != "Compras" && CurrentSectionTitle != "Proveedores" && CurrentSectionTitle != "Inventario" && CurrentSectionTitle != "Ventas" && CurrentSectionTitle != "Configuración" && !AccountingViewModel.IsAccountingSection(CurrentSectionTitle) && !_isFocusMode
         ? Visibility.Visible
         : Visibility.Collapsed;
 
@@ -86,6 +89,12 @@ public sealed partial class ShellViewModel : ObservableObject
     public Visibility SalesVisibility => CurrentSectionTitle == "Ventas" ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility SettingsVisibility => CurrentSectionTitle == "Configuración" ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility AccountingVisibility => _currentRole.PuedeAcceder("Contabilidad")
+        && AccountingViewModel.IsAccountingSection(CurrentSectionTitle)
+        && !_isFocusMode
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
     public bool IsFocusMode => _isFocusMode;
 
@@ -167,6 +176,12 @@ public sealed partial class ShellViewModel : ObservableObject
             return;
         }
 
+        if (item.Children.Count > 0)
+        {
+            item.IsExpanded = !item.IsExpanded;
+            return;
+        }
+
         SelectSection(item.Destination);
     }
 
@@ -187,6 +202,11 @@ public sealed partial class ShellViewModel : ObservableObject
         {
             if (!_currentRole.PuedeVenderCredito || !_currentRole.PuedeAcceder("Caja")) return;
         }
+        else if (AccountingViewModel.IsAccountingSection(title))
+        {
+            if (!_currentRole.PuedeAcceder("Contabilidad")) return;
+            AccountingViewModel.SelectSection(title);
+        }
         else if (!_currentRole.PuedeAcceder(title))
         {
             return;
@@ -202,11 +222,16 @@ public sealed partial class ShellViewModel : ObservableObject
         OnPropertyChanged(nameof(FiadoVisibility));
         OnPropertyChanged(nameof(CustomersVisibility));
         OnPropertyChanged(nameof(CreditsVisibility));
+        OnPropertyChanged(nameof(AccountingVisibility));
         ToggleFocusCommand.NotifyCanExecuteChanged();
 
         foreach (var item in MenuItems)
         {
-            item.IsSelected = item.Destination == title;
+            item.IsSelected = item.Destination == title || item.Children.Any(child => child.Destination == title);
+            foreach (var child in item.Children)
+            {
+                child.IsSelected = child.Destination == title;
+            }
         }
     }
 
@@ -221,6 +246,7 @@ public sealed partial class ShellViewModel : ObservableObject
         AddMenuItem("Crédito", "◷");
         AddMenuItem("Proveedores", "♧");
         AddMenuItem("Inventario", "▤");
+        AddAccountingMenu();
         AddMenuItem("Ventas", "▣");
         AddMenuItem("Configuración", "⚙");
         OnPropertyChanged(nameof(PosMenuItem));
@@ -234,17 +260,56 @@ public sealed partial class ShellViewModel : ObservableObject
             MenuItems.Add(new NavigationItemViewModel(title, icon, title));
         }
     }
+
+    private void AddAccountingMenu()
+    {
+        if (!_currentRole.PuedeAcceder("Contabilidad"))
+        {
+            return;
+        }
+
+        var accountingMenu = new NavigationItemViewModel("Contabilidad", "≡", "Contabilidad");
+        accountingMenu.Children.Add(new NavigationItemViewModel("Resumen contable", "▦"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Libro diario", "≡"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Libro mayor", "▤"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Kardex PEPS", "↔"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Estado de situación financiera", "▥"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Estado de resultados", "▧"));
+        MenuItems.Add(accountingMenu);
+    }
 }
 
 public sealed class NavigationItemViewModel : ObservableObject
 {
     private bool _isSelected;
+    private bool _isExpanded;
+
+    public ObservableCollection<NavigationItemViewModel> Children { get; } = [];
 
     public string Title { get; }
 
     public string Destination { get; }
 
     public string Icon { get; }
+
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set
+        {
+            if (SetProperty(ref _isExpanded, value))
+            {
+                OnPropertyChanged(nameof(ChildrenVisibility));
+                OnPropertyChanged(nameof(ExpandGlyph));
+            }
+        }
+    }
+
+    public Visibility ChildrenVisibility => IsExpanded && Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility ExpandGlyphVisibility => Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public string ExpandGlyph => IsExpanded ? "⌄" : "›";
 
     public bool IsSelected
     {

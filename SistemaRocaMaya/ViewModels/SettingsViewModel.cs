@@ -59,7 +59,7 @@ public sealed class SettingsViewModel : ObservableObject
         {
             Id = 1,
             Nombre = "Gerencia",
-            Permisos = ["Resumen", "Caja", "Clientes", "Compras", "Crédito", "Proveedores", "Inventario", "Ventas", "Configuración"],
+            Permisos = ["Resumen", "Caja", "Clientes", "Compras", "Crédito", "Proveedores", "Inventario", "Contabilidad", "Ventas", "Configuración"],
             PuedeVenderCredito = true,
             PuedeAbrirCaja = true,
             PuedeCrearProductos = true,

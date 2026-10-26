@@ -98,32 +98,71 @@
                     <ItemsControl ItemsSource="{Binding MenuItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        CommandParameter="{Binding}" ToolTip="{Binding Title}"
-                                        AutomationProperties.Name="{Binding Title}">
-                                    <Border Padding="10,11" CornerRadius="7" Background="Transparent">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="28" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Icon}" FontSize="15" Foreground="#D4E1E8"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="8,0,0,0"
-                                                       FontSize="13" Foreground="#E7EFF3" VerticalAlignment="Center"
-                                                       Visibility="{Binding DataContext.SidebarTextVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                        </Grid>
-                                    </Border>
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Background" Value="#2A6F9E" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                <StackPanel>
+                                    <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" ToolTip="{Binding Title}"
+                                            AutomationProperties.Name="{Binding Title}">
+                                        <Border Padding="10,11" CornerRadius="7" Background="Transparent">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Icon}" FontSize="15" Foreground="#D4E1E8"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="8,0,0,0"
+                                                           FontSize="13" Foreground="#E7EFF3" VerticalAlignment="Center"
+                                                           Visibility="{Binding DataContext.SidebarTextVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                <TextBlock Grid.Column="2" Text="{Binding ExpandGlyph}" Margin="6,0,2,0"
+                                                           FontSize="14" Foreground="#D4E1E8" VerticalAlignment="Center"
+                                                           Visibility="{Binding ExpandGlyphVisibility}" />
+                                            </Grid>
+                                        </Border>
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Background" Value="#2A6F9E" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <ItemsControl ItemsSource="{Binding Children}" Visibility="{Binding ChildrenVisibility}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}" ToolTip="{Binding Title}"
+                                                        AutomationProperties.Name="{Binding Title}">
+                                                    <Border Margin="18,0,0,0" Padding="8,10" CornerRadius="7" Background="Transparent">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="20" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Icon}" FontSize="12" Foreground="#B7CBD8"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="6,0,0,0"
+                                                                       FontSize="12" Foreground="#E7EFF3" VerticalAlignment="Center"
+                                                                       TextWrapping="Wrap"
+                                                                       Visibility="{Binding DataContext.SidebarTextVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Background" Value="#2A6F9E" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -240,6 +279,8 @@
                              Visibility="{Binding DataContext.SalesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:SettingsView Grid.Row="0"
                                 Visibility="{Binding DataContext.SettingsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <views:AccountingView Grid.Row="0" DataContext="{Binding AccountingViewModel}"
+                                  Visibility="{Binding DataContext.AccountingVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
         </Grid>
     </Grid>
 </Window>
