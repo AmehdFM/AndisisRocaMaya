@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
-    <Grid Background="#F3F6F8" Margin="30,20">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -32,7 +32,7 @@
                              VerticalContentAlignment="Center" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                              ToolTip="Buscar por nombre, teléfono o identidad/RTN" />
                     <TextBlock Text="Buscar por nombre, teléfono o identidad/RTN" Margin="12,0" VerticalAlignment="Center"
-                               Foreground="#7A8D99" IsHitTestVisible="False">
+                               Foreground="{StaticResource RocaMayaTextSecondaryBrush}" IsHitTestVisible="False">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -45,7 +45,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                 </Grid>
-                <Grid Grid.Row="1" Margin="0,12,0,0" Background="{StaticResource RocaMayaCreamBrush}">
+                <Grid Grid.Row="1" Margin="0,12,0,0" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1.5*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="32" /></Grid.ColumnDefinitions>
                     <TextBlock Text="CLIENTE" Margin="14,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     <TextBlock Grid.Column="1" Text="CONTACTO" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -64,30 +64,30 @@
                             <Setter Property="Background" Value="White" />
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#EAF3F8" />
+                                    <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#DCEEF7" />
+                                    <Setter Property="Background" Value="{StaticResource RocaMayaBlueSelectedBrush}" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Padding="14,12" BorderBrush="#D8E3EA" BorderThickness="0,0,0,1"
+                            <Border Padding="14,12" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1"
                                     Background="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=Background}">
                                 <Grid MinHeight="52">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1.5*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="32" /></Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                        <TextBlock Text="{Binding TypeLabel}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
+                                        <TextBlock Text="{Binding TypeLabel}" Margin="0,3,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Phone}" FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                        <TextBlock Text="{Binding TaxOrIdentity}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
+                                        <TextBlock Text="{Binding TaxOrIdentity}" Margin="0,3,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding CreditHistory.Count, StringFormat='{}{0} movimientos'}"
-                                               VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                                               VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     <TextBlock Grid.Column="3" Text="{Binding BalanceText}" Margin="0,0,14,0" VerticalAlignment="Center"
                                                FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                     <TextBlock Grid.Column="4" Text="›" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -116,7 +116,9 @@
                     <RowDefinition Height="38" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Margin="0,0,0,12">
+                <Border Margin="0,0,0,12" Padding="14,10" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
+                    <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <Button Content="← Clientes" Command="{Binding ShowCustomerListCommand}" Height="36" Padding="12,0"
                             Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
@@ -124,18 +126,19 @@
                     <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding SelectedCustomer.Name}" FontSize="18" FontWeight="SemiBold"
                                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        <TextBlock Text="{Binding SelectedCustomer.Phone}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
-                        <TextBlock Text="{Binding SelectedCustomer.TaxOrIdentity}" Margin="0,2,0,0" FontSize="11" Foreground="#526A7A" />
+                        <TextBlock Text="{Binding SelectedCustomer.Phone}" Margin="0,3,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedCustomer.TaxOrIdentity}" Margin="0,2,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <TextBlock Text="SALDO PENDIENTE" FontSize="9" FontWeight="Bold" Foreground="#526A7A" />
+                        <TextBlock Text="SALDO PENDIENTE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <TextBlock Text="{Binding SelectedCustomerBalanceText}" Margin="0,3,0,0" FontSize="22"
                                    FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                     </StackPanel>
-                </Grid>
+                    </Grid>
+                </Border>
                 <Grid Grid.Row="1" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                    <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <Button Grid.Column="1" Content="＋  Registrar abono" Click="RecordPayment_Click"
                             IsEnabled="{Binding HasSelectedCustomer}" Height="40" Padding="16,0"
                             Background="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="0"
@@ -145,10 +148,10 @@
                          Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
                          Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                          ToolTip="Buscar en movimientos por descripción, tipo o fecha" />
-                <Border Grid.Row="3" Background="White" BorderBrush="#D8E3EA" BorderThickness="0,1,0,0">
+                <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1,0,0">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="36" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                        <Border Background="{StaticResource RocaMayaCreamBrush}">
+                        <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <TextBlock Text="FECHA" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -163,10 +166,10 @@
                                     <DataTemplate>
                                         <Grid MinHeight="42" Margin="12,0">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Date, StringFormat='{}{0:dd/MM/yy}'}" VerticalAlignment="Center" FontSize="10" Foreground="#526A7A" />
+                                            <TextBlock Text="{Binding Date, StringFormat='{}{0:dd/MM/yy}'}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                             <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding TypeLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                                <TextBlock Text="{Binding Description}" FontSize="9" Foreground="#526A7A" />
+                                                <TextBlock Text="{Binding Description}" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding AmountText}" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                             <TextBlock Grid.Column="3" Text="{Binding BalanceText}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />

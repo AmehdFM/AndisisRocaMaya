@@ -42,6 +42,9 @@ public sealed class PosViewModel : ObservableObject
     }
 
     public bool IsCashOpen => _store.IsCashOpen;
+    public System.Windows.Visibility CashClosedOverlayVisibility => IsCashOpen
+        ? System.Windows.Visibility.Collapsed
+        : System.Windows.Visibility.Visible;
     public string CashActionLabel => IsCashOpen ? "Cerrar caja" : "Abrir caja";
     public string CashStatusText => IsCashOpen
         ? $"Caja abierta · {_store.ActiveCashSession!.OpeningAmountText} inicial"
@@ -94,6 +97,7 @@ public sealed class PosViewModel : ObservableObject
         if (e.PropertyName == nameof(OperationalDemoStore.IsCashOpen))
         {
             OnPropertyChanged(nameof(IsCashOpen));
+            OnPropertyChanged(nameof(CashClosedOverlayVisibility));
             OnPropertyChanged(nameof(CashActionLabel));
             OnPropertyChanged(nameof(CashStatusText));
         }

@@ -30,7 +30,7 @@
                     <RowDefinition Height="38" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Background="{StaticResource RocaMayaCreamBrush}" Margin="0,0,0,1">
+                <Grid Background="{StaticResource RocaMayaBlueSurfaceBrush}" Margin="0,0,0,1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.1*" />

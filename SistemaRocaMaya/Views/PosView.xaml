@@ -22,7 +22,22 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#F3F6F8">
+    <Grid>
+        <Grid x:Name="CashScreenContent" Background="#F3F6F8">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Effect">
+                    <Setter.Value><BlurEffect Radius="0" /></Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsCashOpen}" Value="False">
+                        <Setter Property="Effect">
+                            <Setter.Value><BlurEffect Radius="8" /></Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
         <Grid.RowDefinitions>
             <RowDefinition Height="70" />
             <RowDefinition Height="*" />
@@ -221,5 +236,16 @@
                            FontSize="10" Foreground="#637887" />
             </DockPanel>
         </Border>
+        </Grid>
+
+        <Grid Panel.ZIndex="10" Background="#BFEFF6FA" Visibility="{Binding CashClosedOverlayVisibility}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Caja cerrada" Margin="0,0,0,14" HorizontalAlignment="Center"
+                           FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <Button Content="Abrir caja" Click="ToggleCashSession_Click" Width="230" Height="58"
+                        Background="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="0"
+                        Foreground="White" FontSize="16" FontWeight="SemiBold" Cursor="Hand" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

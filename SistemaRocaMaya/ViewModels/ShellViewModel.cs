@@ -241,13 +241,13 @@ public sealed partial class ShellViewModel : ObservableObject
 
         AddMenuItem("Resumen", "▦");
         AddMenuItem("Caja", "▣");
-        AddMenuItem("Clientes", "♙");
-        AddMenuItem("Compras", "＋");
-        AddMenuItem("Crédito", "◷");
-        AddMenuItem("Proveedores", "♧");
-        AddMenuItem("Inventario", "▤");
-        AddAccountingMenu();
         AddMenuItem("Ventas", "▣");
+        AddMenuItem("Clientes", "♙");
+        AddMenuItem("Crédito", "◷");
+        AddMenuItem("Inventario", "▤");
+        AddMenuItem("Compras", "＋");
+        AddMenuItem("Proveedores", "♧");
+        AddAccountingMenu();
         AddMenuItem("Configuración", "⚙");
         OnPropertyChanged(nameof(PosMenuItem));
         OnPropertyChanged(nameof(InventoryMenuItem));
@@ -272,9 +272,9 @@ public sealed partial class ShellViewModel : ObservableObject
         accountingMenu.Children.Add(new NavigationItemViewModel("Resumen contable", "▦"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Libro diario", "≡"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Libro mayor", "▤"));
-        accountingMenu.Children.Add(new NavigationItemViewModel("Kardex PEPS", "↔"));
-        accountingMenu.Children.Add(new NavigationItemViewModel("Estado de situación financiera", "▥"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Estado de resultados", "▧"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Estado de situación financiera", "▥"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Kardex PEPS", "↔"));
         MenuItems.Add(accountingMenu);
     }
 }

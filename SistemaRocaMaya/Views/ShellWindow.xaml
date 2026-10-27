@@ -95,6 +95,14 @@
                 </Grid>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="{x:Type ScrollBar}">
+                            <Setter Property="Width" Value="7" />
+                            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                            <Setter Property="Margin" Value="0,4,2,4" />
+                        </Style>
+                    </ScrollViewer.Resources>
                     <ItemsControl ItemsSource="{Binding MenuItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

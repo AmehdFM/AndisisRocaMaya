@@ -2,12 +2,22 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
-    <Grid Background="#F3F6F8" Margin="30,20">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,16">
             <TextBlock Text="Ventas" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
         </StackPanel>
-        <TabControl Grid.Row="1" Margin="0,0,0,0" Background="Transparent" BorderBrush="#D8E3EA">
+        <TabControl Grid.Row="1" Margin="0,0,0,0" Background="Transparent" BorderBrush="{StaticResource RocaMayaBorderBrush}">
             <TabItem Header="Ventas">
                 <Grid Margin="12">
                     <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /><RowDefinition Height="112" /></Grid.RowDefinitions>
@@ -17,7 +27,8 @@
                     <DataGrid Grid.Row="1" Margin="0,10,0,10" ItemsSource="{Binding Sales}"
                               SelectedItem="{Binding SelectedSale}" AutoGenerateColumns="False" IsReadOnly="True"
                               CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0"
-                              Background="White" BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal">
+                              Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="TICKET" Binding="{Binding Ticket}" Width="0.8*" />
                             <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="1.3*" />
@@ -26,7 +37,8 @@
                             <DataGridTextColumn Header="TOTAL" Binding="{Binding TotalText}" Width="1*" />
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Border Grid.Row="2" Background="Transparent" BorderThickness="0" Padding="12,8">
+                    <Border Grid.Row="2" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                            BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                             <TextBlock Text="Detalle de la venta seleccionada" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -36,9 +48,9 @@
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="0,3,14,3">
                                                 <TextBlock Text="{Binding ProductName}" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                                <TextBlock Text=" · " FontSize="10" Foreground="#526A7A" />
+                                                <TextBlock Text=" · " FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                                 <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                                <TextBlock Text=" · " FontSize="10" Foreground="#526A7A" />
+                                                <TextBlock Text=" · " FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                                 <TextBlock Text="{Binding LineTotalText}" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -58,7 +70,8 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding CashSessions}" SelectedItem="{Binding SelectedSession}"
                               AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
                               HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
-                              BorderBrush="#D8E3EA" GridLinesVisibility="Horizontal" Margin="0,0,12,0">
+                              BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" Margin="0,0,12,0"
+                              HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.3*" />
                             <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.3*" />
@@ -66,18 +79,18 @@
                             <DataGridTextColumn Header="DIFERENCIA" Binding="{Binding DifferenceText}" Width="1*" />
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Grid.Row="1" Grid.Column="1">
+                    <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" Padding="14"
+                            Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                            BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
+                    <StackPanel>
                         <TextBlock Text="Sesión seleccionada" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" Margin="0,0,0,8" />
-                        <Border Background="Transparent" BorderThickness="0" Padding="14,8">
-                            <StackPanel>
-                                <TextBlock Text="{Binding SelectedSession.OpeningAmountText, StringFormat='Fondo inicial: {0}'}" FontSize="11" Foreground="#526A7A" />
-                                <TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='Ventas al contado: L {0:N2}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
-                                <TextBlock Text="{Binding SelectedSession.ExpectedAmountText, StringFormat='Efectivo esperado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
-                                <TextBlock Text="{Binding SelectedSession.ClosingAmountText, StringFormat='Efectivo contado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="#526A7A" />
-                                <TextBlock Text="{Binding SelectedSession.DifferenceText, StringFormat='Diferencia: {0}'}" Margin="0,6,0,0" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="{Binding SelectedSession.OpeningAmountText, StringFormat='Fondo inicial: {0}'}" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='Ventas al contado: L {0:N2}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedSession.ExpectedAmountText, StringFormat='Efectivo esperado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedSession.ClosingAmountText, StringFormat='Efectivo contado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedSession.DifferenceText, StringFormat='Diferencia: {0}'}" Margin="0,6,0,0" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                     </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
         </TabControl>

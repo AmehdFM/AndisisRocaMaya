@@ -2,80 +2,90 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
-    <Grid Background="#F3F6F8" Margin="30,10,30,28">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,10,30,28">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="112" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <TextBlock Text="Resumen" FontSize="27" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" Margin="0,0,0,18" />
-        <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0,17">
+        <Border Grid.Row="1" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Padding="0,15">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                 <StackPanel Margin="18,0" VerticalAlignment="Center">
-                    <TextBlock Text="VENTAS DE HOY" FontSize="10" FontWeight="Bold" Foreground="#526A7A" />
+                    <TextBlock Text="VENTAS DE HOY" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <TextBlock Text="{Binding SalesTodayText}" Margin="0,7,0,0" FontSize="23" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                    <TextBlock Text="{Binding SalesTodayCount, StringFormat='{}{0} ventas'}" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
+                    <TextBlock Text="{Binding SalesTodayCount, StringFormat='{}{0} ventas'}" Margin="0,3,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </StackPanel>
-                <Border Grid.Column="1" Background="#D8E3EA" />
+                <Border Grid.Column="1" Background="{StaticResource RocaMayaBorderBrush}" />
                 <StackPanel Grid.Column="2" Margin="20,0" VerticalAlignment="Center">
-                    <TextBlock Text="ESTADO DE CAJA" FontSize="10" FontWeight="Bold" Foreground="#526A7A" />
+                    <TextBlock Text="ESTADO DE CAJA" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <TextBlock Text="{Binding CashStateText}" Margin="0,7,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 </StackPanel>
-                <Border Grid.Column="3" Background="#D8E3EA" />
+                <Border Grid.Column="3" Background="{StaticResource RocaMayaBorderBrush}" />
                 <StackPanel Grid.Column="4" Margin="20,0" VerticalAlignment="Center">
-                    <TextBlock Text="LOTES POR VENCER" FontSize="10" FontWeight="Bold" Foreground="#526A7A" />
+                    <TextBlock Text="LOTES POR VENCER" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <TextBlock Text="{Binding ExpiringCount}" Margin="0,7,0,0" FontSize="23" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                    <TextBlock Text="Próximos 30 días" Margin="0,3,0,0" FontSize="11" Foreground="#526A7A" />
+                    <TextBlock Text="Próximos 30 días" Margin="0,3,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </StackPanel>
             </Grid>
         </Border>
 
         <Grid Grid.Row="2" Margin="0,20,0,0">
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="0.9*" /></Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Margin="0,0,22,0">
-                <TextBlock Text="Ventas recientes" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <TextBlock Text="Operaciones de contado y crédito" Margin="0,3,0,10" FontSize="11" Foreground="#526A7A" />
-                <Border Background="Transparent" BorderThickness="0">
+            <Grid Grid.Column="0" Margin="0,0,18,0">
+                <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1" Padding="12,0">
+                    <TextBlock Text="Ventas recientes" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
                     <ItemsControl ItemsSource="{Binding RecentSales}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="14,10">
+                                <Grid MinHeight="58" Margin="14,0">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding Ticket, StringFormat='Venta · {0}'}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                        <TextBlock Text="{Binding DateText}" Margin="0,3,0,0" FontSize="10" Foreground="#526A7A" />
+                                        <TextBlock Text="{Binding DateText}" Margin="0,3,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding TotalText}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Right" />
-                                        <TextBlock Text="{Binding PaymentText}" Margin="0,2,0,0" FontSize="9" Foreground="#526A7A" HorizontalAlignment="Right" />
+                                        <TextBlock Text="{Binding PaymentText}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" HorizontalAlignment="Right" />
                                     </StackPanel>
+                                    <Border Height="1" VerticalAlignment="Bottom" Background="{StaticResource RocaMayaDividerBrush}" Grid.ColumnSpan="2" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Border>
-            </StackPanel>
+            </Grid>
 
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="Productos próximos a vencer" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <TextBlock Text="Lotes con vencimiento dentro de 30 días" Margin="0,3,0,10" FontSize="11" Foreground="#526A7A" />
-                <Border Background="Transparent" BorderThickness="0">
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1" Padding="12,0">
+                    <TextBlock Text="Productos próximos a vencer" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
                     <ItemsControl ItemsSource="{Binding ExpiringProducts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="12,9">
+                                <Grid MinHeight="58" Margin="12,0">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding ProductName}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                        <TextBlock Text="{Binding Quantity, StringFormat='{}{0} unidades'}" Margin="0,2,0,0" FontSize="9" Foreground="#526A7A" />
+                                        <TextBlock Text="{Binding Quantity, StringFormat='{}{0} unidades'}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding ExpirationDateText}" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" HorizontalAlignment="Right" />
                                         <TextBlock Text="{Binding ExpirationState}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Right" />
                                     </StackPanel>
+                                    <Border Height="1" VerticalAlignment="Bottom" Background="{StaticResource RocaMayaDividerBrush}" Grid.ColumnSpan="2" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Border>
-            </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

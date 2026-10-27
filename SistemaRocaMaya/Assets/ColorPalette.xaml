@@ -8,6 +8,12 @@
     <Color x:Key="RocaMayaCream">#EFE5D0</Color>
     <Color x:Key="RocaMayaDanger">#B42318</Color>
     <Color x:Key="RocaMayaDangerSoft">#FEE4E2</Color>
+    <Color x:Key="RocaMayaSurface">#F3F8FB</Color>
+    <Color x:Key="RocaMayaBlueSurface">#EAF5FB</Color>
+    <Color x:Key="RocaMayaBlueSelected">#D6ECF7</Color>
+    <Color x:Key="RocaMayaBorder">#C8DCE8</Color>
+    <Color x:Key="RocaMayaDivider">#D8E5ED</Color>
+    <Color x:Key="RocaMayaTextSecondary">#526A7A</Color>
 
     <SolidColorBrush x:Key="RocaMayaBluePrimaryBrush" Color="{StaticResource RocaMayaBluePrimary}" />
     <SolidColorBrush x:Key="RocaMayaBlueBrightBrush" Color="{StaticResource RocaMayaBlueBright}" />
@@ -17,4 +23,10 @@
     <SolidColorBrush x:Key="RocaMayaCreamBrush" Color="{StaticResource RocaMayaCream}" />
     <SolidColorBrush x:Key="RocaMayaDangerBrush" Color="{StaticResource RocaMayaDanger}" />
     <SolidColorBrush x:Key="RocaMayaDangerSoftBrush" Color="{StaticResource RocaMayaDangerSoft}" />
+    <SolidColorBrush x:Key="RocaMayaSurfaceBrush" Color="{StaticResource RocaMayaSurface}" />
+    <SolidColorBrush x:Key="RocaMayaBlueSurfaceBrush" Color="{StaticResource RocaMayaBlueSurface}" />
+    <SolidColorBrush x:Key="RocaMayaBlueSelectedBrush" Color="{StaticResource RocaMayaBlueSelected}" />
+    <SolidColorBrush x:Key="RocaMayaBorderBrush" Color="{StaticResource RocaMayaBorder}" />
+    <SolidColorBrush x:Key="RocaMayaDividerBrush" Color="{StaticResource RocaMayaDivider}" />
+    <SolidColorBrush x:Key="RocaMayaTextSecondaryBrush" Color="{StaticResource RocaMayaTextSecondary}" />
 </ResourceDictionary>
