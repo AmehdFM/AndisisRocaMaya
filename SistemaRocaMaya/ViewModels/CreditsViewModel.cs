@@ -26,6 +26,7 @@ public sealed class CreditsViewModel : ObservableObject
     public ListCollectionView CustomersWithCredit { get; }
     public ListCollectionView AgingCustomers { get; }
     public IReadOnlyList<CreditAgingBar> AgingBars { get; private set; } = [];
+    public IReadOnlyList<CreditAgingRanking> AgingRankings { get; private set; } = [];
     public string AgingActionMessage
     {
         get => _agingActionMessage;
@@ -39,7 +40,7 @@ public sealed class CreditsViewModel : ObservableObject
             if (SetProperty(ref _agingSearchText, value))
             {
                 AgingCustomers.Refresh();
-                RefreshAgingBars();
+                RefreshAgingSummary();
             }
         }
     }
@@ -150,10 +151,10 @@ public sealed class CreditsViewModel : ObservableObject
             if (row.Balance > 0m) _allAgingCustomers.Add(row);
         }
         AgingCustomers.Refresh();
-        RefreshAgingBars();
+        RefreshAgingSummary();
     }
 
-    private void RefreshAgingBars()
+    private void RefreshAgingSummary()
     {
         var rows = AgingCustomers.Cast<CreditAgingCustomerViewModel>().ToArray();
         var amounts = new (string Label, decimal Amount)[]
@@ -170,7 +171,25 @@ public sealed class CreditsViewModel : ObservableObject
             return new CreditAgingBar(bar.Label, OperationalDemoStore.FormatMoney(bar.Amount),
                 new GridLength(share, GridUnitType.Star), new GridLength(1d - share, GridUnitType.Star));
         }).ToArray();
+        AgingRankings =
+        [
+            new("Mayores saldos pendientes", "Sin cuentas con saldo pendiente.",
+                rows.OrderByDescending(row => row.Balance)
+                    .ThenBy(row => row.CustomerName)
+                    .Take(2)
+                    .Select(row => new CreditAgingRankEntry(row.CustomerName, row.BalanceText))
+                    .ToArray()),
+            new("Más días de mora", "Sin cuentas vencidas.",
+                rows.Where(row => row.DaysOverdue > 0)
+                    .OrderByDescending(row => row.DaysOverdue)
+                    .ThenByDescending(row => row.Balance)
+                    .ThenBy(row => row.CustomerName)
+                    .Take(2)
+                    .Select(row => new CreditAgingRankEntry(row.CustomerName, row.DaysOverdueText))
+                    .ToArray())
+        ];
         OnPropertyChanged(nameof(AgingBars));
+        OnPropertyChanged(nameof(AgingRankings));
     }
 
 
@@ -295,3 +314,6 @@ public sealed record CreditAgingCustomerViewModel(
 }
 
 public sealed record CreditAgingBar(string Label, string Amount, GridLength FilledWidth, GridLength RemainingWidth);
+
+public sealed record CreditAgingRanking(string Title, string EmptyMessage, IReadOnlyList<CreditAgingRankEntry> Rows);
+public sealed record CreditAgingRankEntry(string CustomerName, string Value);
