@@ -154,6 +154,7 @@ public sealed class OperationalDemoStore : ObservableObject
         if (paymentType == SalePaymentType.Cash)
         {
             ActiveCashSession.CashSales += sale.Total;
+            ActiveCashSession.AddCashSale(sale);
         }
         else
         {
@@ -258,6 +259,12 @@ public sealed class OperationalDemoStore : ObservableObject
         var bread = CreateProduct("Pan blanco", 14m);
 
         var yesterday = DateTime.Today.AddDays(-1);
+        RecordPurchase(distributor, DateTime.Today.AddDays(-31), [
+            new(cocaCola, 20, 15.50m, DateTime.Today.AddDays(45)),
+            new(rice, 20, 17.50m, DateTime.Today.AddDays(210)),
+            new(beans, 18, 24m, DateTime.Today.AddDays(150)),
+            new(coffee, 6, 56m, DateTime.Today.AddDays(90))
+        ]);
         RecordPurchase(distributor, yesterday, [
             new(cocaCola, 30, 16m, DateTime.Today.AddDays(60)),
             new(rice, 24, 18m, DateTime.Today.AddDays(240)),
@@ -271,9 +278,35 @@ public sealed class OperationalDemoStore : ObservableObject
 
         var maria = CreateCustomer("María López", "9999-1234", CustomerType.Person, "0801-1990-12345");
         var carlos = CreateCustomer("Carlos Méndez", "9888-4321", CustomerType.Company, "08011990123456");
-        maria.AddCredit(260m, "Saldo inicial de demostración", DateTime.Today.AddDays(-6));
+        var ana = CreateCustomer("Ana Martínez", "9777-2233", CustomerType.Person, "0801-1995-22334");
+        maria.AddCredit(260m, "Saldo inicial de demostración", DateTime.Today.AddDays(-42));
         maria.AddPayment(100m, "Abono de demostración", DateTime.Today.AddDays(-2));
-        carlos.AddCredit(420m, "Saldo inicial de demostración", DateTime.Today.AddDays(-3));
+        carlos.AddCredit(420m, "Saldo inicial de demostración", DateTime.Today.AddDays(-78));
+        ana.AddCredit(150m, "Saldo inicial de demostración", DateTime.Today.AddDays(-12));
+
+        OpenCashSession(
+        [
+            new CashDenominationCount(200m, 1)
+        ], yesterday.Date.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null,
+        [
+            new SaleLineInput(rice, 2, rice.SalePrice),
+            new SaleLineInput(cocaCola, 1, cocaCola.SalePrice)
+        ], yesterday.Date.AddHours(7).AddMinutes(30));
+        RecordSale(SalePaymentType.Cash, null,
+        [
+            new SaleLineInput(beans, 1, beans.SalePrice),
+            new SaleLineInput(coffee, 1, coffee.SalePrice)
+        ], yesterday.Date.AddHours(7).AddMinutes(45));
+        CloseCashSession(
+        [
+            new CashDenominationCount(200m, 1),
+            new CashDenominationCount(100m, 1),
+            new CashDenominationCount(50m, 1),
+            new CashDenominationCount(20m, 1),
+            new CashDenominationCount(5m, 1),
+            new CashDenominationCount(2m, 2)
+        ], yesterday.Date.AddHours(16));
     }
 }
 

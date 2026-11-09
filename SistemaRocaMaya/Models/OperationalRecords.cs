@@ -230,6 +230,7 @@ public sealed class CashSessionRecord(
         }
     }
     public IReadOnlyList<CashDenominationCount> OpeningCount { get; } = openingCount;
+    public ObservableCollection<SaleRecord> CashSalesDetail { get; } = [];
     public IReadOnlyList<CashDenominationCount> ClosingCount
     {
         get => _closingCount;
@@ -268,4 +269,9 @@ public sealed class CashSessionRecord(
     public string DifferenceText => OperationalDemoStore.FormatMoney(Difference);
     public string OpenedText => OpenedAt.ToString("dd/MM/yyyy HH:mm");
     public string ClosedText => ClosedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Abierta";
+
+    internal void AddCashSale(SaleRecord sale)
+    {
+        CashSalesDetail.Add(sale);
+    }
 }

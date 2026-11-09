@@ -1,6 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Models;
+using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -16,7 +22,61 @@ public sealed class AccountingViewModel : ObservableObject
         "Estado de resultados"
     };
 
+    private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
     private string _selectedSection = "Resumen contable";
+    private string _journalSearchText = "";
+    private string _ledgerSearchText = "";
+    private string _selectedLedgerAccount = "Caja";
+    private DateTime? _journalStartDate = DateTime.Today.AddDays(-31);
+    private DateTime? _journalEndDate = DateTime.Today;
+    private DateTime? _ledgerStartDate = DateTime.Today.AddDays(-31);
+    private DateTime? _ledgerEndDate = DateTime.Today;
+    private DateTime? _financialPositionCutoffDate = DateTime.Today;
+    private DateTime? _incomeStartDate = DateTime.Today.AddDays(-31);
+    private DateTime? _incomeEndDate = DateTime.Today;
+    private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
+    private DateTime? _kardexEndDate = DateTime.Today;
+    private string _kardexSearchText = "";
+    private string _kardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal";
+    private string _journalActionMessage = "Datos de demostración · período conciliado con las operaciones demo";
+    private string _ledgerActionMessage = "Datos de demostración · período conciliado con las operaciones demo";
+    private string _statementActionMessage = "Datos de demostración · conciliados con las operaciones demo";
+    private decimal _reportRevenue;
+    private decimal _reportCostOfSales;
+    private decimal _reportReceivables;
+    private decimal _reportInventory;
+    private decimal _reportCash;
+    private decimal _reportPayables;
+    private decimal _reportAssets;
+    private decimal _reportEquity;
+    private decimal _reportNetIncome;
+    private decimal _reportNetIncomeAtCutoff;
+    private decimal _chartScaleMaximum = 100m;
+
+    private readonly ObservableCollection<JournalEntryViewModel> _allJournalEntries = [];
+    private readonly ObservableCollection<LedgerEntryViewModel> _allLedgerEntries = [];
+
+    public AccountingViewModel()
+    {
+        JournalEntries = new ListCollectionView(_allJournalEntries);
+        JournalEntries.Filter = FilterJournalEntry;
+        LedgerEntries = new ListCollectionView(_allLedgerEntries);
+        LedgerEntries.Filter = FilterLedgerEntry;
+        KardexMovements = new ListCollectionView(_allKardexMovements);
+        KardexMovements.Filter = FilterKardexMovement;
+        InitializeOperationBasedReports();
+        ExportJournalCommand = new RelayCommand(() => JournalActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        PrintLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+        ExportFinancialPositionCommand = new RelayCommand(() => StatementActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportIncomeStatementCommand = new RelayCommand(() => StatementActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportKardexCommand = new RelayCommand(() => KardexActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        PrintKardexCommand = new RelayCommand(() => KardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
+        PrintJournalCommand = new RelayCommand(() => JournalActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
+        PrintFinancialPositionCommand = new RelayCommand(() => StatementActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta vertical · Encabezados previstos para repetirse.");
+        PrintIncomeStatementCommand = new RelayCommand(() => StatementActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta vertical · Encabezados previstos para repetirse.");
+        SubscribeToDemoChanges();
+    }
 
     public string SelectedSection
     {
@@ -31,14 +91,222 @@ public sealed class AccountingViewModel : ObservableObject
                 OnPropertyChanged(nameof(KardexVisibility));
                 OnPropertyChanged(nameof(FinancialPositionVisibility));
                 OnPropertyChanged(nameof(IncomeStatementVisibility));
+                OnPropertyChanged(nameof(PeriodLabel));
             }
         }
     }
 
-    public string PeriodLabel => "Octubre 2026";
+    public string PeriodLabel => SelectedSection switch
+    {
+        "Libro diario" => FormatPeriod(JournalStartDate, JournalEndDate),
+        "Libro mayor" => FormatPeriod(LedgerStartDate, LedgerEndDate),
+        "Kardex PEPS" => FormatPeriod(KardexStartDate, KardexEndDate),
+        "Estado de situación financiera" => $"Al corte: {FinancialPositionCutoffDate?.ToString("dd/MM/yyyy") ?? "sin fecha"}",
+        "Estado de resultados" => FormatPeriod(IncomeStartDate, IncomeEndDate),
+        _ => $"{FormatPeriod(JournalStartDate, JournalEndDate)} · datos de demostración"
+    };
+
+    public string AccountingIdentity => "Consulfarma Rocamaya · Pulpería Santa Lucía";
+    public string ReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
+    public string ChartScaleTopText => FormatMoney(_chartScaleMaximum);
+    public string ChartScaleThreeQuarterText => FormatMoney(_chartScaleMaximum * 0.75m);
+    public string ChartScaleMiddleText => FormatMoney(_chartScaleMaximum / 2m);
+    public string ChartScaleQuarterText => FormatMoney(_chartScaleMaximum / 4m);
+    public string ChartScaleUnitText => "Escala en Lempiras (L)";
+    public string AccountingResponsible => "Área responsable: Administración y contabilidad";
+    public string JournalSubtitle => "Registro cronológico de transacciones en debe y haber";
+    public string LedgerSubtitle => "Movimientos, cargos, abonos y saldo acumulado por cuenta";
+    public string ReportPaginationNote => "Formato previsto: papel carta · página numerada · encabezados de columnas repetidos al continuar el reporte";
+    public string StatementIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
+    public string StatementResponsible => "Área responsable: Administración y contabilidad";
+    public string StatementActionMessage
+    {
+        get => _statementActionMessage;
+        private set => SetProperty(ref _statementActionMessage, value);
+    }
+    public string FinancialPositionSubtitle => "Situación financiera a una fecha de corte · Datos de demostración conciliados";
+    public string IncomeStatementSubtitle => "Ingresos y costo de ventas del período · Datos de demostración conciliados";
+
+    public DateTime? FinancialPositionCutoffDate
+    {
+        get => _financialPositionCutoffDate;
+        set
+        {
+            if (SetProperty(ref _financialPositionCutoffDate, value))
+            {
+                RefreshFinancialPositionOutput();
+                RefreshManagementIndicators();
+                OnPropertyChanged(nameof(PeriodLabel));
+            }
+        }
+    }
+
+    public DateTime? IncomeStartDate
+    {
+        get => _incomeStartDate;
+        set
+        {
+            if (SetProperty(ref _incomeStartDate, value))
+            {
+                RefreshIncomeStatementOutput();
+                RefreshManagementIndicators();
+                OnPropertyChanged(nameof(PeriodLabel));
+            }
+        }
+    }
+
+    public DateTime? IncomeEndDate
+    {
+        get => _incomeEndDate;
+        set
+        {
+            if (SetProperty(ref _incomeEndDate, value))
+            {
+                RefreshIncomeStatementOutput();
+                RefreshManagementIndicators();
+                OnPropertyChanged(nameof(PeriodLabel));
+            }
+        }
+    }
+
+    public DateTime? KardexStartDate
+    {
+        get => _kardexStartDate;
+        set
+        {
+            if (SetProperty(ref _kardexStartDate, value)) RefreshKardex();
+        }
+    }
+
+    public DateTime? KardexEndDate
+    {
+        get => _kardexEndDate;
+        set
+        {
+            if (SetProperty(ref _kardexEndDate, value)) RefreshKardex();
+        }
+    }
+
+    public string KardexSearchText
+    {
+        get => _kardexSearchText;
+        set
+        {
+            if (SetProperty(ref _kardexSearchText, value)) KardexMovements.Refresh();
+        }
+    }
+
+    public ListCollectionView JournalEntries { get; }
+    public ListCollectionView LedgerEntries { get; }
+
+    public DateTime? JournalStartDate
+    {
+        get => _journalStartDate;
+        set
+        {
+            if (SetProperty(ref _journalStartDate, value)) RefreshJournal();
+        }
+    }
+
+    public DateTime? JournalEndDate
+    {
+        get => _journalEndDate;
+        set
+        {
+            if (SetProperty(ref _journalEndDate, value)) RefreshJournal();
+        }
+    }
+
+    public string JournalSearchText
+    {
+        get => _journalSearchText;
+        set
+        {
+            if (SetProperty(ref _journalSearchText, value)) RefreshJournal();
+        }
+    }
+
+    public string JournalDebitTotalText => FormatMoney(JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Debit));
+    public string JournalCreditTotalText => FormatMoney(JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Credit));
+    public string JournalBalanceStatus => JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Debit)
+        == JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Credit)
+            ? "Debe y haber coinciden"
+            : "Revise los totales del período";
+
+    public DateTime? LedgerStartDate
+    {
+        get => _ledgerStartDate;
+        set
+        {
+            if (SetProperty(ref _ledgerStartDate, value)) RefreshLedger();
+        }
+    }
+
+    public DateTime? LedgerEndDate
+    {
+        get => _ledgerEndDate;
+        set
+        {
+            if (SetProperty(ref _ledgerEndDate, value)) RefreshLedger();
+        }
+    }
+
+    public ObservableCollection<string> LedgerAccounts { get; } = ["Caja", "Crédito por cobrar", "Inventario", "Costo de ventas", "Ingresos por ventas", "Proveedores"];
+
+    public string SelectedLedgerAccount
+    {
+        get => _selectedLedgerAccount;
+        set
+        {
+            if (SetProperty(ref _selectedLedgerAccount, value)) RefreshLedger();
+        }
+    }
+
+    public string LedgerSearchText
+    {
+        get => _ledgerSearchText;
+        set
+        {
+            if (SetProperty(ref _ledgerSearchText, value)) RefreshLedger();
+        }
+    }
+
+    public string LedgerOpeningBalanceText => FormatMoney(GetLedgerOpeningBalance());
+    public string LedgerDebitTotalText => FormatMoney(LedgerEntries.Cast<LedgerEntryViewModel>().Sum(entry => entry.Debit));
+    public string LedgerCreditTotalText => FormatMoney(LedgerEntries.Cast<LedgerEntryViewModel>().Sum(entry => entry.Credit));
+    public string LedgerClosingBalanceText => FormatMoney(GetLedgerClosingBalance());
+
+    public string JournalActionMessage
+    {
+        get => _journalActionMessage;
+        private set => SetProperty(ref _journalActionMessage, value);
+    }
+
+    public string LedgerActionMessage
+    {
+        get => _ledgerActionMessage;
+        private set => SetProperty(ref _ledgerActionMessage, value);
+    }
+
+    public IRelayCommand ExportJournalCommand { get; }
+    public IRelayCommand ExportLedgerCommand { get; }
+    public IRelayCommand PrintLedgerCommand { get; }
+    public IRelayCommand ExportFinancialPositionCommand { get; }
+    public IRelayCommand ExportIncomeStatementCommand { get; }
+    public IRelayCommand ExportKardexCommand { get; }
+    public IRelayCommand PrintKardexCommand { get; }
+    public IRelayCommand PrintJournalCommand { get; }
+    public IRelayCommand PrintFinancialPositionCommand { get; }
+    public IRelayCommand PrintIncomeStatementCommand { get; }
 
     public string KardexProductLabel => "Arroz 1 libra";
-    public string KardexClosingStock => "6 unidades";
+    public string KardexClosingStock => $"{GetKardexClosingMovement()?.TotalStockQuantity ?? 0} unidades";
+    public string KardexClosingValue => $"Costo final: {FormatMoney(GetKardexClosingMovement()?.TotalStockCost ?? 0m)}";
+    public string KardexActionMessage
+    {
+        get => _kardexActionMessage;
+        private set => SetProperty(ref _kardexActionMessage, value);
+    }
 
     public Visibility SummaryVisibility => VisibilityFor("Resumen contable");
     public Visibility JournalVisibility => VisibilityFor("Libro diario");
@@ -55,6 +323,8 @@ public sealed class AccountingViewModel : ObservableObject
         new("ACTIVOS", "L 52,900.00", "")
     ];
 
+    public ObservableCollection<AccountingIndicatorViewModel> ManagementIndicators { get; } = [];
+
     public ObservableCollection<AccountingMetricViewModel> FinancialPositionMetrics { get; } =
     [
         new("ACTIVOS", "L 52,900.00", ""),
@@ -69,70 +339,558 @@ public sealed class AccountingViewModel : ObservableObject
         new("RESULTADO NETO", "L 13,280.00", "")
     ];
 
-    public ObservableCollection<AccountingPeriodViewModel> PeriodPerformance { get; } =
-    [
-        new("May", 58, 39),
-        new("Jun", 66, 43),
-        new("Jul", 62, 46),
-        new("Ago", 78, 52),
-        new("Sep", 91, 67),
-        new("Oct", 108, 72)
-    ];
+    public ObservableCollection<AccountingPeriodViewModel> PeriodPerformance { get; } = [];
 
-    public ObservableCollection<JournalEntryViewModel> JournalEntries { get; } =
-    [
-        new("25 oct 2026", "V-0421", "Venta de contado", "Caja", "L 250.00", "—"),
-        new("25 oct 2026", "V-0421", "Venta de contado", "Ingresos por ventas", "—", "L 250.00"),
-        new("25 oct 2026", "C-0018", "Venta a crédito", "Crédito por cobrar", "L 180.00", "—"),
-        new("25 oct 2026", "C-0018", "Venta a crédito", "Ingresos por ventas", "—", "L 180.00"),
-        new("24 oct 2026", "E-0102", "Entrada de mercadería", "Inventario", "L 1,200.00", "—"),
-        new("24 oct 2026", "E-0102", "Entrada de mercadería", "Proveedores", "—", "L 1,200.00")
-    ];
+    private readonly ObservableCollection<KardexMovementViewModel> _allKardexMovements = [];
 
-    public ObservableCollection<LedgerEntryViewModel> LedgerEntries { get; } =
-    [
-        new("01 oct 2026", "Saldo inicial", "—", "—", "L 8,400.00"),
-        new("02 oct 2026", "Venta V-0398", "L 320.00", "—", "L 8,720.00"),
-        new("03 oct 2026", "Compra E-0094", "—", "L 1,150.00", "L 7,570.00"),
-        new("05 oct 2026", "Abono de cliente", "L 200.00", "—", "L 7,770.00"),
-        new("25 oct 2026", "Venta V-0421", "L 250.00", "—", "L 8,020.00")
-    ];
-
-    public ObservableCollection<KardexMovementViewModel> KardexMovements { get; } =
-    [
-        new("02 oct 2026", "Entrada · compra E-0094", "L-2401", "12", "—", "12"),
-        new("04 oct 2026", "Entrada · compra E-0098", "L-2402", "8", "—", "20"),
-        new("07 oct 2026", "Salida · venta V-0402", "L-2401", "—", "10", "10"),
-        new("09 oct 2026", "Salida · venta V-0409", "L-2401", "—", "2", "8"),
-        new("09 oct 2026", "Salida · venta V-0409", "L-2402", "—", "2", "6")
-    ];
+    public ListCollectionView KardexMovements { get; }
 
     public ObservableCollection<StatementLineViewModel> FinancialPositionLines { get; } =
     [
         new("ACTIVOS", "", "", false, true),
         new("", "Caja", "L 12,400.00", false),
-        new("", "Inventario", "L 37,200.00", false),
         new("", "Crédito por cobrar", "L 3,300.00", false),
+        new("", "Inventario de mercadería", "L 37,200.00", false),
+        new("", "Pagos anticipados", "L 0.00", false),
+        new("TOTAL ACTIVOS CORRIENTES", "", "L 52,900.00", true),
+        new("ACTIVOS NO CORRIENTES", "", "", false, true),
+        new("", "Propiedad, planta y equipo neto", "L 0.00", false),
         new("TOTAL ACTIVOS", "", "L 52,900.00", true),
         new("PASIVOS", "", "", false, true),
         new("", "Proveedores", "L 7,600.00", false),
+        new("", "Impuestos y otras cuentas por pagar", "L 0.00", false),
+        new("TOTAL PASIVOS CORRIENTES", "", "L 7,600.00", true),
+        new("", "Deudas a largo plazo", "L 0.00", false),
         new("TOTAL PASIVOS", "", "L 7,600.00", true),
         new("PATRIMONIO", "", "", false, true),
-        new("", "Capital y resultados acumulados", "L 45,300.00", false),
+        new("", "Capital social", "L 32,020.00", false),
+        new("", "Resultados acumulados", "L 0.00", false),
+        new("", "Resultado neto del período", "L 13,280.00", false),
+        new("TOTAL PATRIMONIO", "", "L 45,300.00", true),
         new("TOTAL PASIVOS Y PATRIMONIO", "", "L 52,900.00", true)
     ];
 
     public ObservableCollection<StatementLineViewModel> IncomeStatementLines { get; } =
     [
         new("INGRESOS", "", "", false, true),
-        new("", "Ventas netas", "L 38,400.00", false),
-        new("COSTOS DE VENTAS", "", "", false, true),
+        new("", "Ventas brutas", "L 38,400.00", false),
+        new("", "Devoluciones y descuentos", "L 0.00", false),
+        new("VENTAS NETAS", "", "L 38,400.00", true),
+        new("COSTO DE VENTAS", "", "", false, true),
         new("", "Costo de mercadería vendida", "L 18,900.00", false),
         new("UTILIDAD BRUTA", "Ingresos menos costo de ventas", "L 19,500.00", true),
         new("GASTOS OPERATIVOS", "", "", false, true),
-        new("", "Gastos del período", "L 6,220.00", false),
-        new("RESULTADO NETO", "Utilidad del período", "L 13,280.00", true)
+        new("", "Gastos de venta", "L 3,000.00", false),
+        new("", "Gastos de administración", "L 3,220.00", false),
+        new("UTILIDAD OPERATIVA", "", "L 13,280.00", true),
+        new("RESULTADO NETO", "Utilidad del período · sin cálculo fiscal en este prototipo", "L 13,280.00", true)
     ];
+
+    private void InitializeOperationBasedReports()
+    {
+        _allJournalEntries.Clear();
+        _allLedgerEntries.Clear();
+        _allKardexMovements.Clear();
+        var periodStart = JournalStartDate?.Date ?? DateTime.Today.AddDays(-31);
+        var periodEnd = JournalEndDate?.Date ?? DateTime.Today;
+        var saleCosts = CalculateSaleCosts();
+        var postings = new List<AccountingPosting>();
+
+        foreach (var purchase in _store.Purchases.Where(purchase => IsInPeriod(purchase.Date, periodStart, periodEnd)))
+        {
+            postings.Add(new(purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Inventario", purchase.Total, 0m));
+            postings.Add(new(purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Proveedores", 0m, purchase.Total));
+        }
+
+        foreach (var sale in _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)))
+        {
+            var account = sale.PaymentType == SalePaymentType.Cash ? "Caja" : "Crédito por cobrar";
+            postings.Add(new(sale.Date, sale.Ticket, "Venta de mercadería", account, sale.Total, 0m));
+            postings.Add(new(sale.Date, sale.Ticket, "Venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
+            var cost = saleCosts.GetValueOrDefault(sale.Id);
+            if (cost > 0m)
+            {
+                postings.Add(new(sale.Date, sale.Ticket, "Costo de mercadería vendida", "Costo de ventas", cost, 0m));
+                postings.Add(new(sale.Date, sale.Ticket, "Costo de mercadería vendida", "Inventario", 0m, cost));
+            }
+        }
+
+        foreach (var customer in _store.Customers)
+        foreach (var payment in customer.CreditHistory.Where(movement => movement.Type == CreditMovementType.Payment && IsInPeriod(movement.Date, periodStart, periodEnd)))
+        {
+            var reference = $"AB-{customer.Id:000}-{payment.Date:MMdd}";
+            postings.Add(new(payment.Date, reference, $"Abono recibido · {customer.Name}", "Caja", payment.Amount, 0m));
+            postings.Add(new(payment.Date, reference, $"Abono recibido · {customer.Name}", "Crédito por cobrar", 0m, payment.Amount));
+        }
+
+        foreach (var posting in postings.OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ThenBy(posting => posting.Account))
+            _allJournalEntries.Add(new(posting.Date, posting.Reference, posting.Description, posting.Account, posting.Debit, posting.Credit));
+
+        _reportRevenue = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => sale.Total);
+        _reportCostOfSales = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
+        _reportReceivables = _store.Customers.Sum(customer => customer.Balance);
+        _reportInventory = _store.Products.SelectMany(product => product.Batches).Sum(batch => batch.Quantity * batch.UnitCost);
+        _reportCash = _store.CashSessions.OrderByDescending(session => session.ClosedAt ?? session.OpenedAt).FirstOrDefault() is { } session
+            ? session.ClosedAt is null ? session.ExpectedAmount : session.ClosingAmount
+            : 0m;
+        _reportPayables = _store.Purchases.Sum(purchase => purchase.Total);
+        _reportAssets = _reportCash + _reportReceivables + _reportInventory;
+        _reportEquity = _reportAssets - _reportPayables;
+        _reportNetIncome = _reportRevenue - _reportCostOfSales;
+
+        var endingBalances = new Dictionary<string, decimal>(StringComparer.Ordinal)
+        {
+            ["Caja"] = _reportCash,
+            ["Crédito por cobrar"] = _reportReceivables,
+            ["Inventario"] = _reportInventory,
+            ["Costo de ventas"] = _reportCostOfSales,
+            ["Ingresos por ventas"] = _reportRevenue,
+            ["Proveedores"] = _reportPayables
+        };
+        foreach (var account in LedgerAccounts)
+        {
+            var creditNormal = IsCreditNormal(account);
+            var entries = postings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
+            var movement = entries.Sum(posting => creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit);
+            var balance = endingBalances.GetValueOrDefault(account) - movement;
+            _allLedgerEntries.Add(new(account, periodStart, "", "Saldo inicial", 0m, 0m, balance));
+            foreach (var posting in entries)
+            {
+                balance += creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit;
+                _allLedgerEntries.Add(new(account, posting.Date, posting.Reference, posting.Description, posting.Debit, posting.Credit, balance));
+            }
+        }
+
+        BuildRiceKardex();
+        PopulateFinancialReports();
+        PopulatePerformanceChart(saleCosts);
+        JournalEntries.Refresh();
+        LedgerEntries.Refresh();
+        KardexMovements.Refresh();
+        OnPropertyChanged(nameof(JournalDebitTotalText));
+        OnPropertyChanged(nameof(JournalCreditTotalText));
+        OnPropertyChanged(nameof(JournalBalanceStatus));
+        OnPropertyChanged(nameof(LedgerOpeningBalanceText));
+        OnPropertyChanged(nameof(LedgerDebitTotalText));
+        OnPropertyChanged(nameof(LedgerCreditTotalText));
+        OnPropertyChanged(nameof(LedgerClosingBalanceText));
+        OnPropertyChanged(nameof(KardexClosingStock));
+        OnPropertyChanged(nameof(KardexClosingValue));
+    }
+
+    private void SubscribeToDemoChanges()
+    {
+        _store.Purchases.CollectionChanged += DemoRecords_CollectionChanged;
+        _store.Sales.CollectionChanged += DemoRecords_CollectionChanged;
+        _store.Products.CollectionChanged += DemoRecords_CollectionChanged;
+        _store.Customers.CollectionChanged += Customers_CollectionChanged;
+        _store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
+        _store.PropertyChanged += Store_PropertyChanged;
+        foreach (var customer in _store.Customers) SubscribeCustomer(customer);
+        foreach (var session in _store.CashSessions) session.PropertyChanged += CashSession_PropertyChanged;
+    }
+
+    private void Customers_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+            foreach (CustomerRecord customer in e.NewItems) SubscribeCustomer(customer);
+        InitializeOperationBasedReports();
+    }
+
+    private void CashSessions_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+            foreach (CashSessionRecord session in e.NewItems) session.PropertyChanged += CashSession_PropertyChanged;
+        InitializeOperationBasedReports();
+    }
+
+    private void SubscribeCustomer(CustomerRecord customer)
+    {
+        customer.PropertyChanged += Customer_PropertyChanged;
+        customer.CreditHistory.CollectionChanged += DemoRecords_CollectionChanged;
+    }
+
+    private void DemoRecords_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => InitializeOperationBasedReports();
+    private void Customer_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CustomerRecord.Balance)) InitializeOperationBasedReports();
+    }
+    private void CashSession_PropertyChanged(object? sender, PropertyChangedEventArgs e) => InitializeOperationBasedReports();
+    private void Store_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(OperationalDemoStore.CashSessions)) InitializeOperationBasedReports();
+    }
+
+    private Dictionary<int, decimal> CalculateSaleCosts()
+    {
+        var layersByProduct = new Dictionary<string, List<InventoryCostLayer>>(StringComparer.Ordinal);
+        var costsBySale = new Dictionary<int, decimal>();
+        var timeline = _store.Purchases.Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
+            .Concat(_store.Sales.Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
+            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
+
+        foreach (var item in timeline)
+        {
+            if (item.IsPurchase && item.Purchase is { } purchase)
+            {
+                foreach (var line in purchase.Lines)
+                {
+                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) layersByProduct[line.Product.Id] = layers = [];
+                    layers.Add(new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost));
+                }
+                continue;
+            }
+            if (item.Sale is not { } sale) continue;
+
+            var totalCost = 0m;
+            foreach (var line in sale.Lines)
+            {
+                if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) continue;
+                var remaining = line.Quantity;
+                foreach (var layer in layers)
+                {
+                    var consumed = Math.Min(layer.RemainingQuantity, remaining);
+                    if (consumed <= 0) continue;
+                    layer.RemainingQuantity -= consumed;
+                    remaining -= consumed;
+                    totalCost += consumed * layer.UnitCost;
+                    if (remaining == 0) break;
+                }
+            }
+            costsBySale[sale.Id] = totalCost;
+        }
+
+        return costsBySale;
+    }
+
+    private void BuildRiceKardex()
+    {
+        var product = _store.Products.FirstOrDefault(item => item.Name == KardexProductLabel);
+        if (product is null) return;
+        var layers = new List<InventoryCostLayer>();
+        var timeline = _store.Purchases.Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
+            .Concat(_store.Sales.Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
+            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
+
+        foreach (var item in timeline)
+        {
+            if (item.IsPurchase && item.Purchase is { } purchase)
+            {
+                foreach (var line in purchase.Lines.Where(line => line.Product.Id == product.Id))
+                {
+                    var layer = new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost);
+                    layers.Add(layer);
+                    var totalQuantity = layers.Sum(existing => existing.RemainingQuantity);
+                    var totalCost = layers.Sum(existing => existing.RemainingQuantity * existing.UnitCost);
+                    _allKardexMovements.Add(new(purchase.Date, $"Entrada · compra {purchase.Number}", layer.Lot, line.Quantity.ToString(), FormatMoney(line.UnitCost), FormatMoney(line.Quantity * line.UnitCost), "—", "—", "—", layer.RemainingQuantity.ToString(), FormatMoney(layer.UnitCost), FormatMoney(layer.RemainingQuantity * layer.UnitCost), totalQuantity, totalCost));
+                }
+                continue;
+            }
+            if (item.Sale is not { } sale) continue;
+
+            foreach (var saleLine in sale.Lines.Where(line => line.Product.Id == product.Id))
+            {
+                var remaining = saleLine.Quantity;
+                foreach (var layer in layers)
+                {
+                    var consumed = Math.Min(layer.RemainingQuantity, remaining);
+                    if (consumed <= 0) continue;
+                    layer.RemainingQuantity -= consumed;
+                    remaining -= consumed;
+                    var totalQuantity = layers.Sum(existing => existing.RemainingQuantity);
+                    var totalCost = layers.Sum(existing => existing.RemainingQuantity * existing.UnitCost);
+                    _allKardexMovements.Add(new(sale.Date, $"Salida · venta {sale.Ticket}", layer.Lot, "—", "—", "—", consumed.ToString(), FormatMoney(layer.UnitCost), FormatMoney(consumed * layer.UnitCost), layer.RemainingQuantity.ToString(), FormatMoney(layer.UnitCost), FormatMoney(layer.RemainingQuantity * layer.UnitCost), totalQuantity, totalCost));
+                    if (remaining == 0) break;
+                }
+            }
+        }
+    }
+
+    private void PopulateFinancialReports()
+    {
+        RefreshFinancialPositionOutput();
+        RefreshIncomeStatementOutput();
+        RefreshManagementIndicators();
+    }
+
+    private void RefreshManagementIndicators()
+    {
+        var grossMargin = _reportRevenue == 0m ? 0m : (_reportRevenue - _reportCostOfSales) / _reportRevenue * 100m;
+        var netMargin = _reportRevenue == 0m ? 0m : _reportNetIncome / _reportRevenue * 100m;
+        var liquidity = _reportPayables == 0m ? 0m : _reportAssets / _reportPayables;
+        ManagementIndicators.Clear();
+        ManagementIndicators.Add(new("Margen bruto", $"{grossMargin:0.0} %", $"({FormatMoney(_reportRevenue)} − {FormatMoney(_reportCostOfSales)}) ÷ {FormatMoney(_reportRevenue)} × 100", $"Por cada L 100 vendidos, quedan L {grossMargin:0.00} luego de cubrir el costo de la mercadería.", (double)Math.Clamp(grossMargin, 0m, 100m) * 0.9, "Escala 0–100 %"));
+        ManagementIndicators.Add(new("Margen neto", $"{netMargin:0.0} %", $"{FormatMoney(_reportNetIncome)} ÷ {FormatMoney(_reportRevenue)} × 100", $"Por cada L 100 vendidos, el resultado neto de demostración es L {netMargin:0.00}.", (double)Math.Clamp(netMargin, 0m, 100m) * 0.9, "Escala 0–100 %"));
+        ManagementIndicators.Add(new("Liquidez corriente", $"{liquidity:0.00} a 1", $"{FormatMoney(_reportAssets)} ÷ {FormatMoney(_reportPayables)}", $"Por cada L 1 en proveedores, hay L {liquidity:0.00} en caja, créditos e inventario.", (double)Math.Clamp(liquidity / 10m * 100m, 0m, 100m) * 0.9, "Escala 0–10 veces"));
+    }
+
+    private void RefreshFinancialPositionOutput()
+    {
+        var cutoff = FinancialPositionCutoffDate?.Date ?? DateTime.Today;
+        _reportCash = GetCashAsOf(cutoff);
+        _reportReceivables = _store.Customers.SelectMany(customer => customer.CreditHistory)
+            .Where(movement => movement.Date.Date <= cutoff)
+            .Sum(movement => movement.Type == CreditMovementType.Charge ? movement.Amount : -movement.Amount);
+        _reportInventory = GetInventoryValueAsOf(cutoff);
+        _reportPayables = _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff).Sum(purchase => purchase.Total);
+        _reportAssets = _reportCash + _reportReceivables + _reportInventory;
+        _reportEquity = _reportAssets - _reportPayables;
+        var costBySale = CalculateSaleCosts();
+        _reportNetIncomeAtCutoff = _store.Sales.Where(sale => sale.Date.Date <= cutoff)
+            .Sum(sale => sale.Total - costBySale.GetValueOrDefault(sale.Id));
+        var assetMetricIndex = SummaryMetrics.ToList().FindIndex(metric => metric.Label == "ACTIVOS");
+        if (assetMetricIndex >= 0) SummaryMetrics[assetMetricIndex] = new("ACTIVOS", FormatMoney(_reportAssets), "");
+
+        FinancialPositionMetrics.Clear();
+        FinancialPositionMetrics.Add(new("ACTIVOS", FormatMoney(_reportAssets), ""));
+        FinancialPositionMetrics.Add(new("PASIVOS", FormatMoney(_reportPayables), ""));
+        FinancialPositionMetrics.Add(new("PATRIMONIO", FormatMoney(_reportEquity), ""));
+        FinancialPositionLines.Clear();
+        FinancialPositionLines.Add(new("ACTIVOS", "", "", false, true));
+        FinancialPositionLines.Add(new("", "Caja", FormatMoney(_reportCash), false));
+        FinancialPositionLines.Add(new("", "Crédito por cobrar", FormatMoney(_reportReceivables), false));
+        FinancialPositionLines.Add(new("", "Inventario de mercadería · costo PEPS", FormatMoney(_reportInventory), false));
+        FinancialPositionLines.Add(new("", "Pagos anticipados", FormatMoney(0m), false));
+        FinancialPositionLines.Add(new("TOTAL ACTIVOS CORRIENTES", "", FormatMoney(_reportAssets), true));
+        FinancialPositionLines.Add(new("ACTIVOS NO CORRIENTES", "", "", false, true));
+        FinancialPositionLines.Add(new("", "Propiedad, planta y equipo neto", FormatMoney(0m), false));
+        FinancialPositionLines.Add(new("TOTAL ACTIVOS", "", FormatMoney(_reportAssets), true));
+        FinancialPositionLines.Add(new("PASIVOS", "", "", false, true));
+        FinancialPositionLines.Add(new("", "Proveedores", FormatMoney(_reportPayables), false));
+        FinancialPositionLines.Add(new("TOTAL PASIVOS", "", FormatMoney(_reportPayables), true));
+        FinancialPositionLines.Add(new("PATRIMONIO", "", "", false, true));
+        FinancialPositionLines.Add(new("", "Capital y resultados acumulados", FormatMoney(_reportEquity - _reportNetIncomeAtCutoff), false));
+        FinancialPositionLines.Add(new("", "Resultado neto acumulado al corte", FormatMoney(_reportNetIncomeAtCutoff), false));
+        FinancialPositionLines.Add(new("TOTAL PATRIMONIO", "", FormatMoney(_reportEquity), true));
+        FinancialPositionLines.Add(new("TOTAL PASIVOS Y PATRIMONIO", "", FormatMoney(_reportPayables + _reportEquity), true));
+    }
+
+    private void RefreshIncomeStatementOutput()
+    {
+        var start = IncomeStartDate?.Date ?? DateTime.MinValue;
+        var end = IncomeEndDate?.Date ?? DateTime.Today;
+        var saleCosts = CalculateSaleCosts();
+        var sales = _store.Sales.Where(sale => IsInPeriod(sale.Date, start, end)).ToArray();
+        _reportRevenue = sales.Sum(sale => sale.Total);
+        _reportCostOfSales = sales.Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
+        _reportNetIncome = _reportRevenue - _reportCostOfSales;
+
+        SummaryMetrics.Clear();
+        SummaryMetrics.Add(new("INGRESOS", FormatMoney(_reportRevenue), ""));
+        SummaryMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(_reportCostOfSales), ""));
+        SummaryMetrics.Add(new("RESULTADO NETO", FormatMoney(_reportNetIncome), ""));
+        SummaryMetrics.Add(new("ACTIVOS", FormatMoney(_reportAssets), ""));
+        IncomeMetrics.Clear();
+        IncomeMetrics.Add(new("INGRESOS", FormatMoney(_reportRevenue), ""));
+        IncomeMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(_reportCostOfSales), ""));
+        IncomeMetrics.Add(new("RESULTADO NETO", FormatMoney(_reportNetIncome), ""));
+        IncomeStatementLines.Clear();
+        IncomeStatementLines.Add(new("INGRESOS", "", "", false, true));
+        IncomeStatementLines.Add(new("", "Ventas netas · contado y crédito", FormatMoney(_reportRevenue), false));
+        IncomeStatementLines.Add(new("COSTO DE VENTAS", "", "", false, true));
+        IncomeStatementLines.Add(new("", "Costo calculado por capas PEPS", FormatMoney(_reportCostOfSales), false));
+        IncomeStatementLines.Add(new("UTILIDAD BRUTA", "Ventas menos costo de ventas", FormatMoney(_reportRevenue - _reportCostOfSales), true));
+        IncomeStatementLines.Add(new("GASTOS OPERATIVOS", "Sin gastos cargados en esta demostración", FormatMoney(0m), false, true));
+        IncomeStatementLines.Add(new("RESULTADO NETO", "Cifras demo · sin cálculo fiscal", FormatMoney(_reportNetIncome), true));
+    }
+
+    private decimal GetCashAsOf(DateTime cutoff)
+    {
+        var session = _store.CashSessions.OrderBy(item => item.OpenedAt).FirstOrDefault();
+        if (session is null) return 0m;
+        var priorSales = _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash && sale.Date < session.OpenedAt).Sum(sale => sale.Total);
+        var priorPayments = _store.Customers.SelectMany(customer => customer.CreditHistory)
+            .Where(movement => movement.Type == CreditMovementType.Payment && movement.Date < session.OpenedAt).Sum(movement => movement.Amount);
+        var openingCash = session.OpeningAmount - priorSales - priorPayments;
+        var latestClose = _store.CashSessions.Where(item => item.ClosedAt is DateTime closed && closed.Date <= cutoff.Date)
+            .OrderByDescending(item => item.ClosedAt).FirstOrDefault();
+        if (latestClose is not null) return latestClose.ClosingAmount;
+        return openingCash
+            + _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash && sale.Date.Date <= cutoff.Date).Sum(sale => sale.Total)
+            + _store.Customers.SelectMany(customer => customer.CreditHistory)
+                .Where(movement => movement.Type == CreditMovementType.Payment && movement.Date.Date <= cutoff.Date).Sum(movement => movement.Amount);
+    }
+
+    private decimal GetInventoryValueAsOf(DateTime cutoff)
+    {
+        var layersByProduct = new Dictionary<string, List<InventoryCostLayer>>(StringComparer.Ordinal);
+        var timeline = _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff.Date)
+            .Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
+            .Concat(_store.Sales.Where(sale => sale.Date.Date <= cutoff.Date)
+                .Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
+            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
+
+        foreach (var item in timeline)
+        {
+            if (item.IsPurchase && item.Purchase is { } purchase)
+            {
+                foreach (var line in purchase.Lines)
+                {
+                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) layersByProduct[line.Product.Id] = layers = [];
+                    layers.Add(new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost));
+                }
+            }
+            else if (item.Sale is { } sale)
+            {
+                foreach (var line in sale.Lines)
+                {
+                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) continue;
+                    var remaining = line.Quantity;
+                    foreach (var layer in layers)
+                    {
+                        var consumed = Math.Min(layer.RemainingQuantity, remaining);
+                        layer.RemainingQuantity -= consumed;
+                        remaining -= consumed;
+                        if (remaining == 0) break;
+                    }
+                }
+            }
+        }
+
+        return layersByProduct.Values.SelectMany(layers => layers).Sum(layer => layer.RemainingQuantity * layer.UnitCost);
+    }
+
+    private void PopulatePerformanceChart(IReadOnlyDictionary<int, decimal> saleCosts)
+    {
+        var firstMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-5);
+        var monthlyValues = Enumerable.Range(0, 6).Select(offset => firstMonth.AddMonths(offset))
+            .Select(month =>
+            {
+                var sales = _store.Sales.Where(sale => sale.Date.Year == month.Year && sale.Date.Month == month.Month).Sum(sale => sale.Total);
+                var costs = _store.Sales.Where(sale => sale.Date.Year == month.Year && sale.Date.Month == month.Month).Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
+                return (Month: month, Sales: sales, Costs: costs);
+            }).ToArray();
+
+        _chartScaleMaximum = Math.Max(100m, Math.Ceiling(monthlyValues.Max(value => Math.Max(value.Sales, value.Costs)) / 100m) * 100m);
+        PeriodPerformance.Clear();
+        foreach (var value in monthlyValues)
+        {
+            PeriodPerformance.Add(new(
+                value.Month.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("es-HN")),
+                (double)(value.Sales / _chartScaleMaximum * 116m),
+                (double)(value.Costs / _chartScaleMaximum * 116m),
+                value.Sales.ToString("N0", OperationalDemoStore.HondurasCulture),
+                value.Costs.ToString("N0", OperationalDemoStore.HondurasCulture),
+                FormatMoney(value.Sales),
+                FormatMoney(value.Costs)));
+        }
+        OnPropertyChanged(nameof(ChartScaleTopText));
+        OnPropertyChanged(nameof(ChartScaleThreeQuarterText));
+        OnPropertyChanged(nameof(ChartScaleMiddleText));
+        OnPropertyChanged(nameof(ChartScaleQuarterText));
+    }
+
+    private static bool IsInPeriod(DateTime date, DateTime start, DateTime end) => date.Date >= start.Date && date.Date <= end.Date;
+    private static bool IsCreditNormal(string account) => account is "Proveedores" or "Ingresos por ventas";
+
+    private bool FilterJournalEntry(object item)
+    {
+        if (item is not JournalEntryViewModel entry) return false;
+        if (JournalStartDate is DateTime start && entry.Date.Date < start.Date) return false;
+        if (JournalEndDate is DateTime end && entry.Date.Date > end.Date) return false;
+
+        var query = JournalSearchText.Trim();
+        return query.Length == 0
+            || entry.Reference.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || entry.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || entry.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private bool FilterLedgerEntry(object item)
+    {
+        if (item is not LedgerEntryViewModel entry || entry.Account != SelectedLedgerAccount) return false;
+        if (LedgerStartDate is DateTime start && entry.Date.Date < start.Date) return false;
+        if (LedgerEndDate is DateTime end && entry.Date.Date > end.Date) return false;
+
+        var query = LedgerSearchText.Trim();
+        return query.Length == 0
+            || entry.Reference.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || entry.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || entry.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private bool FilterKardexMovement(object item)
+    {
+        if (item is not KardexMovementViewModel movement) return false;
+        if (KardexStartDate is DateTime start && movement.Date.Date < start.Date) return false;
+        if (KardexEndDate is DateTime end && movement.Date.Date > end.Date) return false;
+        var query = KardexSearchText.Trim();
+        return query.Length == 0
+            || movement.Lot.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || movement.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            || movement.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private void RefreshKardex()
+    {
+        KardexMovements.Refresh();
+        OnPropertyChanged(nameof(KardexClosingStock));
+        OnPropertyChanged(nameof(KardexClosingValue));
+        OnPropertyChanged(nameof(PeriodLabel));
+    }
+
+    private KardexMovementViewModel? GetKardexClosingMovement() => _allKardexMovements
+        .Where(movement => KardexEndDate is not DateTime end || movement.Date.Date <= end.Date)
+        .OrderBy(movement => movement.Date)
+        .LastOrDefault();
+
+    private void RefreshJournal()
+    {
+        JournalEntries.Refresh();
+        OnPropertyChanged(nameof(JournalDebitTotalText));
+        OnPropertyChanged(nameof(JournalCreditTotalText));
+        OnPropertyChanged(nameof(JournalBalanceStatus));
+        OnPropertyChanged(nameof(PeriodLabel));
+    }
+
+    private void RefreshLedger()
+    {
+        LedgerEntries.Refresh();
+        OnPropertyChanged(nameof(LedgerOpeningBalanceText));
+        OnPropertyChanged(nameof(LedgerDebitTotalText));
+        OnPropertyChanged(nameof(LedgerCreditTotalText));
+        OnPropertyChanged(nameof(LedgerClosingBalanceText));
+        OnPropertyChanged(nameof(PeriodLabel));
+    }
+
+    private decimal GetLedgerOpeningBalance()
+    {
+        var accountEntries = _allLedgerEntries
+            .Where(entry => entry.Account == SelectedLedgerAccount)
+            .OrderBy(entry => entry.Date)
+            .ToArray();
+        if (accountEntries.Length == 0) return 0m;
+
+        if (LedgerStartDate is DateTime start)
+        {
+            var previous = accountEntries.LastOrDefault(entry => entry.Date.Date < start.Date);
+            if (previous is not null) return previous.Balance;
+        }
+
+        return accountEntries.FirstOrDefault(entry => entry.Description == "Saldo inicial")?.Balance
+            ?? accountEntries[0].Balance;
+    }
+
+    private decimal GetLedgerClosingBalance()
+    {
+        var accountEntries = _allLedgerEntries
+            .Where(entry => entry.Account == SelectedLedgerAccount)
+            .OrderBy(entry => entry.Date)
+            .ToArray();
+        var throughEnd = LedgerEndDate is DateTime end
+            ? accountEntries.LastOrDefault(entry => entry.Date.Date <= end.Date)
+            : accountEntries.LastOrDefault();
+        return throughEnd?.Balance ?? GetLedgerOpeningBalance();
+    }
+
+    private static string FormatMoney(decimal amount) => OperationalDemoStore.FormatMoney(amount);
+
+    private static string FormatPeriod(DateTime? start, DateTime? end)
+    {
+        var from = start?.ToString("dd/MM/yyyy") ?? "inicio";
+        var through = end?.ToString("dd/MM/yyyy") ?? "hoy";
+        return $"Período: {from} – {through}";
+    }
 
     public static bool IsAccountingSection(string title) => AccountingSections.Contains(title);
 
@@ -145,16 +903,62 @@ public sealed class AccountingViewModel : ObservableObject
     }
 
     private Visibility VisibilityFor(string title) => SelectedSection == title ? Visibility.Visible : Visibility.Collapsed;
+
+    private sealed record AccountingPosting(DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit);
+
+    private sealed class InventoryCostLayer(string lot, int remainingQuantity, decimal unitCost)
+    {
+        public string Lot { get; } = lot;
+        public int RemainingQuantity { get; set; } = remainingQuantity;
+        public decimal UnitCost { get; } = unitCost;
+    }
 }
 
 public sealed record AccountingMetricViewModel(string Label, string Value, string Detail);
 
-public sealed record JournalEntryViewModel(string Date, string Reference, string Description, string Account, string Debit, string Credit);
+public sealed record AccountingIndicatorViewModel(string Name, string Value, string Formula, string Explanation, double VisualWidth, string VisualScale);
 
-public sealed record LedgerEntryViewModel(string Date, string Description, string Debit, string Credit, string Balance);
+public sealed record JournalEntryViewModel(DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit)
+{
+    public string DateText => Date.ToString("dd/MM/yyyy");
+    public string DebitText => Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
+    public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
+}
 
-public sealed record KardexMovementViewModel(string Date, string Description, string Lot, string Entry, string Exit, string Balance);
+public sealed record LedgerEntryViewModel(string Account, DateTime Date, string Reference, string Description, decimal Debit, decimal Credit, decimal Balance)
+{
+    public string DateText => Date.ToString("dd/MM/yyyy");
+    public string DebitText => Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
+    public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
+    public string BalanceText => OperationalDemoStore.FormatMoney(Balance);
+}
+
+public sealed record KardexMovementViewModel(
+    DateTime Date,
+    string Description,
+    string Lot,
+    string EntryQuantity,
+    string EntryUnitCost,
+    string EntryTotal,
+    string ExitQuantity,
+    string ExitUnitCost,
+    string ExitTotal,
+    string BalanceQuantity,
+    string BalanceUnitCost,
+    string BalanceTotal,
+    int TotalStockQuantity,
+    decimal TotalStockCost)
+{
+    public string DateText => Date.ToString("dd/MM/yyyy");
+}
 
 public sealed record StatementLineViewModel(string Group, string Account, string Amount, bool IsTotal, bool IsSectionHeader = false);
 
-public sealed record AccountingPeriodViewModel(string Month, double SalesBarHeight, double CostsBarHeight);
+public sealed record AccountingPeriodViewModel(
+    string Month,
+    double SalesBarHeight,
+    double CostsBarHeight,
+    string SalesCompactText,
+    string CostsCompactText,
+    string SalesTooltip,
+    string CostsTooltip);

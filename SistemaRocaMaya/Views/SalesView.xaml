@@ -62,35 +62,95 @@
             </TabItem>
             <TabItem Header="Cierres de caja">
                 <Grid Margin="12">
-                    <Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.4*" /><ColumnDefinition Width="0.9*" /></Grid.ColumnDefinitions>
-                    <TextBox Grid.ColumnSpan="2" Text="{Binding SessionSearchText, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="10,0"
-                             VerticalContentAlignment="Center" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
-                             ToolTip="Buscar cierres por fecha de apertura o cierre" />
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding CashSessions}" SelectedItem="{Binding SelectedSession}"
-                              AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
-                              HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
-                              BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" Margin="0,0,12,0"
-                              HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.3*" />
-                            <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.3*" />
-                            <DataGridTextColumn Header="EFECTIVO CONTADO" Binding="{Binding ClosingAmountText}" Width="1*" />
-                            <DataGridTextColumn Header="DIFERENCIA" Binding="{Binding DifferenceText}" Width="1*" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" Padding="14"
-                            Background="{StaticResource RocaMayaBlueSurfaceBrush}"
-                            BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="Sesión seleccionada" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" Margin="0,0,0,8" />
-                        <TextBlock Text="{Binding SelectedSession.OpeningAmountText, StringFormat='Fondo inicial: {0}'}" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                        <TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='Ventas al contado: L {0:N2}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                        <TextBlock Text="{Binding SelectedSession.ExpectedAmountText, StringFormat='Efectivo esperado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                        <TextBlock Text="{Binding SelectedSession.ClosingAmountText, StringFormat='Efectivo contado: {0}'}" Margin="0,6,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                        <TextBlock Text="{Binding SelectedSession.DifferenceText, StringFormat='Diferencia: {0}'}" Margin="0,6,0,0" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                    </StackPanel>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="12,9"
+                            BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center">
+                                <Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CashReportIdentity}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                <TextBlock Text="Reporte diario de ventas en efectivo" Margin="0,2,0,0" FontSize="17" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Text="{Binding CashReportSubtitle}" Margin="0,2,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                <TextBlock Text="{Binding CashReportIssuedAtText}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                            </StackPanel>
+                        </Grid>
                     </Border>
+                    <Grid Grid.Row="1" Margin="0,10,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
+                            <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
+                            <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <DatePicker Grid.Column="1" SelectedDate="{Binding SessionStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
+                        <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <DatePicker Grid.Column="3" SelectedDate="{Binding SessionEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
+                        <TextBox Grid.Column="4" Text="{Binding SessionSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
+                                 ToolTip="Buscar cierre por fecha u número de caja" />
+                        <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}"
+                                Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="11" FontWeight="SemiBold"
+                                Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
+                        <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintCashReportCommand}"
+                                Height="34" Padding="12,0" FontSize="11" FontWeight="SemiBold"
+                                Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.8*" /></Grid.ColumnDefinitions>
+                        <DataGrid Grid.Column="0" Margin="0,0,12,0" ItemsSource="{Binding CashSessions}"
+                                  SelectedItem="{Binding SelectedSession}" AutoGenerateColumns="False" IsReadOnly="True"
+                                  CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
+                                  BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.1*" />
+                                <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.1*" />
+                                <DataGridTextColumn Header="ESPERADO" Binding="{Binding ExpectedAmountText}" Width="1*" />
+                                <DataGridTextColumn Header="CONTADO" Binding="{Binding ClosingAmountText}" Width="1*" />
+                                <DataGridTextColumn Header="DIFERENCIA" Binding="{Binding DifferenceText}" Width="1*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,8">
+                                <TextBlock Text="Detalle de la sesión" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Text="{Binding SelectedSession.ClosedText, StringFormat='Cierre: {0}'}" DockPanel.Dock="Right" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                            </DockPanel>
+                            <Border Grid.Row="1" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                                    BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Padding="10,8" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="FONDO INICIAL" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.OpeningAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel Grid.Column="1"><TextBlock Text="VENTAS EN EFECTIVO" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='L {0:N2}', TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel Grid.Column="2"><TextBlock Text="ESPERADO" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.ExpectedAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel Grid.Column="3"><TextBlock Text="CONTADO" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.ClosingAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel Grid.Column="4"><TextBlock Text="DIFERENCIA" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.DifferenceText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="11" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" /></StackPanel>
+                                </Grid>
+                            </Border>
+                            <DataGrid Grid.Row="2" ItemsSource="{Binding SelectedCashSales}" AutoGenerateColumns="False" IsReadOnly="True"
+                                      CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
+                                      BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="TICKET" Binding="{Binding Ticket}" Width="0.9*" />
+                                    <DataGridTextColumn Header="FECHA Y HORA" Binding="{Binding DateText}" Width="1.3*" />
+                                    <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.2*" />
+                                    <DataGridTextColumn Header="ARTÍCULOS" Binding="{Binding Lines.Count}" Width="0.8*" />
+                                    <DataGridTextColumn Header="TOTAL EFECTIVO" Binding="{Binding TotalText}" Width="1.1*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                    <TextBlock Grid.Row="3" Text="{Binding CashReportActionMessage}" Margin="0,7,0,0" FontSize="9"
+                               Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </Grid>
             </TabItem>
         </TabControl>
