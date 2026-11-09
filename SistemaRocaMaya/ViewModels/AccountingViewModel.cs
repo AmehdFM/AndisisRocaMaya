@@ -765,8 +765,8 @@ public sealed class AccountingViewModel : ObservableObject
                 var revenue = sales.Sum(sale => sale.Total);
                 var cost = sales.Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
                 var inventory = GetInventoryValueAsOf(cutoff);
-                var averageInventory = (GetInventoryValueAsOf(month.AddDays(-1)) + inventory) / 2m;
-                var assets = GetCashAsOf(cutoff) + GetReceivablesAsOf(cutoff) + inventory;
+                var liquidAssets = GetCashAsOf(cutoff) + GetReceivablesAsOf(cutoff);
+                var assets = liquidAssets + inventory;
                 var payables = GetPayablesAsOf(cutoff);
                 var profit = revenue - cost; // The demo has no recorded operating expenses, interest or taxes.
 
@@ -776,38 +776,33 @@ public sealed class AccountingViewModel : ObservableObject
                     GrossMargin = Ratio(revenue - cost, revenue, 100m),
                     NetMargin = Ratio(profit, revenue, 100m),
                     Liquidity = Ratio(assets, payables),
-                    Turnover = Ratio(cost, averageInventory),
+                    QuickRatio = Ratio(liquidAssets, payables),
                     DebtRatio = Ratio(payables, assets, 100m),
-                    ReturnOnAssets = Ratio(profit, assets, 100m)
+                    ReturnOnEquity = Ratio(profit, assets - payables, 100m)
                 };
             }).ToArray();
         var labels = months.Select(month => month.Label).ToArray();
 
-        AccountingIndicatorViewModel Indicator(string name, string unit, string formula,
-            IEnumerable<decimal?> values, Func<decimal, string> interpret) =>
-            BuildIndicator(name, unit, formula, labels, values.ToArray(), interpret);
+        AccountingIndicatorViewModel Indicator(string name, string unit, IEnumerable<decimal?> values,
+            Func<decimal, string> interpret, decimal? threshold = null) =>
+            BuildIndicator(name, unit, labels, values.ToArray(), interpret, threshold);
 
         var indicators = new[]
         {
-            Indicator("Margen bruto", "%", "(Ventas − costo de ventas) ÷ ventas × 100",
-                months.Select(month => month.GrossMargin),
+            Indicator("Margen bruto", "%", months.Select(month => month.GrossMargin),
                 value => $"Por cada L 100 vendidos quedan {FormatMoney(value)} después de cubrir la mercadería."),
-            Indicator("Margen neto", "%", "Utilidad neta ÷ ventas × 100",
-                months.Select(month => month.NetMargin),
+            Indicator("Margen neto", "%", months.Select(month => month.NetMargin),
                 value => $"Por cada L 100 vendidos, el resultado neto de la demo es {FormatMoney(value)}."),
-            Indicator("Liquidez corriente", "veces", "Activos corrientes ÷ pasivos corrientes",
-                months.Select(month => month.Liquidity),
-                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en activos corrientes."),
-            Indicator("Rotación de inventario", "veces", "Costo de ventas ÷ inventario promedio del mes",
-                months.Select(month => month.Turnover),
-                value => $"En el mes se vendió el equivalente a {value:0.00} veces el inventario promedio."),
-            Indicator("Endeudamiento", "%", "Pasivos totales ÷ activos totales × 100",
-                months.Select(month => month.DebtRatio),
-                value => $"De cada L 100 en activos, {FormatMoney(value)} están financiados con pasivos."),
-            Indicator("Rentabilidad de activos", "%", "Utilidad neta del mes ÷ activos al corte × 100",
-                months.Select(month => month.ReturnOnAssets),
-                value => $"Los activos al corte generaron {FormatMoney(value)} de utilidad por cada L 100 en el mes.")
+            Indicator("Liquidez corriente", "veces", months.Select(month => month.Liquidity),
+                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en activos corrientes.", 1.5m),
+            Indicator("Prueba ácida", "veces", months.Select(month => month.QuickRatio),
+                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en caja y cuentas por cobrar.", 1.0m),
+            Indicator("Endeudamiento", "%", months.Select(month => month.DebtRatio),
+                value => $"De cada L 100 en activos, {FormatMoney(value)} están financiados con pasivos.", 60m),
+            Indicator("Rentabilidad del patrimonio", "%", months.Select(month => month.ReturnOnEquity),
+                value => $"Por cada L 100 de patrimonio al corte, la utilidad del mes fue {FormatMoney(value)}.")
         };
+
 
         if (ManagementIndicators.Count == 0)
         {
@@ -823,13 +818,26 @@ public sealed class AccountingViewModel : ObservableObject
     private static decimal? Ratio(decimal numerator, decimal denominator, decimal multiplier = 1m) =>
         denominator > 0m ? numerator / denominator * multiplier : null;
 
-    private static AccountingIndicatorViewModel BuildIndicator(string name, string unit, string formula,
-        IReadOnlyList<string> labels, IReadOnlyList<decimal?> values, Func<decimal, string> interpret)
+    private static AccountingIndicatorViewModel BuildIndicator(string name, string unit,
+        IReadOnlyList<string> labels, IReadOnlyList<decimal?> values, Func<decimal, string> interpret, decimal? threshold)
     {
         var available = values.OfType<decimal>().ToArray();
         var bottom = Math.Min(0m, available.DefaultIfEmpty().Min());
         var top = Math.Max(0m, available.DefaultIfEmpty().Max());
+        if (threshold is decimal reference)
+        {
+            bottom = Math.Min(bottom, reference);
+            top = Math.Max(top, reference);
+            if (top == reference) top += Math.Max((top - bottom) / 10m, 0.01m);
+            if (bottom == reference) bottom -= Math.Max((top - bottom) / 10m, 0.01m);
+        }
         if (bottom == top) top = 1m;
+
+        double PlotY(decimal value) => (double)((top - value) / (top - bottom)) * 150;
+        var thresholdLine = threshold is decimal limit
+            ? new LineGeometry(new Point(0, PlotY(limit)), new Point(600, PlotY(limit)))
+            : null;
+        var thresholdLabel = threshold is decimal target ? $"Referencia: {target:0.0#} {unit}" : "";
 
         var line = new PathGeometry();
         var dots = new GeometryGroup();
@@ -844,7 +852,7 @@ public sealed class AccountingViewModel : ObservableObject
                 continue;
             }
 
-            var point = new Point((index + 0.5) * 600 / values.Count, (double)((top - value) / (top - bottom)) * 150);
+            var point = new Point((index + 0.5) * 600 / values.Count, PlotY(value));
             if (segment is null)
             {
                 segment = new PathFigure { StartPoint = point };
@@ -858,9 +866,9 @@ public sealed class AccountingViewModel : ObservableObject
         }
 
         var current = values[^1];
-        return new(name, current is decimal latest ? $"{latest:0.00} {unit}" : "Sin dato", unit, formula,
+        return new(name, current is decimal latest ? $"{latest:0.00} {unit}" : "Sin dato", unit,
             current is decimal result ? interpret(result) : "Este indicador no se puede calcular para el mes actual porque falta su base de cálculo.",
-            $"{top:0.##}", $"{(top + bottom) / 2m:0.##}", $"{bottom:0.##}", line, dots, periods);
+            $"{top:0.##}", $"{(top + bottom) / 2m:0.##}", $"{bottom:0.##}", line, dots, thresholdLine, thresholdLabel, periods);
     }
 
 
@@ -957,9 +965,9 @@ public sealed class AccountingViewModel : ObservableObject
 public sealed record AccountingMetricViewModel(string Label, string Value, string Detail);
 
 public sealed record AccountingIndicatorViewModel(
-    string Name, string Value, string Unit, string Formula, string Explanation,
+    string Name, string Value, string Unit, string Explanation,
     string AxisTop, string AxisMiddle, string AxisBottom,
-    PathGeometry Line, GeometryGroup Dots, IReadOnlyList<IndicatorMonth> Months);
+    PathGeometry Line, GeometryGroup Dots, LineGeometry? ThresholdLine, string ThresholdLabel, IReadOnlyList<IndicatorMonth> Months);
 
 public sealed record IndicatorMonth(string Label, string Value);
 

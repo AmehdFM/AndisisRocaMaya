@@ -135,7 +135,10 @@
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding Value}" FontSize="20" FontWeight="SemiBold" />
                                             <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </DockPanel>
-                                        <TextBlock Text="{Binding Unit}" Style="{StaticResource ReportMetadataText}" Margin="0,0,0,4" />
+                                        <DockPanel Margin="0,0,0,4">
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding ThresholdLabel}" Foreground="#9A5B23" />
+                                            <TextBlock Text="{Binding Unit}" Style="{StaticResource ReportMetadataText}" />
+                                        </DockPanel>
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions><RowDefinition Height="150" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
@@ -148,6 +151,7 @@
                                                 <Canvas Width="600" Height="150">
                                                     <Path Data="M 0,0 H 600 M 0,75 H 600" Stroke="{StaticResource RocaMayaDividerBrush}" StrokeThickness="1" />
                                                     <Path Data="M 0,0 V 150 H 600" Stroke="{StaticResource RocaMayaBorderBrush}" StrokeThickness="1" />
+                                                    <Path Data="{Binding ThresholdLine}" Stroke="#9A5B23" StrokeThickness="1.5" StrokeDashArray="5 3" />
                                                     <Path Data="{Binding Line}" Stroke="{StaticResource RocaMayaBlueSecondaryBrush}" StrokeThickness="2" />
                                                     <Path Data="{Binding Dots}" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                                 </Canvas>
@@ -168,24 +172,11 @@
                                         <TextBlock Text="Período contable (meses)" HorizontalAlignment="Center"
                                                    Style="{StaticResource ReportMetadataText}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,12,0,3" />
-                                        <TextBlock Text="{Binding Formula, StringFormat='Fórmula: {0}'}" Style="{StaticResource ReportMetadataText}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
                         </TabControl>
 
-                        <TextBlock Text="Movimientos recientes" Margin="0,18,0,8" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        <DataGrid ItemsSource="{Binding JournalEntries}" Height="230">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="1.0*" />
-                                <DataGridTextColumn Header="REFERENCIA" Binding="{Binding Reference}" Width="0.9*" />
-                                <DataGridTextColumn Header="DESCRIPCIÓN" Binding="{Binding Description}" Width="1.5*" />
-                                <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.3*" />
-                                <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
