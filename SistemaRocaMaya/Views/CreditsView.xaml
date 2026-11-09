@@ -14,12 +14,26 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="Crédito" FontSize="26" FontWeight="Bold"
-                   Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" Margin="0,0,0,16" />
-
-        <TabControl Grid.Row="1" Background="Transparent" BorderBrush="{StaticResource RocaMayaBorderBrush}">
+        <Border Style="{StaticResource ReportHeadingSurface}">
+            <DockPanel>
+                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
+                <TextBlock VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ReportHeadingText}">
+                            <Setter Property="Text" Value="Crédito" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedIndex, ElementName=CreditTabs}" Value="1">
+                                    <Setter Property="Text" Value="Antigüedad de cuentas por cobrar" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </DockPanel>
+        </Border>
+        <TabControl x:Name="CreditTabs" Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0">
           <TabItem Header="Clientes y movimientos">
-          <Grid Margin="10">
+          <Grid Margin="0,8,0,0">
             <Grid x:Name="CustomerListPanel">
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -125,9 +139,7 @@
                     <RowDefinition Height="38" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Border Margin="0,0,0,12" Padding="14,10" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
-                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                    <Grid>
+                <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <Button Content="← Clientes" Command="{Binding ShowCustomerListCommand}" Height="36" Padding="12,0"
                             Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
@@ -143,8 +155,7 @@
                         <TextBlock Text="{Binding SelectedCustomerBalanceText}" Margin="0,3,0,0" FontSize="22"
                                    FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                     </StackPanel>
-                    </Grid>
-                </Border>
+                </Grid>
                 <Grid Grid.Row="1" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
@@ -193,18 +204,9 @@
           </Grid>
           </TabItem>
           <TabItem Header="Antigüedad de saldos">
-            <Grid Margin="12">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Style="{StaticResource ReportHeadingSurface}">
-                    <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Antigüedad de cuentas por cobrar" Style="{StaticResource ReportHeadingText}" />
-                            <TextBlock Text="{Binding AgingReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
-                        </StackPanel>
-                    </DockPanel>
-                </Border>
-                <Grid Grid.Row="1" Margin="0,0,0,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="0,8,10,0">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="135" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="Saldos al" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="1" SelectedDate="{Binding AgingAsOfDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
@@ -212,7 +214,7 @@
                     <Button Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportAgingReportCommand}" Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
                     <Button Grid.Column="4" Content="Imprimir" Command="{Binding PrintAgingReportCommand}" Height="34" Padding="12,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
                 </Grid>
-                <DataGrid Grid.Row="2" ItemsSource="{Binding AgingCustomers}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                <DataGrid ItemsSource="{Binding AgingCustomers}" MaxHeight="320" MinRowHeight="30" ScrollViewer.HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.35*" />
                         <DataGridTextColumn Header="CONTACTO" Binding="{Binding Phone}" Width="0.9*" />
@@ -221,7 +223,7 @@
                         <DataGridTextColumn Header="31–60 DÍAS" Binding="{Binding Days31To60Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="61–90 DÍAS" Binding="{Binding Days61To90Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="MÁS DE 90" Binding="{Binding Over90Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="VENCIMIENTO MÁS ANTIGUO" Binding="{Binding OldestDueDateText}" Width="1.2*" />
+                        <DataGridTextColumn Header="VENC. MÁS ANTIGUO" Binding="{Binding OldestDueDateText}" Width="1.2*" />
                         <DataGridTextColumn Header="DÍAS DE MORA" Binding="{Binding DaysOverdueText}" Width="0.9*" />
                         <DataGridTemplateColumn Header="ESTADO" Width="1.1*">
                             <DataGridTemplateColumn.CellTemplate>
@@ -243,8 +245,34 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="3" Text="{Binding AgingActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-            </Grid>
+                <StackPanel Margin="0,14,0,6">
+                    <TextBlock Text="Saldos por tramo de antigüedad" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ItemsControl ItemsSource="{Binding AgingBars}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="112" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="110" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Height="14" VerticalAlignment="Center" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="{Binding FilledWidth}" />
+                                            <ColumnDefinition Width="{Binding RemainingWidth}" />
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                    </Grid>
+                                    <TextBlock Grid.Column="2" Text="{Binding Amount}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <TextBlock Text="{Binding AgingActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+              </StackPanel>
+            </ScrollViewer>
           </TabItem>
         </TabControl>
     </Grid>

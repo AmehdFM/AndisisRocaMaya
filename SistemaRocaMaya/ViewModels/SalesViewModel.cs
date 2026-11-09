@@ -9,7 +9,6 @@ namespace SistemaRocaMaya.ViewModels;
 
 public sealed class SalesViewModel : ObservableObject
 {
-    private string _sessionSearchText = "";
     private DateTime? _sessionStartDate = DateTime.Today.AddDays(-30);
     private DateTime? _sessionEndDate = DateTime.Today;
     private string _cashReportActionMessage = "Datos de demostración · Los cierres se conservan en memoria durante esta sesión.";
@@ -17,15 +16,6 @@ public sealed class SalesViewModel : ObservableObject
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView CashSessions { get; }
-    public string SessionSearchText
-    {
-        get => _sessionSearchText;
-        set
-        {
-            if (SetProperty(ref _sessionSearchText, value)) CashSessions.Refresh();
-        }
-    }
-
     public DateTime? SessionStartDate
     {
         get => _sessionStartDate;
@@ -87,10 +77,7 @@ public sealed class SalesViewModel : ObservableObject
         var sessionDate = (session.ClosedAt ?? session.OpenedAt).Date;
         if (SessionStartDate is DateTime start && sessionDate < start.Date) return false;
         if (SessionEndDate is DateTime end && sessionDate > end.Date) return false;
-        return string.IsNullOrWhiteSpace(SessionSearchText)
-            || session.OpenedText.Contains(SessionSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
-            || session.ClosedText.Contains(SessionSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
-            || $"Caja {session.Id}".Contains(SessionSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase);
+        return true;
     }
 
     private void CashSessions_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

@@ -37,9 +37,6 @@
             <DatePicker Grid.Column="1" SelectedDate="{Binding SessionStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
             <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             <DatePicker Grid.Column="3" SelectedDate="{Binding SessionEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-            <TextBox Grid.Column="4" Text="{Binding SessionSearchText, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
-                     ToolTip="Buscar cierre por fecha u número de caja" />
             <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}"
                     Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="11" FontWeight="SemiBold"
                     Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />

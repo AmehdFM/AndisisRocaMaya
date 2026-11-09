@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,7 +25,7 @@ public sealed class CreditsViewModel : ObservableObject
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView CustomersWithCredit { get; }
     public ListCollectionView AgingCustomers { get; }
-    public string AgingReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
+    public IReadOnlyList<CreditAgingBar> AgingBars { get; private set; } = [];
     public string AgingActionMessage
     {
         get => _agingActionMessage;
@@ -35,7 +36,11 @@ public sealed class CreditsViewModel : ObservableObject
         get => _agingSearchText;
         set
         {
-            if (SetProperty(ref _agingSearchText, value)) AgingCustomers.Refresh();
+            if (SetProperty(ref _agingSearchText, value))
+            {
+                AgingCustomers.Refresh();
+                RefreshAgingBars();
+            }
         }
     }
     public DateTime AgingAsOfDate
@@ -139,17 +144,40 @@ public sealed class CreditsViewModel : ObservableObject
     private void RefreshAgingCustomers()
     {
         _allAgingCustomers.Clear();
-        foreach (var customer in Store.Customers.Where(customer => customer.Balance > 0))
+        foreach (var customer in Store.Customers)
         {
-            _allAgingCustomers.Add(BuildAgingCustomer(customer, AgingAsOfDate));
+            var row = BuildAgingCustomer(customer, AgingAsOfDate);
+            if (row.Balance > 0m) _allAgingCustomers.Add(row);
         }
-        AgingCustomers?.Refresh();
+        AgingCustomers.Refresh();
+        RefreshAgingBars();
     }
+
+    private void RefreshAgingBars()
+    {
+        var rows = AgingCustomers.Cast<CreditAgingCustomerViewModel>().ToArray();
+        var amounts = new (string Label, decimal Amount)[]
+        {
+            ("0–30 días", rows.Sum(row => row.Days0To30)),
+            ("31–60 días", rows.Sum(row => row.Days31To60)),
+            ("61–90 días", rows.Sum(row => row.Days61To90)),
+            ("Más de 90 días", rows.Sum(row => row.Over90))
+        };
+        var maximum = amounts.Max(bar => bar.Amount);
+        AgingBars = amounts.Select(bar =>
+        {
+            var share = maximum == 0m ? 0d : (double)(bar.Amount / maximum);
+            return new CreditAgingBar(bar.Label, OperationalDemoStore.FormatMoney(bar.Amount),
+                new GridLength(share, GridUnitType.Star), new GridLength(1d - share, GridUnitType.Star));
+        }).ToArray();
+        OnPropertyChanged(nameof(AgingBars));
+    }
+
 
     private static CreditAgingCustomerViewModel BuildAgingCustomer(CustomerRecord customer, DateTime asOfDate)
     {
         var openCharges = new List<(DateTime Date, decimal Remaining)>();
-        foreach (var movement in customer.CreditHistory.OrderBy(movement => movement.Date))
+        foreach (var movement in customer.CreditHistory.Where(movement => movement.Date.Date <= asOfDate.Date).OrderBy(movement => movement.Date))
         {
             if (movement.Type == CreditMovementType.Charge)
             {
@@ -186,7 +214,7 @@ public sealed class CreditsViewModel : ObservableObject
         return new CreditAgingCustomerViewModel(
             customer.Name,
             customer.Phone,
-            customer.Balance,
+            days0To30 + days31To60 + days61To90 + over90,
             days0To30,
             days31To60,
             days61To90,
@@ -265,3 +293,5 @@ public sealed record CreditAgingCustomerViewModel(
     public string OldestDueDateText => OldestDueDate?.ToString("dd/MM/yyyy") ?? "—";
     public string DaysOverdueText => DaysOverdue == 0 ? "0 · vigente" : $"{DaysOverdue} días";
 }
+
+public sealed record CreditAgingBar(string Label, string Amount, GridLength FilledWidth, GridLength RemainingWidth);
