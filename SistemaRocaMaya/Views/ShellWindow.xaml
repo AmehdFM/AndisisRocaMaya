@@ -279,8 +279,6 @@
                                Visibility="{Binding DataContext.CreditsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:PurchasesView Grid.Row="0"
                                  Visibility="{Binding DataContext.PurchasesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <views:SuppliersView Grid.Row="0"
-                                 Visibility="{Binding DataContext.SuppliersVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:InventoryView Grid.Row="0"
                                  Visibility="{Binding DataContext.InventoryVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:SalesView Grid.Row="0"

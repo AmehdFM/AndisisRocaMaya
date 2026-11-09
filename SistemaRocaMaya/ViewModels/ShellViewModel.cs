@@ -44,7 +44,6 @@ public sealed partial class ShellViewModel : ObservableObject
                 OnPropertyChanged(nameof(CreditsVisibility));
                 OnPropertyChanged(nameof(InventoryVisibility));
                 OnPropertyChanged(nameof(PurchasesVisibility));
-                OnPropertyChanged(nameof(SuppliersVisibility));
                 OnPropertyChanged(nameof(SalesVisibility));
                 OnPropertyChanged(nameof(SettingsVisibility));
                 OnPropertyChanged(nameof(AccountingVisibility));
@@ -68,7 +67,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility DashboardVisibility => CurrentSectionTitle == "Resumen" && !_isFocusMode ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && CurrentSectionTitle != "Crédito" && CurrentSectionTitle != "Compras" && CurrentSectionTitle != "Proveedores" && CurrentSectionTitle != "Inventario" && CurrentSectionTitle != "Ventas" && CurrentSectionTitle != "Configuración" && !AccountingViewModel.IsAccountingSection(CurrentSectionTitle) && !_isFocusMode
+    public Visibility PlaceholderVisibility => CurrentSectionTitle != "Resumen" && CurrentSectionTitle != "Caja" && CurrentSectionTitle != "P04 · Fiado" && CurrentSectionTitle != "Clientes" && CurrentSectionTitle != "Crédito" && CurrentSectionTitle != "Compras" && CurrentSectionTitle != "Inventario" && CurrentSectionTitle != "Ventas" && CurrentSectionTitle != "Configuración" && !AccountingViewModel.IsAccountingSection(CurrentSectionTitle) && !_isFocusMode
         ? Visibility.Visible
         : Visibility.Collapsed;
 
@@ -82,7 +81,7 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public Visibility PurchasesVisibility => CurrentSectionTitle == "Compras" ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility SuppliersVisibility => CurrentSectionTitle == "Proveedores" ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility SupplierTabVisibility => _currentRole.PuedeAcceder("Proveedores") ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility InventoryVisibility => CurrentSectionTitle == "Inventario" ? Visibility.Visible : Visibility.Collapsed;
 
@@ -246,7 +245,6 @@ public sealed partial class ShellViewModel : ObservableObject
         AddMenuItem("Crédito", "◷");
         AddMenuItem("Inventario", "▤");
         AddMenuItem("Compras", "＋");
-        AddMenuItem("Proveedores", "♧");
         AddAccountingMenu();
         AddMenuItem("Configuración", "⚙");
         OnPropertyChanged(nameof(PosMenuItem));

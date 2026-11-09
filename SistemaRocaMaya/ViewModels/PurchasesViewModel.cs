@@ -31,9 +31,7 @@ public sealed class PurchasesViewModel : ObservableObject
     public ICollectionView ProductRowsView { get; }
     public ICollectionView PurchasesView { get; }
     public ListCollectionView PurchaseCostRows { get; }
-    public ObservableCollection<PurchaseSupplierTotalViewModel> PurchaseReportSupplierTotals { get; } = [];
     public ObservableCollection<string> ReportSupplierNames { get; } = ["Todos los proveedores"];
-    public string PurchaseReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string PurchaseReportActionMessage
     {
         get => _purchaseReportActionMessage;
@@ -207,14 +205,6 @@ public sealed class PurchasesViewModel : ObservableObject
         OnPropertyChanged(nameof(PurchaseReportTotalText));
         OnPropertyChanged(nameof(PurchaseReportPurchaseCountText));
         OnPropertyChanged(nameof(PurchaseReportLineCountText));
-        PurchaseReportSupplierTotals.Clear();
-        foreach (var supplierTotal in PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>()
-                     .GroupBy(row => row.SupplierName)
-                     .Select(group => new PurchaseSupplierTotalViewModel(group.Key, group.Sum(row => row.LineTotal)))
-                     .OrderBy(summary => summary.SupplierName))
-        {
-            PurchaseReportSupplierTotals.Add(supplierTotal);
-        }
     }
 
     private void Purchases_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -323,11 +313,6 @@ public sealed record PurchaseCostHistoryRowViewModel(
         : UnitCostDifference / PreviousUnitCost * 100m;
     public string UnitCostVariationText => UnitCostVariationPercent is decimal percent ? $"{percent:+0.00;-0.00;0.00}%" : "Sin base";
     public string LineTotalText => OperationalDemoStore.FormatMoney(LineTotal);
-}
-
-public sealed record PurchaseSupplierTotalViewModel(string SupplierName, decimal Total)
-{
-    public string TotalText => OperationalDemoStore.FormatMoney(Total);
 }
 
 public sealed class PurchaseEntryViewModel : ObservableObject

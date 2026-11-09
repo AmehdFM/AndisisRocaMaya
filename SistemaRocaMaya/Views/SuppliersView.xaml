@@ -2,17 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
-    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="0,8,0,0">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-        <Grid Margin="0,0,0,18">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-            <StackPanel>
-                <TextBlock Text="Proveedores" FontSize="26" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            </StackPanel>
-            <Button Grid.Column="1" Content="＋  Nuevo proveedor" Click="CreateSupplier_Click"
-                    Height="40" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0"
-                    Foreground="White" FontWeight="SemiBold" Cursor="Hand" />
-        </Grid>
+        <Button Content="＋  Nuevo proveedor" Click="CreateSupplier_Click" HorizontalAlignment="Right"
+                Height="34" Padding="12,0" Margin="0,0,0,8" Background="White"
+                BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" FontWeight="SemiBold" Cursor="Hand" />
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Margin="0,0,18,0">
