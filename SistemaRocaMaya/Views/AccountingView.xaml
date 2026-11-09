@@ -266,7 +266,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -300,27 +299,21 @@
                             Style="{StaticResource ReportActionButtonStyle}" />
                     <TextBlock Grid.Column="8" Text="" />
                 </Grid>
-                <Border Grid.Row="2" Margin="0,0,0,8" Padding="12,8" Background="White"
-                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal"><TextBlock Text="SALDO INICIAL" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding LedgerOpeningBalanceText}" Margin="8,0,0,0" FontSize="12" FontWeight="Bold" /></StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal"><TextBlock Text="TOTAL DEBE" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding LedgerDebitTotalText}" Margin="8,0,0,0" FontSize="12" FontWeight="Bold" /></StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal"><TextBlock Text="TOTAL HABER" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding LedgerCreditTotalText}" Margin="8,0,0,0" FontSize="12" FontWeight="Bold" /></StackPanel>
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right"><TextBlock Text="SALDO FINAL" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding LedgerClosingBalanceText}" Margin="8,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" /></StackPanel>
-                    </Grid>
-                </Border>
-                <DataGrid Grid.Row="3" ItemsSource="{Binding LedgerEntries}">
+                <DataGrid Grid.Row="2" ItemsSource="{Binding LedgerEntries}">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" />
-                        <DataGridTextColumn Header="DOCUMENTO" Binding="{Binding Reference}" Width="1.0*" />
                         <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" />
                         <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="4" Text="{Binding LedgerActionMessage}" Margin="0,7,0,0" FontSize="9"
+                <TextBlock Grid.Row="3" Text="{Binding LedgerActionMessage}" Margin="0,7,0,0" FontSize="9"
                            Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 

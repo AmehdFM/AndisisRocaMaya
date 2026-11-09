@@ -257,10 +257,6 @@ public sealed class AccountingViewModel : ObservableObject
         }
     }
 
-    public string LedgerOpeningBalanceText => FormatMoney(GetLedgerOpeningBalance());
-    public string LedgerDebitTotalText => FormatMoney(LedgerEntries.Cast<LedgerEntryViewModel>().Sum(entry => entry.Debit));
-    public string LedgerCreditTotalText => FormatMoney(LedgerEntries.Cast<LedgerEntryViewModel>().Sum(entry => entry.Credit));
-    public string LedgerClosingBalanceText => FormatMoney(GetLedgerClosingBalance());
 
     public string JournalActionMessage
     {
@@ -439,10 +435,6 @@ public sealed class AccountingViewModel : ObservableObject
         JournalEntries.Refresh();
         LedgerEntries.Refresh();
         KardexMovements.Refresh();
-        OnPropertyChanged(nameof(LedgerOpeningBalanceText));
-        OnPropertyChanged(nameof(LedgerDebitTotalText));
-        OnPropertyChanged(nameof(LedgerCreditTotalText));
-        OnPropertyChanged(nameof(LedgerClosingBalanceText));
         OnPropertyChanged(nameof(KardexClosingStock));
         OnPropertyChanged(nameof(KardexClosingValue));
     }
@@ -864,40 +856,6 @@ public sealed class AccountingViewModel : ObservableObject
     private void RefreshLedger()
     {
         LedgerEntries.Refresh();
-        OnPropertyChanged(nameof(LedgerOpeningBalanceText));
-        OnPropertyChanged(nameof(LedgerDebitTotalText));
-        OnPropertyChanged(nameof(LedgerCreditTotalText));
-        OnPropertyChanged(nameof(LedgerClosingBalanceText));
-    }
-
-    private decimal GetLedgerOpeningBalance()
-    {
-        var accountEntries = _allLedgerEntries
-            .Where(entry => entry.Account == SelectedLedgerAccount)
-            .OrderBy(entry => entry.Date)
-            .ToArray();
-        if (accountEntries.Length == 0) return 0m;
-
-        if (LedgerStartDate is DateTime start)
-        {
-            var previous = accountEntries.LastOrDefault(entry => entry.Date.Date < start.Date);
-            if (previous is not null) return previous.Balance;
-        }
-
-        return accountEntries.FirstOrDefault(entry => entry.Description == "Saldo inicial")?.Balance
-            ?? accountEntries[0].Balance;
-    }
-
-    private decimal GetLedgerClosingBalance()
-    {
-        var accountEntries = _allLedgerEntries
-            .Where(entry => entry.Account == SelectedLedgerAccount)
-            .OrderBy(entry => entry.Date)
-            .ToArray();
-        var throughEnd = LedgerEndDate is DateTime end
-            ? accountEntries.LastOrDefault(entry => entry.Date.Date <= end.Date)
-            : accountEntries.LastOrDefault();
-        return throughEnd?.Balance ?? GetLedgerOpeningBalance();
     }
 
     private static string FormatMoney(decimal amount) => OperationalDemoStore.FormatMoney(amount);
