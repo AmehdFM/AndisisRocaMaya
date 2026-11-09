@@ -3,6 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
     <UserControl.Resources>
+        <Style x:Key="AccountingReportHeader" TargetType="ContentControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Border Style="{StaticResource ReportHeadingSurface}">
+                            <DockPanel>
+                                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
+                                       Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
+                                <TextBlock Text="{TemplateBinding Content}" Style="{StaticResource ReportHeadingText}"
+                                           VerticalAlignment="Center" />
+                            </DockPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
             <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -85,16 +101,11 @@
             <Grid Visibility="{Binding SummaryVisibility}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <Border Style="{StaticResource ReportHeadingSurface}">
-                            <DockPanel>
-                                <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Ratios e Indicadores Financieros" Style="{StaticResource ReportHeadingText}" />
-                                    <TextBlock Text="{Binding IndicatorPeriodLabel}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
-                                    <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
-                                </StackPanel>
-                            </DockPanel>
-                        </Border>
+                        <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Ratios e Indicadores Financieros" />
+                        <WrapPanel Margin="0,0,0,6">
+                            <TextBlock Text="{Binding IndicatorPeriodLabel}" Style="{StaticResource ReportMetadataText}" Margin="0,0,16,0" />
+                            <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" />
+                        </WrapPanel>
                         <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                                 BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
                             <ItemsControl ItemsSource="{Binding SummaryMetrics}">
@@ -223,13 +234,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Style="{StaticResource ReportHeadingSurface}">
-                    <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}"
-                               DockPanel.Dock="Right" Margin="16,0,0,0" />
-                        <TextBlock Text="Libro Diario Contable" VerticalAlignment="Center" Style="{StaticResource ReportHeadingText}" />
-                    </DockPanel>
-                </Border>
+                <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Libro Diario Contable" />
                 <Grid Grid.Row="1" Margin="0,10,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
@@ -269,15 +274,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Style="{StaticResource ReportHeadingSurface}">
-                    <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Libro Mayor" Style="{StaticResource ReportHeadingText}" />
-                            <TextBlock Text="{Binding ReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
-                        </StackPanel>
-                    </DockPanel>
-                </Border>
+                <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Libro Mayor" />
                 <Grid Grid.Row="1" Margin="0,10,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.1*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
@@ -319,29 +316,25 @@
 
             <Grid Visibility="{Binding KardexVisibility}">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Style="{StaticResource ReportHeadingSurface}">
-                    <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Kardex de Inventario PEPS" Style="{StaticResource ReportHeadingText}" />
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                <TextBlock Text="Producto:" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
-                                <ComboBox ItemsSource="{Binding KardexProducts}" SelectedItem="{Binding SelectedKardexProduct}"
-                                          DisplayMemberPath="Name" TextSearch.TextPath="Name" IsEditable="True"
-                                          AutomationProperties.Name="Buscar producto por nombre" Width="245" Height="28" />
-                            </StackPanel>
-                        </StackPanel>
-                    </DockPanel>
-                </Border>
+                <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Kardex de Inventario PEPS" />
                 <Grid Grid.Row="1" Margin="0,2,0,8">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="1" SelectedDate="{Binding KardexStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="3" SelectedDate="{Binding KardexEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBox Grid.Column="4" Text="{Binding KardexSearchText, UpdateSourceTrigger=PropertyChanged}" Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center" ToolTip="Buscar por lote, movimiento o fecha" />
-                    <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
-                    <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" /><ColumnDefinition Width="112" />
+                        <ColumnDefinition Width="Auto" /><ColumnDefinition Width="112" />
+                        <ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Producto" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding KardexProducts}" SelectedItem="{Binding SelectedKardexProduct}"
+                              DisplayMemberPath="Name" TextSearch.TextPath="Name" IsEditable="True"
+                              AutomationProperties.Name="Buscar producto por nombre" Height="32" />
+                    <TextBlock Grid.Column="2" Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="12,0,7,0" />
+                    <DatePicker Grid.Column="3" SelectedDate="{Binding KardexStartDate, UpdateSourceTrigger=PropertyChanged}" Height="32" />
+                    <TextBlock Grid.Column="4" Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="12,0,7,0" />
+                    <DatePicker Grid.Column="5" SelectedDate="{Binding KardexEndDate, UpdateSourceTrigger=PropertyChanged}" Height="32" />
+                    <Button Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportKardexCommand}"
+                            Style="{StaticResource ReportActionButtonStyle}" Margin="12,0,6,0" />
+                    <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
                 <Border Grid.Row="2" Background="White" Padding="10,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
                     <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
@@ -367,12 +360,7 @@
             <Grid Visibility="{Binding FinancialPositionVisibility}">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="68" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <StackPanel Margin="0,0,0,8">
-                    <DockPanel Margin="0,0,0,4">
-                        <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
-                               Style="{StaticResource ReportWordmarkImage}" Width="92" Height="38" />
-                        <TextBlock Text="Estado de Situación Financiera" Style="{StaticResource ReportHeadingText}"
-                                   VerticalAlignment="Center" />
-                    </DockPanel>
+                    <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Estado de Situación Financiera" />
                     <WrapPanel>
                         <TextBlock Text="Mes de corte" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
                         <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding FinancialPositionCutoffMonth}"
@@ -412,10 +400,7 @@
 
             <ScrollViewer Visibility="{Binding IncomeStatementVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="0,0,12,8">
-                    <DockPanel Margin="0,0,0,4">
-                        <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" Width="92" Height="38" />
-                        <TextBlock Text="Estado de Resultados" Style="{StaticResource ReportHeadingText}" VerticalAlignment="Center" />
-                    </DockPanel>
+                    <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Estado de Resultados" />
                     <WrapPanel Margin="0,0,0,8">
                         <TextBlock Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
                         <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding IncomeStartDate}" ItemStringFormat="MMMM yyyy"

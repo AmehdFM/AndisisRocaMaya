@@ -36,7 +36,6 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime? _incomeEndDate = FirstDayOfMonth(DateTime.Today);
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _kardexEndDate = DateTime.Today;
-    private string _kardexSearchText = "";
     private ProductRecord? _selectedKardexProduct;
     private string _kardexActionMessage = "Datos de demostración";
     private string _journalActionMessage = "Datos de demostración";
@@ -115,7 +114,6 @@ public sealed class AccountingViewModel : ObservableObject
         return Enumerable.Range(0, monthCount).Select(firstMonth.AddMonths).ToArray();
     }
 
-    public string ReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string ChartScaleTopText => FormatMoney(_chartScaleMaximum);
     public string ChartScaleThreeQuarterText => FormatMoney(_chartScaleMaximum * 0.75m);
     public string ChartScaleMiddleText => FormatMoney(_chartScaleMaximum / 2m);
@@ -182,15 +180,6 @@ public sealed class AccountingViewModel : ObservableObject
         set
         {
             if (SetProperty(ref _kardexEndDate, value)) RefreshKardex();
-        }
-    }
-
-    public string KardexSearchText
-    {
-        get => _kardexSearchText;
-        set
-        {
-            if (SetProperty(ref _kardexSearchText, value)) KardexMovements.Refresh();
         }
     }
 
@@ -846,11 +835,7 @@ public sealed class AccountingViewModel : ObservableObject
         if (item is not KardexMovementViewModel movement) return false;
         if (KardexStartDate is DateTime start && movement.Date.Date < start.Date) return false;
         if (KardexEndDate is DateTime end && movement.Date.Date > end.Date) return false;
-        var query = KardexSearchText.Trim();
-        return query.Length == 0
-            || movement.Lot.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || movement.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || movement.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+        return true;
     }
 
     private void RefreshKardex()
