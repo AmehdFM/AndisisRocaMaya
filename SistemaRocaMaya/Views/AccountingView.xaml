@@ -101,11 +101,7 @@
             <Grid Visibility="{Binding SummaryVisibility}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Ratios e Indicadores Financieros" />
-                        <WrapPanel Margin="0,0,0,6">
-                            <TextBlock Text="{Binding IndicatorPeriodLabel}" Style="{StaticResource ReportMetadataText}" Margin="0,0,16,0" />
-                            <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" />
-                        </WrapPanel>
+                        <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Resumen contable" />
                         <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                                 BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
                             <ItemsControl ItemsSource="{Binding SummaryMetrics}">
@@ -125,91 +121,58 @@
                             </ItemsControl>
                         </Border>
 
-                        <Border Margin="0,16,0,0" Padding="16,13" Background="White"
-                                BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
-                            <Grid>
-                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="190" /></Grid.RowDefinitions>
-                                <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Ventas y costo de ventas por mes" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                        <TextBlock Text="{Binding ChartScaleUnitText}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,16,0" VerticalAlignment="Center">
-                                        <Border Width="9" Height="9" Background="{StaticResource RocaMayaBlueSecondaryBrush}" Margin="0,0,6,0" />
-                                        <TextBlock Text="Ingresos" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border Width="9" Height="9" Background="{StaticResource RocaMayaBluePrimaryBrush}" Margin="0,0,6,0" />
-                                        <TextBlock Text="Costo de ventas" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                    </StackPanel>
-                                </Grid>
-                                <Grid Grid.Row="1" Margin="0,10,0,0">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Height="160" Margin="0,0,12,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding ChartScaleTopText}" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                        <TextBlock Text="{Binding ChartScaleThreeQuarterText}" Margin="0,18,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                        <TextBlock Text="{Binding ChartScaleMiddleText}" Margin="0,18,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                        <TextBlock Text="{Binding ChartScaleQuarterText}" Margin="0,18,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                    </StackPanel>
-                                    <Grid Grid.Column="1" Height="174">
-                                        <Grid Margin="0,0,0,22">
-                                            <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                                            <Border Grid.Row="0" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1" />
-                                            <Border Grid.Row="1" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1" />
-                                            <Border Grid.Row="2" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1" />
-                                            <Border Grid.Row="3" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1" />
-                                        </Grid>
-                                        <ItemsControl ItemsSource="{Binding PeriodPerformance}" Margin="0,0,4,0">
-                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Height="174">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,24">
-                                                            <StackPanel VerticalAlignment="Bottom" Margin="0,0,3,0">
-                                                                <TextBlock Text="{Binding SalesCompactText}" ToolTip="{Binding SalesTooltip}" FontSize="7" TextAlignment="Center" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                                                <Border Width="13" Height="{Binding SalesBarHeight}" Background="{StaticResource RocaMayaBlueSecondaryBrush}" ToolTip="{Binding SalesTooltip}" />
-                                                            </StackPanel>
-                                                            <StackPanel VerticalAlignment="Bottom">
-                                                                <TextBlock Text="{Binding CostsCompactText}" ToolTip="{Binding CostsTooltip}" FontSize="7" TextAlignment="Center" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                                                <Border Width="13" Height="{Binding CostsBarHeight}" Background="{StaticResource RocaMayaBluePrimaryBrush}" ToolTip="{Binding CostsTooltip}" />
-                                                            </StackPanel>
+                        <TabControl ItemsSource="{Binding ManagementIndicators}" SelectedIndex="0" Margin="0,14,0,0"
+                                    BorderThickness="0" Background="Transparent" Padding="0">
+                            <TabControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Margin="5,2" />
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+                            <TabControl.ContentTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,12,0,0">
+                                        <DockPanel Margin="0,0,0,8">
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Value}" FontSize="20" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding Unit}" Style="{StaticResource ReportMetadataText}" Margin="0,0,0,4" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions><RowDefinition Height="150" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                            <Grid MinWidth="46" Margin="0,0,8,0">
+                                                <TextBlock Text="{Binding AxisTop}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
+                                                <TextBlock Text="{Binding AxisMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
+                                                <TextBlock Text="{Binding AxisBottom}" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
+                                            </Grid>
+                                            <Viewbox Grid.Column="1" Stretch="Fill">
+                                                <Canvas Width="600" Height="150">
+                                                    <Path Data="M 0,0 H 600 M 0,75 H 600" Stroke="{StaticResource RocaMayaDividerBrush}" StrokeThickness="1" />
+                                                    <Path Data="M 0,0 V 150 H 600" Stroke="{StaticResource RocaMayaBorderBrush}" StrokeThickness="1" />
+                                                    <Path Data="{Binding Line}" Stroke="{StaticResource RocaMayaBlueSecondaryBrush}" StrokeThickness="2" />
+                                                    <Path Data="{Binding Dots}" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Months}" Margin="0,5,0,0">
+                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel HorizontalAlignment="Center">
+                                                            <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" />
+                                                            <TextBlock Text="{Binding Value}" HorizontalAlignment="Center" FontSize="11"
+                                                                       Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                                         </StackPanel>
-                                                        <TextBlock Text="{Binding Month}" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                                                   Margin="0,0,0,3" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <Grid Margin="0,16,0,0">
-                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                            <TextBlock Text="Fórmulas e interpretación" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <DataGrid Grid.Row="2" ItemsSource="{Binding ManagementIndicators}" Height="150" HeadersVisibility="Column" RowHeight="42">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="INDICADOR" Binding="{Binding Name}" Width="1.0*" />
-                                    <DataGridTextColumn Header="RESULTADO" Binding="{Binding Value}" Width="0.8*" />
-                                    <DataGridTemplateColumn Header="REPRESENTACIÓN" Width="1.2*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel VerticalAlignment="Center" ToolTip="{Binding VisualScale}">
-                                                    <Border Width="90" Height="8" CornerRadius="4" Background="{StaticResource RocaMayaBlueSurfaceBrush}" HorizontalAlignment="Left">
-                                                        <Border Width="{Binding VisualWidth}" Height="8" CornerRadius="4" Background="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Left" />
-                                                    </Border>
-                                                    <TextBlock Text="{Binding VisualScale}" Margin="0,2,0,0" FontSize="7" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="FÓRMULA" Binding="{Binding Formula}" Width="1.6*" />
-                                    <DataGridTextColumn Header="¿QUÉ SIGNIFICA?" Binding="{Binding Explanation}" Width="2.5*" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+                                        <TextBlock Text="Período contable (meses)" HorizontalAlignment="Center"
+                                                   Style="{StaticResource ReportMetadataText}" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,12,0,3" />
+                                        <TextBlock Text="{Binding Formula, StringFormat='Fórmula: {0}'}" Style="{StaticResource ReportMetadataText}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
+                        </TabControl>
 
                         <TextBlock Text="Movimientos recientes" Margin="0,18,0,8" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />

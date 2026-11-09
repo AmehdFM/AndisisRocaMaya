@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
@@ -51,7 +52,6 @@ public sealed class AccountingViewModel : ObservableObject
     private decimal _reportEquity;
     private decimal _reportNetIncome;
     private decimal _reportNetIncomeAtCutoff;
-    private decimal _chartScaleMaximum = 100m;
 
     private readonly ObservableCollection<JournalEntryViewModel> _allJournalEntries = [];
     private readonly ObservableCollection<LedgerEntryViewModel> _allLedgerEntries = [];
@@ -97,7 +97,6 @@ public sealed class AccountingViewModel : ObservableObject
         }
     }
 
-    public string IndicatorPeriodLabel => $"Período: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}";
 
     public IReadOnlyList<DateTime> ReportMonthOptions { get; } = BuildReportMonthOptions();
 
@@ -114,12 +113,6 @@ public sealed class AccountingViewModel : ObservableObject
         return Enumerable.Range(0, monthCount).Select(firstMonth.AddMonths).ToArray();
     }
 
-    public string ChartScaleTopText => FormatMoney(_chartScaleMaximum);
-    public string ChartScaleThreeQuarterText => FormatMoney(_chartScaleMaximum * 0.75m);
-    public string ChartScaleMiddleText => FormatMoney(_chartScaleMaximum / 2m);
-    public string ChartScaleQuarterText => FormatMoney(_chartScaleMaximum / 4m);
-    public string ChartScaleUnitText => "Escala en Lempiras (L)";
-    public string StatementIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string StatementActionMessage
     {
         get => _statementActionMessage;
@@ -134,7 +127,6 @@ public sealed class AccountingViewModel : ObservableObject
             if (SetProperty(ref _financialPositionCutoffMonth, value))
             {
                 RefreshFinancialPositionOutput();
-                RefreshManagementIndicators();
             }
         }
     }
@@ -147,7 +139,6 @@ public sealed class AccountingViewModel : ObservableObject
             if (SetProperty(ref _incomeStartDate, value))
             {
                 RefreshIncomeStatementOutput();
-                RefreshManagementIndicators();
             }
         }
     }
@@ -160,7 +151,6 @@ public sealed class AccountingViewModel : ObservableObject
             if (SetProperty(ref _incomeEndDate, value))
             {
                 RefreshIncomeStatementOutput();
-                RefreshManagementIndicators();
             }
         }
     }
@@ -328,7 +318,6 @@ public sealed class AccountingViewModel : ObservableObject
     public string IncomeChartMidpointText { get; private set; } = "";
     public string IncomeChartMinimumText { get; private set; } = "";
 
-    public ObservableCollection<AccountingPeriodViewModel> PeriodPerformance { get; } = [];
 
     private readonly ObservableCollection<KardexMovementViewModel> _allKardexMovements = [];
 
@@ -437,7 +426,7 @@ public sealed class AccountingViewModel : ObservableObject
 
         BuildKardex();
         PopulateFinancialReports();
-        PopulatePerformanceChart(saleCosts);
+        RefreshManagementIndicators(saleCosts);
         JournalEntries.Refresh();
         LedgerEntries.Refresh();
         KardexMovements.Refresh();
@@ -577,29 +566,15 @@ public sealed class AccountingViewModel : ObservableObject
     {
         RefreshFinancialPositionOutput();
         RefreshIncomeStatementOutput();
-        RefreshManagementIndicators();
-    }
-
-    private void RefreshManagementIndicators()
-    {
-        var grossMargin = _reportRevenue == 0m ? 0m : (_reportRevenue - _reportCostOfSales) / _reportRevenue * 100m;
-        var netMargin = _reportRevenue == 0m ? 0m : _reportNetIncome / _reportRevenue * 100m;
-        var liquidity = _reportPayables == 0m ? 0m : _reportAssets / _reportPayables;
-        ManagementIndicators.Clear();
-        ManagementIndicators.Add(new("Margen bruto", $"{grossMargin:0.0} %", $"({FormatMoney(_reportRevenue)} − {FormatMoney(_reportCostOfSales)}) ÷ {FormatMoney(_reportRevenue)} × 100", $"Por cada L 100 vendidos, quedan L {grossMargin:0.00} luego de cubrir el costo de la mercadería.", (double)Math.Clamp(grossMargin, 0m, 100m) * 0.9, "Escala 0–100 %"));
-        ManagementIndicators.Add(new("Margen neto", $"{netMargin:0.0} %", $"{FormatMoney(_reportNetIncome)} ÷ {FormatMoney(_reportRevenue)} × 100", $"Por cada L 100 vendidos, el resultado neto de demostración es L {netMargin:0.00}.", (double)Math.Clamp(netMargin, 0m, 100m) * 0.9, "Escala 0–100 %"));
-        ManagementIndicators.Add(new("Liquidez corriente", $"{liquidity:0.00} a 1", $"{FormatMoney(_reportAssets)} ÷ {FormatMoney(_reportPayables)}", $"Por cada L 1 en proveedores, hay L {liquidity:0.00} en caja, créditos e inventario.", (double)Math.Clamp(liquidity / 10m * 100m, 0m, 100m) * 0.9, "Escala 0–10 veces"));
     }
 
     private void RefreshFinancialPositionOutput()
     {
         var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
         _reportCash = GetCashAsOf(cutoff);
-        _reportReceivables = _store.Customers.SelectMany(customer => customer.CreditHistory)
-            .Where(movement => movement.Date.Date <= cutoff)
-            .Sum(movement => movement.Type == CreditMovementType.Charge ? movement.Amount : -movement.Amount);
+        _reportReceivables = GetReceivablesAsOf(cutoff);
         _reportInventory = GetInventoryValueAsOf(cutoff);
-        _reportPayables = _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff).Sum(purchase => purchase.Total);
+        _reportPayables = GetPayablesAsOf(cutoff);
         _reportAssets = _reportCash + _reportReceivables + _reportInventory;
         _reportEquity = _reportAssets - _reportPayables;
         var costBySale = CalculateSaleCosts();
@@ -715,6 +690,14 @@ public sealed class AccountingViewModel : ObservableObject
     }
 
 
+    private decimal GetReceivablesAsOf(DateTime cutoff) => _store.Customers.SelectMany(customer => customer.CreditHistory)
+        .Where(movement => movement.Date.Date <= cutoff)
+        .Sum(movement => movement.Type == CreditMovementType.Charge ? movement.Amount : -movement.Amount);
+
+    private decimal GetPayablesAsOf(DateTime cutoff) =>
+        _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff).Sum(purchase => purchase.Total);
+
+
     private decimal GetCashAsOf(DateTime cutoff)
     {
         var session = _store.CashSessions.OrderBy(item => item.OpenedAt).FirstOrDefault();
@@ -771,35 +754,115 @@ public sealed class AccountingViewModel : ObservableObject
         return layersByProduct.Values.SelectMany(layers => layers).Sum(layer => layer.RemainingQuantity * layer.UnitCost);
     }
 
-    private void PopulatePerformanceChart(IReadOnlyDictionary<int, decimal> saleCosts)
+    private void RefreshManagementIndicators(IReadOnlyDictionary<int, decimal> saleCosts)
     {
-        var firstMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-5);
-        var monthlyValues = Enumerable.Range(0, 6).Select(offset => firstMonth.AddMonths(offset))
+        var currentMonth = FirstDayOfMonth(DateTime.Today);
+        var months = Enumerable.Range(-5, 6).Select(offset => currentMonth.AddMonths(offset))
             .Select(month =>
             {
-                var sales = _store.Sales.Where(sale => sale.Date.Year == month.Year && sale.Date.Month == month.Month).Sum(sale => sale.Total);
-                var costs = _store.Sales.Where(sale => sale.Date.Year == month.Year && sale.Date.Month == month.Month).Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
-                return (Month: month, Sales: sales, Costs: costs);
-            }).ToArray();
+                var cutoff = month == currentMonth ? DateTime.Today : LastDayOfMonth(month);
+                var sales = _store.Sales.Where(sale => IsInPeriod(sale.Date, month, cutoff)).ToArray();
+                var revenue = sales.Sum(sale => sale.Total);
+                var cost = sales.Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
+                var inventory = GetInventoryValueAsOf(cutoff);
+                var averageInventory = (GetInventoryValueAsOf(month.AddDays(-1)) + inventory) / 2m;
+                var assets = GetCashAsOf(cutoff) + GetReceivablesAsOf(cutoff) + inventory;
+                var payables = GetPayablesAsOf(cutoff);
+                var profit = revenue - cost; // The demo has no recorded operating expenses, interest or taxes.
 
-        _chartScaleMaximum = Math.Max(100m, Math.Ceiling(monthlyValues.Max(value => Math.Max(value.Sales, value.Costs)) / 100m) * 100m);
-        PeriodPerformance.Clear();
-        foreach (var value in monthlyValues)
+                return new
+                {
+                    Label = month.ToString("MMM yy", OperationalDemoStore.HondurasCulture),
+                    GrossMargin = Ratio(revenue - cost, revenue, 100m),
+                    NetMargin = Ratio(profit, revenue, 100m),
+                    Liquidity = Ratio(assets, payables),
+                    Turnover = Ratio(cost, averageInventory),
+                    DebtRatio = Ratio(payables, assets, 100m),
+                    ReturnOnAssets = Ratio(profit, assets, 100m)
+                };
+            }).ToArray();
+        var labels = months.Select(month => month.Label).ToArray();
+
+        AccountingIndicatorViewModel Indicator(string name, string unit, string formula,
+            IEnumerable<decimal?> values, Func<decimal, string> interpret) =>
+            BuildIndicator(name, unit, formula, labels, values.ToArray(), interpret);
+
+        var indicators = new[]
         {
-            PeriodPerformance.Add(new(
-                value.Month.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("es-HN")),
-                (double)(value.Sales / _chartScaleMaximum * 116m),
-                (double)(value.Costs / _chartScaleMaximum * 116m),
-                value.Sales.ToString("N0", OperationalDemoStore.HondurasCulture),
-                value.Costs.ToString("N0", OperationalDemoStore.HondurasCulture),
-                FormatMoney(value.Sales),
-                FormatMoney(value.Costs)));
+            Indicator("Margen bruto", "%", "(Ventas − costo de ventas) ÷ ventas × 100",
+                months.Select(month => month.GrossMargin),
+                value => $"Por cada L 100 vendidos quedan {FormatMoney(value)} después de cubrir la mercadería."),
+            Indicator("Margen neto", "%", "Utilidad neta ÷ ventas × 100",
+                months.Select(month => month.NetMargin),
+                value => $"Por cada L 100 vendidos, el resultado neto de la demo es {FormatMoney(value)}."),
+            Indicator("Liquidez corriente", "veces", "Activos corrientes ÷ pasivos corrientes",
+                months.Select(month => month.Liquidity),
+                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en activos corrientes."),
+            Indicator("Rotación de inventario", "veces", "Costo de ventas ÷ inventario promedio del mes",
+                months.Select(month => month.Turnover),
+                value => $"En el mes se vendió el equivalente a {value:0.00} veces el inventario promedio."),
+            Indicator("Endeudamiento", "%", "Pasivos totales ÷ activos totales × 100",
+                months.Select(month => month.DebtRatio),
+                value => $"De cada L 100 en activos, {FormatMoney(value)} están financiados con pasivos."),
+            Indicator("Rentabilidad de activos", "%", "Utilidad neta del mes ÷ activos al corte × 100",
+                months.Select(month => month.ReturnOnAssets),
+                value => $"Los activos al corte generaron {FormatMoney(value)} de utilidad por cada L 100 en el mes.")
+        };
+
+        if (ManagementIndicators.Count == 0)
+        {
+            foreach (var indicator in indicators) ManagementIndicators.Add(indicator);
         }
-        OnPropertyChanged(nameof(ChartScaleTopText));
-        OnPropertyChanged(nameof(ChartScaleThreeQuarterText));
-        OnPropertyChanged(nameof(ChartScaleMiddleText));
-        OnPropertyChanged(nameof(ChartScaleQuarterText));
+        else
+        {
+            for (var index = 0; index < indicators.Length; index++)
+                ManagementIndicators[index] = indicators[index];
+        }
     }
+
+    private static decimal? Ratio(decimal numerator, decimal denominator, decimal multiplier = 1m) =>
+        denominator > 0m ? numerator / denominator * multiplier : null;
+
+    private static AccountingIndicatorViewModel BuildIndicator(string name, string unit, string formula,
+        IReadOnlyList<string> labels, IReadOnlyList<decimal?> values, Func<decimal, string> interpret)
+    {
+        var available = values.OfType<decimal>().ToArray();
+        var bottom = Math.Min(0m, available.DefaultIfEmpty().Min());
+        var top = Math.Max(0m, available.DefaultIfEmpty().Max());
+        if (bottom == top) top = 1m;
+
+        var line = new PathGeometry();
+        var dots = new GeometryGroup();
+        PathFigure? segment = null;
+        var periods = new IndicatorMonth[values.Count];
+        for (var index = 0; index < values.Count; index++)
+        {
+            periods[index] = new(labels[index], values[index] is decimal amount ? $"{amount:0.00} {unit}" : "—");
+            if (values[index] is not decimal value)
+            {
+                segment = null;
+                continue;
+            }
+
+            var point = new Point((index + 0.5) * 600 / values.Count, (double)((top - value) / (top - bottom)) * 150);
+            if (segment is null)
+            {
+                segment = new PathFigure { StartPoint = point };
+                line.Figures.Add(segment);
+            }
+            else
+            {
+                segment.Segments.Add(new LineSegment(point, true));
+            }
+            dots.Children.Add(new EllipseGeometry(point, 3.5, 3.5));
+        }
+
+        var current = values[^1];
+        return new(name, current is decimal latest ? $"{latest:0.00} {unit}" : "Sin dato", unit, formula,
+            current is decimal result ? interpret(result) : "Este indicador no se puede calcular para el mes actual porque falta su base de cálculo.",
+            $"{top:0.##}", $"{(top + bottom) / 2m:0.##}", $"{bottom:0.##}", line, dots, periods);
+    }
+
 
     private static bool IsInPeriod(DateTime date, DateTime start, DateTime end) => date.Date >= start.Date && date.Date <= end.Date;
     private static bool IsCreditNormal(string account) => account is "Proveedores" or "Ingresos por ventas";
@@ -893,7 +956,12 @@ public sealed class AccountingViewModel : ObservableObject
 
 public sealed record AccountingMetricViewModel(string Label, string Value, string Detail);
 
-public sealed record AccountingIndicatorViewModel(string Name, string Value, string Formula, string Explanation, double VisualWidth, string VisualScale);
+public sealed record AccountingIndicatorViewModel(
+    string Name, string Value, string Unit, string Formula, string Explanation,
+    string AxisTop, string AxisMiddle, string AxisBottom,
+    PathGeometry Line, GeometryGroup Dots, IReadOnlyList<IndicatorMonth> Months);
+
+public sealed record IndicatorMonth(string Label, string Value);
 
 public sealed record JournalEntryViewModel(DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit)
 {
@@ -930,15 +998,6 @@ public sealed record KardexMovementViewModel(
 }
 
 public sealed record StatementLineViewModel(string Group, string Account, string Amount, bool IsTotal, bool IsSectionHeader = false);
-
-public sealed record AccountingPeriodViewModel(
-    string Month,
-    double SalesBarHeight,
-    double CostsBarHeight,
-    string SalesCompactText,
-    string CostsCompactText,
-    string SalesTooltip,
-    string CostsTooltip);
 
 public sealed record IncomeChartBar(double AboveZero, double BelowZero, string Amount);
 public sealed record IncomeChartMonth(string Label, IncomeChartBar Sales, IncomeChartBar Costs, IncomeChartBar NetIncome);
