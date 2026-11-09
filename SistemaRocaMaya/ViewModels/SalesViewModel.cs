@@ -47,7 +47,6 @@ public sealed class SalesViewModel : ObservableObject
         }
     }
 
-    public string CashReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string CashReportActionMessage
     {
         get => _cashReportActionMessage;
