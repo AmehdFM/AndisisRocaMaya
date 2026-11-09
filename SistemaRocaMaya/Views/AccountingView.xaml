@@ -466,7 +466,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
-                        <DataGrid ItemsSource="{Binding IncomeStatementLines}" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="Auto" RowStyle="{StaticResource StatementDataGridRowStyle}">
+                        <DataGrid ItemsSource="{Binding IncomeStatementLines}" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="NaN" RowStyle="{StaticResource StatementDataGridRowStyle}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Categoría" Binding="{Binding Group}" Width="1.7*">
                                     <DataGridTextColumn.ElementStyle>
