@@ -325,9 +325,8 @@ public sealed class AccountingViewModel : ObservableObject
         new("PATRIMONIO", "L 45,300.00", "")
     ];
 
-    public ObservableCollection<AccountingMetricViewModel> IncomeMetrics { get; } = [];
     public ObservableCollection<IncomeChartMonth> IncomeChartMonths { get; } = [];
-    public string IncomeChartScaleText { get; private set; } = "";
+    public string IncomeChartStatusMessage { get; private set; } = "";
     public double IncomeChartNegativeHeight { get; private set; }
     public string IncomeChartMaximumText { get; private set; } = "";
     public string IncomeChartMidpointText { get; private set; } = "";
@@ -669,10 +668,6 @@ public sealed class AccountingViewModel : ObservableObject
         SummaryMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(totalCostsAndExpenses), ""));
         SummaryMetrics.Add(new("RESULTADO NETO", FormatMoney(_reportNetIncome), ""));
         SummaryMetrics.Add(new("ACTIVOS", FormatMoney(_reportAssets), ""));
-        IncomeMetrics.Clear();
-        IncomeMetrics.Add(new("Ventas", FormatMoney(_reportRevenue), ""));
-        IncomeMetrics.Add(new("Costos y gastos", FormatMoney(totalCostsAndExpenses), ""));
-        IncomeMetrics.Add(new("Utilidad neta", FormatMoney(_reportNetIncome), ""));
         IncomeStatementLines.Clear();
         IncomeStatementLines.Add(new("Ventas", "Ventas al contado y a crédito", FormatMoney(_reportRevenue), false));
         IncomeStatementLines.Add(new("Costo de ventas", "Mercadería vendida a costo PEPS", FormatMoney(_reportCostOfSales), false));
@@ -705,14 +700,14 @@ public sealed class AccountingViewModel : ObservableObject
         var amounts = monthlyValues.SelectMany(month => new[] { month.Totals.Sales, month.Totals.Costs, month.Totals.Sales - month.Totals.Costs }).ToArray();
         var scale = Math.Max(1m, amounts.Select(Math.Abs).DefaultIfEmpty().Max());
         IncomeChartNegativeHeight = (double)(-Math.Min(0m, amounts.DefaultIfEmpty().Min()) / scale * 100m);
-        IncomeChartScaleText = start > end ? "El mes inicial debe ser anterior o igual al mes final."
+        IncomeChartStatusMessage = start > end ? "El mes inicial debe ser anterior o igual al mes final."
             : totalsByMonth.Count == 0 ? "Sin ventas en el período seleccionado."
-            : "Importes en lempiras";
+            : "";
         OnPropertyChanged(nameof(IncomeChartNegativeHeight));
         IncomeChartMaximumText = FormatMoney(scale);
         IncomeChartMidpointText = FormatMoney(scale / 2m);
         IncomeChartMinimumText = IncomeChartNegativeHeight > 0 ? FormatMoney(amounts.Min()) : "";
-        OnPropertyChanged(nameof(IncomeChartScaleText));
+        OnPropertyChanged(nameof(IncomeChartStatusMessage));
         OnPropertyChanged(nameof(IncomeChartMaximumText));
         OnPropertyChanged(nameof(IncomeChartMidpointText));
         OnPropertyChanged(nameof(IncomeChartMinimumText));

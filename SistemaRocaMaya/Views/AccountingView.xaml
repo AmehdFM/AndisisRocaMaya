@@ -450,21 +450,9 @@
                         <TextBlock Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
                         <ComboBox ItemsSource="{Binding IncomeMonthOptions}" SelectedItem="{Binding IncomeEndDate}" ItemStringFormat="MMMM yyyy"
                                   Language="es-HN" AutomationProperties.Name="Mes final" Width="155" Height="28" Margin="0,0,12,0" />
-                        <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
                         <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" />
                     </WrapPanel>
-                    <ItemsControl ItemsSource="{Binding IncomeMetrics}" Margin="0,0,0,10">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Label}" Style="{StaticResource ReportMetadataText}" />
-                                    <TextBlock Text="{Binding Value}" FontSize="17" FontWeight="SemiBold" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
                     <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
                         <DataGrid ItemsSource="{Binding IncomeStatementLines}" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="NaN" RowStyle="{StaticResource StatementDataGridRowStyle}">
                             <DataGrid.Columns>
@@ -481,11 +469,31 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>
-                    <TextBlock Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="11">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ReportMetadataText}">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="Datos de demostración">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <StackPanel Margin="0,10,0,0">
                         <TextBlock Text="Evolución mensual" FontSize="16" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding IncomeChartScaleText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,8" />
-                        <WrapPanel Margin="0,0,0,8">
+                        <TextBlock Text="{Binding IncomeChartStatusMessage}" Margin="0,3,0,4">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource ReportMetadataText}">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <WrapPanel Margin="0,4,0,8">
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
                                 <Rectangle Width="10" Height="10" Fill="{StaticResource RocaMayaBluePrimaryBrush}" Margin="0,0,5,0" />
                                 <TextBlock Text="Ventas" />
