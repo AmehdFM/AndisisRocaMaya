@@ -363,26 +363,24 @@
 
             <Grid Visibility="{Binding FinancialPositionVisibility}">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="68" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="16,12" BorderBrush="{StaticResource RocaMayaBorderBrush}"
-                        BorderThickness="0,1" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <TextBlock Text="Estado de Situación Financiera" Margin="0,0,16,0" VerticalAlignment="Center"
-                                   FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        <Image Grid.Column="1" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" />
-                        <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0">
-                            <StackPanel Margin="0,0,12,6">
-                                <TextBlock Text="Fecha de corte" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                <DatePicker SelectedDate="{Binding FinancialPositionCutoffDate, UpdateSourceTrigger=PropertyChanged}" Width="125" Height="30" />
-                            </StackPanel>
-                            <TextBlock Text="{Binding StatementIssuedAtText}" Margin="0,0,16,8" FontSize="13"
-                                       VerticalAlignment="Bottom" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <Button Content="Exportar PDF" Command="{Binding ExportFinancialPositionCommand}" Height="34" Padding="10,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" VerticalAlignment="Bottom" />
-                            <Button Content="Imprimir" Command="{Binding PrintFinancialPositionCommand}" Height="34" Padding="10,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" VerticalAlignment="Bottom" />
-                        </WrapPanel>
-                    </Grid>
-                </Border>
+                <StackPanel Margin="0,0,0,8">
+                    <DockPanel Margin="0,0,0,4">
+                        <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
+                               Style="{StaticResource ReportWordmarkImage}" Width="92" Height="38" />
+                        <TextBlock Text="Estado de Situación Financiera" Style="{StaticResource ReportHeadingText}"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                    <WrapPanel>
+                        <TextBlock Text="Mes de corte" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding FinancialPositionCutoffMonth}"
+                                  ItemStringFormat="MMMM yyyy" Language="es-HN" AutomationProperties.Name="Mes de corte"
+                                  Width="155" Height="28" Margin="0,0,12,0" />
+                        <Button Content="Exportar PDF" Command="{Binding ExportFinancialPositionCommand}"
+                                Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
+                        <Button Content="Imprimir" Command="{Binding PrintFinancialPositionCommand}"
+                                Style="{StaticResource ReportActionButtonStyle}" Height="28" />
+                    </WrapPanel>
+                </StackPanel>
                 <Border Grid.Row="1" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
                         BorderThickness="0,1" Margin="0,0,0,8">
                     <ItemsControl ItemsSource="{Binding FinancialPositionMetrics}">
@@ -417,10 +415,10 @@
                     </DockPanel>
                     <WrapPanel Margin="0,0,0,8">
                         <TextBlock Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <ComboBox ItemsSource="{Binding IncomeMonthOptions}" SelectedItem="{Binding IncomeStartDate}" ItemStringFormat="MMMM yyyy"
+                        <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding IncomeStartDate}" ItemStringFormat="MMMM yyyy"
                                   Language="es-HN" AutomationProperties.Name="Mes inicial" Width="155" Height="28" Margin="0,0,12,0" />
                         <TextBlock Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <ComboBox ItemsSource="{Binding IncomeMonthOptions}" SelectedItem="{Binding IncomeEndDate}" ItemStringFormat="MMMM yyyy"
+                        <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding IncomeEndDate}" ItemStringFormat="MMMM yyyy"
                                   Language="es-HN" AutomationProperties.Name="Mes final" Width="155" Height="28" Margin="0,0,12,0" />
                         <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
                         <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" />

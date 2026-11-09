@@ -31,7 +31,7 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime? _journalEndDate = DateTime.Today;
     private DateTime? _ledgerStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _ledgerEndDate = DateTime.Today;
-    private DateTime? _financialPositionCutoffDate = DateTime.Today;
+    private DateTime? _financialPositionCutoffMonth = FirstDayOfMonth(DateTime.Today);
     private DateTime? _incomeStartDate = FirstDayOfMonth(DateTime.Today).AddMonths(-1);
     private DateTime? _incomeEndDate = FirstDayOfMonth(DateTime.Today);
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
@@ -97,11 +97,13 @@ public sealed class AccountingViewModel : ObservableObject
 
     public string IndicatorPeriodLabel => $"Período: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}";
 
-    public IReadOnlyList<DateTime> IncomeMonthOptions { get; } = BuildIncomeMonthOptions();
+    public IReadOnlyList<DateTime> ReportMonthOptions { get; } = BuildReportMonthOptions();
 
     private static DateTime FirstDayOfMonth(DateTime date) => new(date.Year, date.Month, 1);
 
-    private static IReadOnlyList<DateTime> BuildIncomeMonthOptions()
+    private static DateTime LastDayOfMonth(DateTime date) => new(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
+
+    private static IReadOnlyList<DateTime> BuildReportMonthOptions()
     {
         var currentMonth = FirstDayOfMonth(DateTime.Today);
         var firstSale = OperationalDemoStore.Instance.Sales.Select(sale => sale.Date).DefaultIfEmpty(currentMonth).Min();
@@ -123,12 +125,12 @@ public sealed class AccountingViewModel : ObservableObject
         private set => SetProperty(ref _statementActionMessage, value);
     }
 
-    public DateTime? FinancialPositionCutoffDate
+    public DateTime? FinancialPositionCutoffMonth
     {
-        get => _financialPositionCutoffDate;
+        get => _financialPositionCutoffMonth;
         set
         {
-            if (SetProperty(ref _financialPositionCutoffDate, value))
+            if (SetProperty(ref _financialPositionCutoffMonth, value))
             {
                 RefreshFinancialPositionOutput();
                 RefreshManagementIndicators();
@@ -587,7 +589,7 @@ public sealed class AccountingViewModel : ObservableObject
 
     private void RefreshFinancialPositionOutput()
     {
-        var cutoff = FinancialPositionCutoffDate?.Date ?? DateTime.Today;
+        var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
         _reportCash = GetCashAsOf(cutoff);
         _reportReceivables = _store.Customers.SelectMany(customer => customer.CreditHistory)
             .Where(movement => movement.Date.Date <= cutoff)
