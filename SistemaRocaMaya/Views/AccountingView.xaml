@@ -324,8 +324,12 @@
                         <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Kardex de Inventario PEPS" Style="{StaticResource ReportHeadingText}" />
-                            <TextBlock Text="{Binding KardexProductLabel, StringFormat='Producto: {0}'}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
-                            <TextBlock Text="{Binding ReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Producto:" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <ComboBox ItemsSource="{Binding KardexProducts}" SelectedItem="{Binding SelectedKardexProduct}"
+                                          DisplayMemberPath="Name" TextSearch.TextPath="Name" IsEditable="True"
+                                          AutomationProperties.Name="Buscar producto por nombre" Width="245" Height="28" />
+                            </StackPanel>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -340,13 +344,12 @@
                     <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
                 <Border Grid.Row="2" Background="White" Padding="10,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                    <TextBlock VerticalAlignment="Center" FontSize="13"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
+                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
                 </Border>
                 <DataGrid Grid.Row="3" ItemsSource="{Binding KardexMovements}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="100" />
                         <DataGridTextColumn Header="MOVIMIENTO" Binding="{Binding Description}" Width="190" />
-                        <DataGridTextColumn Header="LOTE" Binding="{Binding Lot}" Width="72" />
                         <DataGridTextColumn Header="ENTRADA · CANT." Binding="{Binding EntryQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding EntryUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding EntryTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />

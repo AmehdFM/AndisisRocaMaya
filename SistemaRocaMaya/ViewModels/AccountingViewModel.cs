@@ -37,6 +37,7 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _kardexEndDate = DateTime.Today;
     private string _kardexSearchText = "";
+    private ProductRecord? _selectedKardexProduct;
     private string _kardexActionMessage = "Datos de demostración";
     private string _journalActionMessage = "Datos de demostración";
     private string _ledgerActionMessage = "Datos de demostración";
@@ -64,6 +65,8 @@ public sealed class AccountingViewModel : ObservableObject
         LedgerEntries.Filter = FilterLedgerEntry;
         KardexMovements = new ListCollectionView(_allKardexMovements);
         KardexMovements.Filter = FilterKardexMovement;
+        _selectedKardexProduct = KardexProducts.FirstOrDefault(product => product.Name == "Arroz 1 libra")
+            ?? KardexProducts.FirstOrDefault();
         InitializeOperationBasedReports();
         ExportJournalCommand = new RelayCommand(() => JournalActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
         ExportLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
@@ -283,7 +286,20 @@ public sealed class AccountingViewModel : ObservableObject
     public IRelayCommand PrintFinancialPositionCommand { get; }
     public IRelayCommand PrintIncomeStatementCommand { get; }
 
-    public string KardexProductLabel => "Arroz 1 libra";
+    public ObservableCollection<ProductRecord> KardexProducts => _store.Products;
+
+    public ProductRecord? SelectedKardexProduct
+    {
+        get => _selectedKardexProduct;
+        set
+        {
+            if (SetProperty(ref _selectedKardexProduct, value))
+            {
+                BuildKardex();
+                RefreshKardex();
+            }
+        }
+    }
     public string KardexClosingStock => $"{GetKardexClosingMovement()?.TotalStockQuantity ?? 0} unidades";
     public string KardexClosingValue => $"Costo final: {FormatMoney(GetKardexClosingMovement()?.TotalStockCost ?? 0m)}";
     public string KardexActionMessage
@@ -360,7 +376,6 @@ public sealed class AccountingViewModel : ObservableObject
     {
         _allJournalEntries.Clear();
         _allLedgerEntries.Clear();
-        _allKardexMovements.Clear();
         var periodStart = JournalStartDate?.Date ?? DateTime.Today.AddDays(-31);
         var periodEnd = JournalEndDate?.Date ?? DateTime.Today;
         var saleCosts = CalculateSaleCosts();
@@ -431,7 +446,7 @@ public sealed class AccountingViewModel : ObservableObject
             }
         }
 
-        BuildRiceKardex();
+        BuildKardex();
         PopulateFinancialReports();
         PopulatePerformanceChart(saleCosts);
         JournalEntries.Refresh();
@@ -526,10 +541,10 @@ public sealed class AccountingViewModel : ObservableObject
         return costsBySale;
     }
 
-    private void BuildRiceKardex()
+    private void BuildKardex()
     {
-        var product = _store.Products.FirstOrDefault(item => item.Name == KardexProductLabel);
-        if (product is null) return;
+        _allKardexMovements.Clear();
+        if (SelectedKardexProduct is not { } product) return;
         var layers = new List<InventoryCostLayer>();
         var timeline = _store.Purchases.Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
             .Concat(_store.Sales.Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
