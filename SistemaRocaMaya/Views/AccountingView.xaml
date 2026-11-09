@@ -297,17 +297,24 @@
                     <TextBlock Grid.Column="8" Text="" />
                 </Grid>
                 <DataGrid Grid.Row="2" ItemsSource="{Binding LedgerEntries}">
+                    <DataGrid.Resources>
+                        <Style x:Key="LedgerCellTextStyle" TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="TextAlignment" Value="Center" />
+                        </Style>
+                    </DataGrid.Resources>
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                             <Setter Property="HorizontalContentAlignment" Value="Center" />
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" />
-                        <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" />
-                        <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                        <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                        <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                        <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                        <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <TextBlock Grid.Row="3" Text="{Binding LedgerActionMessage}" Margin="0,7,0,0" FontSize="9"
