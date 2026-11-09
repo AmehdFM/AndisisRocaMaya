@@ -114,18 +114,14 @@ public sealed class AccountingViewModel : ObservableObject
     public string ChartScaleQuarterText => FormatMoney(_chartScaleMaximum / 4m);
     public string ChartScaleUnitText => "Escala en Lempiras (L)";
     public string AccountingResponsible => "Área responsable: Administración y contabilidad";
-    public string JournalSubtitle => "Registro cronológico de transacciones en debe y haber";
     public string LedgerSubtitle => "Movimientos, cargos, abonos y saldo acumulado por cuenta";
     public string ReportPaginationNote => "Formato previsto: papel carta · página numerada · encabezados de columnas repetidos al continuar el reporte";
     public string StatementIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
-    public string StatementResponsible => "Área responsable: Administración y contabilidad";
     public string StatementActionMessage
     {
         get => _statementActionMessage;
         private set => SetProperty(ref _statementActionMessage, value);
     }
-    public string FinancialPositionSubtitle => "Situación financiera a una fecha de corte · Datos de demostración conciliados";
-    public string IncomeStatementSubtitle => "Ingresos y costo de ventas del período · Datos de demostración conciliados";
 
     public DateTime? FinancialPositionCutoffDate
     {
