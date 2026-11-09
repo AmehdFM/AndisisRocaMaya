@@ -219,13 +219,6 @@ public sealed class AccountingViewModel : ObservableObject
         }
     }
 
-    public string JournalDebitTotalText => FormatMoney(JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Debit));
-    public string JournalCreditTotalText => FormatMoney(JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Credit));
-    public string JournalBalanceStatus => JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Debit)
-        == JournalEntries.Cast<JournalEntryViewModel>().Sum(entry => entry.Credit)
-            ? "Debe y haber coinciden"
-            : "Revise los totales del período";
-
     public DateTime? LedgerStartDate
     {
         get => _ledgerStartDate;
@@ -446,9 +439,6 @@ public sealed class AccountingViewModel : ObservableObject
         JournalEntries.Refresh();
         LedgerEntries.Refresh();
         KardexMovements.Refresh();
-        OnPropertyChanged(nameof(JournalDebitTotalText));
-        OnPropertyChanged(nameof(JournalCreditTotalText));
-        OnPropertyChanged(nameof(JournalBalanceStatus));
         OnPropertyChanged(nameof(LedgerOpeningBalanceText));
         OnPropertyChanged(nameof(LedgerDebitTotalText));
         OnPropertyChanged(nameof(LedgerCreditTotalText));
@@ -869,9 +859,6 @@ public sealed class AccountingViewModel : ObservableObject
     private void RefreshJournal()
     {
         JournalEntries.Refresh();
-        OnPropertyChanged(nameof(JournalDebitTotalText));
-        OnPropertyChanged(nameof(JournalCreditTotalText));
-        OnPropertyChanged(nameof(JournalBalanceStatus));
     }
 
     private void RefreshLedger()

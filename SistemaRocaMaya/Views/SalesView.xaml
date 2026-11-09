@@ -70,7 +70,7 @@
                     </Grid.RowDefinitions>
                     <Border Style="{StaticResource ReportHeadingSurface}">
                         <DockPanel>
-                            <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                            <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="Ventas en efectivo por turno" Style="{StaticResource ReportHeadingText}" />
                                 <TextBlock Text="{Binding CashReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />

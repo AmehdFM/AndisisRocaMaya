@@ -220,20 +220,17 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Border Style="{StaticResource ReportHeadingSurface}">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" />
-                        <TextBlock Grid.Column="1" Text="Libro Diario Contable" Margin="14,0,0,0" VerticalAlignment="Center"
-                                   Style="{StaticResource ReportHeadingText}" />
-                    </Grid>
+                    <DockPanel>
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}"
+                               DockPanel.Dock="Right" Margin="16,0,0,0" />
+                        <TextBlock Text="Libro Diario Contable" VerticalAlignment="Center" Style="{StaticResource ReportHeadingText}" />
+                    </DockPanel>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,10,0,8">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
                         <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
@@ -243,33 +240,15 @@
                     <DatePicker Grid.Column="1" SelectedDate="{Binding JournalStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="3" SelectedDate="{Binding JournalEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBlock Grid.Column="4" Grid.ColumnSpan="3" Text="{Binding ReportIssuedAtText}" Margin="16,0,0,0"
-                               FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <TextBox Grid.Row="1" Grid.ColumnSpan="5" Text="{Binding JournalSearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="0,8,12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
+                    <TextBox Grid.Column="4" Text="{Binding JournalSearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
                              ToolTip="Buscar por referencia, concepto o fecha" />
-                    <Button Grid.Row="1" Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportJournalCommand}"
-                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,8,6,0" />
-                    <Button Grid.Row="1" Grid.Column="6" Content="Imprimir" Command="{Binding PrintJournalCommand}"
-                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,8,0,0" />
+                    <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportJournalCommand}"
+                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
+                    <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintJournalCommand}"
+                            Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
-                <Border Grid.Row="2" Margin="0,0,0,8" Padding="12,8" Background="White"
-                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1.4*" /></Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="TOTAL DEBE" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding JournalDebitTotalText}" Margin="10,0,0,0" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <TextBlock Text="TOTAL HABER" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding JournalCreditTotalText}" Margin="10,0,0,0" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding JournalBalanceStatus}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                   FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                    </Grid>
-                </Border>
-                <DataGrid Grid.Row="3" ItemsSource="{Binding JournalEntries}">
+                <DataGrid Grid.Row="2" ItemsSource="{Binding JournalEntries}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" />
                         <DataGridTextColumn Header="DOCUMENTO" Binding="{Binding Reference}" Width="0.9*" />
@@ -279,7 +258,7 @@
                         <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="4" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
+                <TextBlock Grid.Row="3" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
                            Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 
@@ -293,7 +272,7 @@
                 </Grid.RowDefinitions>
                 <Border Style="{StaticResource ReportHeadingSurface}">
                     <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Libro Mayor" Style="{StaticResource ReportHeadingText}" />
                             <TextBlock Text="{Binding ReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
@@ -349,7 +328,7 @@
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <Border Style="{StaticResource ReportHeadingSurface}">
                     <DockPanel>
-                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Kardex de Inventario PEPS" Style="{StaticResource ReportHeadingText}" />
                             <TextBlock Text="{Binding KardexProductLabel, StringFormat='Producto: {0}'}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
