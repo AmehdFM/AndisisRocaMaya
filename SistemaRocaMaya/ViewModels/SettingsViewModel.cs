@@ -32,7 +32,7 @@ public sealed class SettingsViewModel : ObservableObject
 
     public bool VerifyDemoPassword(Usuario user, string password) => user.Nombre switch
     {
-        "Administrador" => string.Equals(password, "Admin1234", StringComparison.Ordinal),
+        "admin" => string.Equals(password, "admin", StringComparison.Ordinal),
         "Empleado" => string.Equals(password, "Empleado1234", StringComparison.Ordinal),
         _ => false
     };
@@ -78,7 +78,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         Roles.Add(managerRole);
         Roles.Add(employeeRole);
-        Users.Add(new Usuario { Id = 1, Nombre = "Administrador", RolId = managerRole.Id, Rol = managerRole, Activo = true });
+        Users.Add(new Usuario { Id = 1, Nombre = "admin", RolId = managerRole.Id, Rol = managerRole, Activo = true });
         Users.Add(new Usuario { Id = 2, Nombre = "Empleado", RolId = employeeRole.Id, Rol = employeeRole, Activo = true });
     }
 }

@@ -145,24 +145,19 @@
           <TabItem Header="Consulta de variación de costos">
             <Grid Margin="12">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="58" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="12,8" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center"><Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" /></Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding PurchaseReportIdentity}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            <TextBlock Text="Consulta de compras y variación de costos por proveedor" Margin="0,1,0,0" FontSize="16" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding PurchaseReportSubtitle}" Margin="0,1,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="Área responsable: Bodega y gerencia" Margin="0,1,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding PurchaseReportIssuedAtText}" Margin="0,1,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <Border Style="{StaticResource ReportHeadingSurface}">
+                    <DockPanel>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Historial de compras por proveedor" Style="{StaticResource ReportHeadingText}" />
+                            <TextBlock Text="{Binding PurchaseReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
                         </StackPanel>
-                    </Grid>
+                    </DockPanel>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="1" SelectedDate="{Binding ReportStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="3" SelectedDate="{Binding ReportEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <ComboBox Grid.Column="4" ItemsSource="{Binding ReportSupplierNames}" SelectedItem="{Binding SelectedReportSupplier}" Height="32" Margin="12,0,6,0" VerticalContentAlignment="Center" ToolTip="Filtrar por proveedor" />
                     <TextBox Grid.Column="5" Text="{Binding ReportProductSearchText, UpdateSourceTrigger=PropertyChanged}" Height="32" Padding="8,0" Margin="6,0" VerticalContentAlignment="Center" ToolTip="Buscar producto o código" />

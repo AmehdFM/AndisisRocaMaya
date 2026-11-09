@@ -47,8 +47,6 @@ public sealed class SalesViewModel : ObservableObject
         }
     }
 
-    public string CashReportIdentity => "Consulfarma Rocamaya · Pulpería Santa Lucía";
-    public string CashReportSubtitle => "Conciliación del efectivo por turno · Área responsable: Caja";
     public string CashReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string CashReportActionMessage
     {

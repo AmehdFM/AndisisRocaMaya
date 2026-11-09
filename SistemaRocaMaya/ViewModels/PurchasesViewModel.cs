@@ -33,9 +33,7 @@ public sealed class PurchasesViewModel : ObservableObject
     public ListCollectionView PurchaseCostRows { get; }
     public ObservableCollection<PurchaseSupplierTotalViewModel> PurchaseReportSupplierTotals { get; } = [];
     public ObservableCollection<string> ReportSupplierNames { get; } = ["Todos los proveedores"];
-    public string PurchaseReportIdentity => "Consulfarma Rocamaya · Pulpería Santa Lucía";
     public string PurchaseReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
-    public string PurchaseReportSubtitle => "Consulta de compras y variación de costos unitarios por proveedor";
     public string PurchaseReportActionMessage
     {
         get => _purchaseReportActionMessage;

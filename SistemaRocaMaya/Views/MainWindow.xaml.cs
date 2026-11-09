@@ -18,7 +18,7 @@ namespace SistemaRocaMaya.Views
             var user = SettingsViewModel.Instance.FindActiveUser(UsernameBox.Text);
             if (user?.Rol is null)
             {
-                MessageBox.Show(this, "Escribe un usuario activo: Administrador o Empleado.",
+                MessageBox.Show(this, "Escribe un usuario activo: admin o Empleado.",
                     "Usuario no encontrado", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }

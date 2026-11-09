@@ -195,22 +195,18 @@
           <TabItem Header="Antigüedad de saldos">
             <Grid Margin="12">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="12,8" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center"><Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" /></Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding AgingReportIdentity}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            <TextBlock Text="Antigüedad de Cuentas por Cobrar" Margin="0,1,0,0" FontSize="16" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding AgingReportSubtitle}" Margin="0,1,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="Área responsable: Administración y cobranza" Margin="0,1,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding AgingReportIssuedAtText}" Margin="0,1,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <Border Style="{StaticResource ReportHeadingSurface}">
+                    <DockPanel>
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Antigüedad de cuentas por cobrar" Style="{StaticResource ReportHeadingText}" />
+                            <TextBlock Text="{Binding AgingReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
                         </StackPanel>
-                    </Grid>
+                    </DockPanel>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="135" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Saldos al" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Text="Saldos al" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="1" SelectedDate="{Binding AgingAsOfDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBox Grid.Column="2" Text="{Binding AgingSearchText, UpdateSourceTrigger=PropertyChanged}" Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center" ToolTip="Buscar por nombre o teléfono" />
                     <Button Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportAgingReportCommand}" Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />

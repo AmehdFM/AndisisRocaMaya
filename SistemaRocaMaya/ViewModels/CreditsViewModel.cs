@@ -24,9 +24,7 @@ public sealed class CreditsViewModel : ObservableObject
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView CustomersWithCredit { get; }
     public ListCollectionView AgingCustomers { get; }
-    public string AgingReportIdentity => "Consulfarma Rocamaya · Pulpería Santa Lucía";
     public string AgingReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
-    public string AgingReportSubtitle => $"Saldos agrupados por antigüedad · Vencimiento estimado a {DemoCreditTermDays} días";
     public string AgingActionMessage
     {
         get => _agingActionMessage;

@@ -32,15 +32,15 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime? _ledgerStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _ledgerEndDate = DateTime.Today;
     private DateTime? _financialPositionCutoffDate = DateTime.Today;
-    private DateTime? _incomeStartDate = DateTime.Today.AddDays(-31);
-    private DateTime? _incomeEndDate = DateTime.Today;
+    private DateTime? _incomeStartDate = FirstDayOfMonth(DateTime.Today).AddMonths(-1);
+    private DateTime? _incomeEndDate = FirstDayOfMonth(DateTime.Today);
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _kardexEndDate = DateTime.Today;
     private string _kardexSearchText = "";
-    private string _kardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal";
-    private string _journalActionMessage = "Datos de demostración · período conciliado con las operaciones demo";
-    private string _ledgerActionMessage = "Datos de demostración · período conciliado con las operaciones demo";
-    private string _statementActionMessage = "Datos de demostración · conciliados con las operaciones demo";
+    private string _kardexActionMessage = "Datos de demostración";
+    private string _journalActionMessage = "Datos de demostración";
+    private string _ledgerActionMessage = "Datos de demostración";
+    private string _statementActionMessage = "Datos de demostración";
     private decimal _reportRevenue;
     private decimal _reportCostOfSales;
     private decimal _reportReceivables;
@@ -91,31 +91,31 @@ public sealed class AccountingViewModel : ObservableObject
                 OnPropertyChanged(nameof(KardexVisibility));
                 OnPropertyChanged(nameof(FinancialPositionVisibility));
                 OnPropertyChanged(nameof(IncomeStatementVisibility));
-                OnPropertyChanged(nameof(PeriodLabel));
             }
         }
     }
 
-    public string PeriodLabel => SelectedSection switch
-    {
-        "Libro diario" => FormatPeriod(JournalStartDate, JournalEndDate),
-        "Libro mayor" => FormatPeriod(LedgerStartDate, LedgerEndDate),
-        "Kardex PEPS" => FormatPeriod(KardexStartDate, KardexEndDate),
-        "Estado de situación financiera" => $"Al corte: {FinancialPositionCutoffDate?.ToString("dd/MM/yyyy") ?? "sin fecha"}",
-        "Estado de resultados" => FormatPeriod(IncomeStartDate, IncomeEndDate),
-        _ => $"{FormatPeriod(JournalStartDate, JournalEndDate)} · datos de demostración"
-    };
+    public string IndicatorPeriodLabel => $"Período: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}";
 
-    public string AccountingIdentity => "Consulfarma Rocamaya · Pulpería Santa Lucía";
+    public IReadOnlyList<DateTime> IncomeMonthOptions { get; } = BuildIncomeMonthOptions();
+
+    private static DateTime FirstDayOfMonth(DateTime date) => new(date.Year, date.Month, 1);
+
+    private static IReadOnlyList<DateTime> BuildIncomeMonthOptions()
+    {
+        var currentMonth = FirstDayOfMonth(DateTime.Today);
+        var firstSale = OperationalDemoStore.Instance.Sales.Select(sale => sale.Date).DefaultIfEmpty(currentMonth).Min();
+        var firstMonth = FirstDayOfMonth(firstSale < currentMonth.AddMonths(-11) ? firstSale : currentMonth.AddMonths(-11));
+        var monthCount = (currentMonth.Year - firstMonth.Year) * 12 + currentMonth.Month - firstMonth.Month + 1;
+        return Enumerable.Range(0, monthCount).Select(firstMonth.AddMonths).ToArray();
+    }
+
     public string ReportIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string ChartScaleTopText => FormatMoney(_chartScaleMaximum);
     public string ChartScaleThreeQuarterText => FormatMoney(_chartScaleMaximum * 0.75m);
     public string ChartScaleMiddleText => FormatMoney(_chartScaleMaximum / 2m);
     public string ChartScaleQuarterText => FormatMoney(_chartScaleMaximum / 4m);
     public string ChartScaleUnitText => "Escala en Lempiras (L)";
-    public string AccountingResponsible => "Área responsable: Administración y contabilidad";
-    public string LedgerSubtitle => "Movimientos, cargos, abonos y saldo acumulado por cuenta";
-    public string ReportPaginationNote => "Formato previsto: papel carta · página numerada · encabezados de columnas repetidos al continuar el reporte";
     public string StatementIssuedAtText => $"Emitido: {DateTime.Now:dd/MM/yyyy HH:mm}";
     public string StatementActionMessage
     {
@@ -132,7 +132,6 @@ public sealed class AccountingViewModel : ObservableObject
             {
                 RefreshFinancialPositionOutput();
                 RefreshManagementIndicators();
-                OnPropertyChanged(nameof(PeriodLabel));
             }
         }
     }
@@ -146,7 +145,6 @@ public sealed class AccountingViewModel : ObservableObject
             {
                 RefreshIncomeStatementOutput();
                 RefreshManagementIndicators();
-                OnPropertyChanged(nameof(PeriodLabel));
             }
         }
     }
@@ -160,7 +158,6 @@ public sealed class AccountingViewModel : ObservableObject
             {
                 RefreshIncomeStatementOutput();
                 RefreshManagementIndicators();
-                OnPropertyChanged(nameof(PeriodLabel));
             }
         }
     }
@@ -328,12 +325,13 @@ public sealed class AccountingViewModel : ObservableObject
         new("PATRIMONIO", "L 45,300.00", "")
     ];
 
-    public ObservableCollection<AccountingMetricViewModel> IncomeMetrics { get; } =
-    [
-        new("INGRESOS", "L 38,400.00", ""),
-        new("COSTOS Y GASTOS", "L 25,120.00", ""),
-        new("RESULTADO NETO", "L 13,280.00", "")
-    ];
+    public ObservableCollection<AccountingMetricViewModel> IncomeMetrics { get; } = [];
+    public ObservableCollection<IncomeChartMonth> IncomeChartMonths { get; } = [];
+    public string IncomeChartScaleText { get; private set; } = "";
+    public double IncomeChartNegativeHeight { get; private set; }
+    public string IncomeChartMaximumText { get; private set; } = "";
+    public string IncomeChartMidpointText { get; private set; } = "";
+    public string IncomeChartMinimumText { get; private set; } = "";
 
     public ObservableCollection<AccountingPeriodViewModel> PeriodPerformance { get; } = [];
 
@@ -366,21 +364,7 @@ public sealed class AccountingViewModel : ObservableObject
         new("TOTAL PASIVOS Y PATRIMONIO", "", "L 52,900.00", true)
     ];
 
-    public ObservableCollection<StatementLineViewModel> IncomeStatementLines { get; } =
-    [
-        new("INGRESOS", "", "", false, true),
-        new("", "Ventas brutas", "L 38,400.00", false),
-        new("", "Devoluciones y descuentos", "L 0.00", false),
-        new("VENTAS NETAS", "", "L 38,400.00", true),
-        new("COSTO DE VENTAS", "", "", false, true),
-        new("", "Costo de mercadería vendida", "L 18,900.00", false),
-        new("UTILIDAD BRUTA", "Ingresos menos costo de ventas", "L 19,500.00", true),
-        new("GASTOS OPERATIVOS", "", "", false, true),
-        new("", "Gastos de venta", "L 3,000.00", false),
-        new("", "Gastos de administración", "L 3,220.00", false),
-        new("UTILIDAD OPERATIVA", "", "L 13,280.00", true),
-        new("RESULTADO NETO", "Utilidad del período · sin cálculo fiscal en este prototipo", "L 13,280.00", true)
-    ];
+    public ObservableCollection<StatementLineViewModel> IncomeStatementLines { get; } = [];
 
     private void InitializeOperationBasedReports()
     {
@@ -664,31 +648,89 @@ public sealed class AccountingViewModel : ObservableObject
     private void RefreshIncomeStatementOutput()
     {
         var start = IncomeStartDate?.Date ?? DateTime.MinValue;
-        var end = IncomeEndDate?.Date ?? DateTime.Today;
+        var endMonth = IncomeEndDate ?? DateTime.Today;
+        var end = new DateTime(endMonth.Year, endMonth.Month, DateTime.DaysInMonth(endMonth.Year, endMonth.Month));
         var saleCosts = CalculateSaleCosts();
         var sales = _store.Sales.Where(sale => IsInPeriod(sale.Date, start, end)).ToArray();
         _reportRevenue = sales.Sum(sale => sale.Total);
         _reportCostOfSales = sales.Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
-        _reportNetIncome = _reportRevenue - _reportCostOfSales;
+
+        const decimal operatingExpenses = 0m;
+        const decimal financialExpenses = 0m;
+        const decimal taxes = 0m;
+        var grossProfit = _reportRevenue - _reportCostOfSales;
+        var operatingProfit = grossProfit - operatingExpenses;
+        var preTaxProfit = operatingProfit - financialExpenses;
+        _reportNetIncome = preTaxProfit - taxes;
+        var totalCostsAndExpenses = _reportCostOfSales + operatingExpenses + financialExpenses + taxes;
 
         SummaryMetrics.Clear();
         SummaryMetrics.Add(new("INGRESOS", FormatMoney(_reportRevenue), ""));
-        SummaryMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(_reportCostOfSales), ""));
+        SummaryMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(totalCostsAndExpenses), ""));
         SummaryMetrics.Add(new("RESULTADO NETO", FormatMoney(_reportNetIncome), ""));
         SummaryMetrics.Add(new("ACTIVOS", FormatMoney(_reportAssets), ""));
         IncomeMetrics.Clear();
-        IncomeMetrics.Add(new("INGRESOS", FormatMoney(_reportRevenue), ""));
-        IncomeMetrics.Add(new("COSTOS Y GASTOS", FormatMoney(_reportCostOfSales), ""));
-        IncomeMetrics.Add(new("RESULTADO NETO", FormatMoney(_reportNetIncome), ""));
+        IncomeMetrics.Add(new("Ventas", FormatMoney(_reportRevenue), ""));
+        IncomeMetrics.Add(new("Costos y gastos", FormatMoney(totalCostsAndExpenses), ""));
+        IncomeMetrics.Add(new("Utilidad neta", FormatMoney(_reportNetIncome), ""));
         IncomeStatementLines.Clear();
-        IncomeStatementLines.Add(new("INGRESOS", "", "", false, true));
-        IncomeStatementLines.Add(new("", "Ventas netas · contado y crédito", FormatMoney(_reportRevenue), false));
-        IncomeStatementLines.Add(new("COSTO DE VENTAS", "", "", false, true));
-        IncomeStatementLines.Add(new("", "Costo calculado por capas PEPS", FormatMoney(_reportCostOfSales), false));
-        IncomeStatementLines.Add(new("UTILIDAD BRUTA", "Ventas menos costo de ventas", FormatMoney(_reportRevenue - _reportCostOfSales), true));
-        IncomeStatementLines.Add(new("GASTOS OPERATIVOS", "Sin gastos cargados en esta demostración", FormatMoney(0m), false, true));
-        IncomeStatementLines.Add(new("RESULTADO NETO", "Cifras demo · sin cálculo fiscal", FormatMoney(_reportNetIncome), true));
+        IncomeStatementLines.Add(new("Ventas", "Ventas al contado y a crédito", FormatMoney(_reportRevenue), false));
+        IncomeStatementLines.Add(new("Costo de ventas", "Mercadería vendida a costo PEPS", FormatMoney(_reportCostOfSales), false));
+        IncomeStatementLines.Add(new("Utilidad bruta", "Ventas menos costo de ventas", FormatMoney(grossProfit), true));
+        IncomeStatementLines.Add(new("Gastos operativos", "Sin gastos registrados en la demo", FormatMoney(operatingExpenses), false));
+        IncomeStatementLines.Add(new("Utilidad operativa", "Utilidad bruta menos gastos operativos", FormatMoney(operatingProfit), true));
+        IncomeStatementLines.Add(new("Gastos financieros", "Sin intereses registrados en la demo", FormatMoney(financialExpenses), false));
+        IncomeStatementLines.Add(new("Utilidad después de intereses, antes de impuestos", "Utilidad operativa menos gastos financieros", FormatMoney(preTaxProfit), true));
+        IncomeStatementLines.Add(new("Impuestos", "Sin cálculo fiscal en la demo", FormatMoney(taxes), false));
+        IncomeStatementLines.Add(new("Utilidad neta", "Utilidad antes de impuestos menos impuestos", FormatMoney(_reportNetIncome), true));
+
+        RefreshIncomeChart(sales, saleCosts, start, end);
     }
+
+    private void RefreshIncomeChart(IEnumerable<SaleRecord> sales, IReadOnlyDictionary<int, decimal> saleCosts, DateTime start, DateTime end)
+    {
+        var totalsByMonth = sales.GroupBy(sale => new DateTime(sale.Date.Year, sale.Date.Month, 1))
+            .ToDictionary(month => month.Key, month => (
+                Sales: month.Sum(sale => sale.Total),
+                Costs: month.Sum(sale => saleCosts.GetValueOrDefault(sale.Id))));
+        var firstMonth = new DateTime(start.Year, start.Month, 1);
+        var monthCount = (end.Year - start.Year) * 12 + end.Month - start.Month + 1;
+        // Keep an unbounded or very long range readable by showing its months with activity.
+        var showEmptyMonths = start != DateTime.MinValue && start <= end;
+        var months = showEmptyMonths
+            ? Enumerable.Range(0, monthCount).Select(firstMonth.AddMonths)
+            : totalsByMonth.Keys.OrderBy(month => month);
+        var monthlyValues = months.Select(month => (Date: month, Totals: totalsByMonth.GetValueOrDefault(month))).ToArray();
+
+        var amounts = monthlyValues.SelectMany(month => new[] { month.Totals.Sales, month.Totals.Costs, month.Totals.Sales - month.Totals.Costs }).ToArray();
+        var scale = Math.Max(1m, amounts.Select(Math.Abs).DefaultIfEmpty().Max());
+        IncomeChartNegativeHeight = (double)(-Math.Min(0m, amounts.DefaultIfEmpty().Min()) / scale * 100m);
+        IncomeChartScaleText = start > end ? "El mes inicial debe ser anterior o igual al mes final."
+            : totalsByMonth.Count == 0 ? "Sin ventas en el período seleccionado."
+            : "Importes en lempiras";
+        OnPropertyChanged(nameof(IncomeChartNegativeHeight));
+        IncomeChartMaximumText = FormatMoney(scale);
+        IncomeChartMidpointText = FormatMoney(scale / 2m);
+        IncomeChartMinimumText = IncomeChartNegativeHeight > 0 ? FormatMoney(amounts.Min()) : "";
+        OnPropertyChanged(nameof(IncomeChartScaleText));
+        OnPropertyChanged(nameof(IncomeChartMaximumText));
+        OnPropertyChanged(nameof(IncomeChartMidpointText));
+        OnPropertyChanged(nameof(IncomeChartMinimumText));
+
+        IncomeChartBar Bar(decimal amount) => new(
+            (double)(Math.Max(0m, amount) / scale * 100m),
+            (double)(-Math.Min(0m, amount) / scale * 100m),
+            FormatMoney(amount));
+
+        IncomeChartMonths.Clear();
+        foreach (var month in monthlyValues)
+        {
+            IncomeChartMonths.Add(new(
+                month.Date.ToString("MMM yyyy", OperationalDemoStore.HondurasCulture),
+                Bar(month.Totals.Sales), Bar(month.Totals.Costs), Bar(month.Totals.Sales - month.Totals.Costs)));
+        }
+    }
+
 
     private decimal GetCashAsOf(DateTime cutoff)
     {
@@ -822,7 +864,6 @@ public sealed class AccountingViewModel : ObservableObject
         KardexMovements.Refresh();
         OnPropertyChanged(nameof(KardexClosingStock));
         OnPropertyChanged(nameof(KardexClosingValue));
-        OnPropertyChanged(nameof(PeriodLabel));
     }
 
     private KardexMovementViewModel? GetKardexClosingMovement() => _allKardexMovements
@@ -836,7 +877,6 @@ public sealed class AccountingViewModel : ObservableObject
         OnPropertyChanged(nameof(JournalDebitTotalText));
         OnPropertyChanged(nameof(JournalCreditTotalText));
         OnPropertyChanged(nameof(JournalBalanceStatus));
-        OnPropertyChanged(nameof(PeriodLabel));
     }
 
     private void RefreshLedger()
@@ -846,7 +886,6 @@ public sealed class AccountingViewModel : ObservableObject
         OnPropertyChanged(nameof(LedgerDebitTotalText));
         OnPropertyChanged(nameof(LedgerCreditTotalText));
         OnPropertyChanged(nameof(LedgerClosingBalanceText));
-        OnPropertyChanged(nameof(PeriodLabel));
     }
 
     private decimal GetLedgerOpeningBalance()
@@ -958,3 +997,6 @@ public sealed record AccountingPeriodViewModel(
     string CostsCompactText,
     string SalesTooltip,
     string CostsTooltip);
+
+public sealed record IncomeChartBar(double AboveZero, double BelowZero, string Amount);
+public sealed record IncomeChartMonth(string Label, IncomeChartBar Sales, IncomeChartBar Costs, IncomeChartBar NetIncome);

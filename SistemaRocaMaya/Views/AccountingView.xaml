@@ -81,38 +81,20 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <Grid Margin="0,0,0,16">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding JournalVisibility}" Value="Visible">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding FinancialPositionVisibility}" Value="Visible">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IncomeStatementVisibility}" Value="Visible">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-            <TextBlock Text="{Binding SelectedSection}" FontSize="26" FontWeight="Bold"
-                       Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1" Text="{Binding PeriodLabel}" FontSize="11"
-                       Foreground="{StaticResource RocaMayaTextSecondaryBrush}" VerticalAlignment="Center" />
-        </Grid>
-
-        <Grid Grid.Row="1">
+        <Grid>
             <Grid Visibility="{Binding SummaryVisibility}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <Border Style="{StaticResource ReportHeadingSurface}">
+                            <DockPanel>
+                                <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Right" Margin="16,0,0,0" />
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Ratios e Indicadores Financieros" Style="{StaticResource ReportHeadingText}" />
+                                    <TextBlock Text="{Binding IndicatorPeriodLabel}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
+                                    <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
                         <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                                 BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
                             <ItemsControl ItemsSource="{Binding SummaryMetrics}">
@@ -195,8 +177,7 @@
 
                         <Grid Margin="0,16,0,0">
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                            <TextBlock Text="Indicadores para gerencia" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Grid.Row="1" Text="Fórmula y lectura sencilla de las cifras del ejemplo" Margin="0,3,0,7" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                            <TextBlock Text="Fórmulas e interpretación" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             <DataGrid Grid.Row="2" ItemsSource="{Binding ManagementIndicators}" Height="150" HeadersVisibility="Column" RowHeight="42">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="INDICADOR" Binding="{Binding Name}" Width="1.0*" />
@@ -243,12 +224,12 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Background="#193A52" Padding="16,10">
+                <Border Style="{StaticResource ReportHeadingSurface}">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Image Source="{StaticResource RocaMayaLogo}" Width="40" Height="54" Stretch="Uniform" />
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" />
                         <TextBlock Grid.Column="1" Text="Libro Diario Contable" Margin="14,0,0,0" VerticalAlignment="Center"
-                                   FontSize="22" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" />
+                                   Style="{StaticResource ReportHeadingText}" />
                     </Grid>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,10,0,8">
@@ -298,7 +279,7 @@
                         <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="4" Text="{Binding JournalActionMessage, StringFormat='{}{0} · Página 1 de 1 · Carta horizontal · encabezados repetidos previstos'}" Margin="0,7,0,0" FontSize="9"
+                <TextBlock Grid.Row="4" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
                            Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 
@@ -310,21 +291,14 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="12,9"
-                        BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center">
-                            <Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" />
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding AccountingIdentity}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            <TextBlock Text="Libro Mayor / Auxiliar de Cuentas" Margin="0,2,0,0" FontSize="17" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding LedgerSubtitle}" Margin="0,2,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding AccountingResponsible}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding ReportIssuedAtText}" Margin="0,2,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <Border Style="{StaticResource ReportHeadingSurface}">
+                    <DockPanel>
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Libro Mayor" Style="{StaticResource ReportHeadingText}" />
+                            <TextBlock Text="{Binding ReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
                         </StackPanel>
-                    </Grid>
+                    </DockPanel>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,10,0,8">
                     <Grid.ColumnDefinitions>
@@ -334,9 +308,9 @@
                     </Grid.ColumnDefinitions>
                     <ComboBox ItemsSource="{Binding LedgerAccounts}" SelectedItem="{Binding SelectedLedgerAccount}"
                               Height="32" VerticalContentAlignment="Center" ToolTip="Selecciona la cuenta contable" />
-                    <TextBlock Grid.Column="1" Text="Desde" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Grid.Column="1" Text="Desde" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="2" SelectedDate="{Binding LedgerStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBlock Grid.Column="3" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Grid.Column="3" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="4" SelectedDate="{Binding LedgerEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBox Grid.Column="5" Text="{Binding LedgerSearchText, UpdateSourceTrigger=PropertyChanged}"
                              Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
@@ -367,48 +341,38 @@
                         <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="4" Text="{Binding LedgerActionMessage, StringFormat='{}{0} · Página 1 de 1 · Carta horizontal · encabezados repetidos previstos'}" Margin="0,7,0,0" FontSize="9"
+                <TextBlock Grid.Row="4" Text="{Binding LedgerActionMessage}" Margin="0,7,0,0" FontSize="9"
                            Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 
             <Grid Visibility="{Binding KardexVisibility}">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
-                        BorderThickness="0,1" Padding="12,8" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center">
-                            <Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" />
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding AccountingIdentity}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            <TextBlock Text="Kardex de Inventario Valorado PEPS" Margin="0,1,0,0" FontSize="15" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding KardexProductLabel, StringFormat='Producto: {0} · Área responsable: Bodega'}" Margin="0,1,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <TextBlock Text="{Binding ReportIssuedAtText}" Margin="0,1,0,0" FontSize="8" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <Border Style="{StaticResource ReportHeadingSurface}">
+                    <DockPanel>
+                        <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Kardex de Inventario PEPS" Style="{StaticResource ReportHeadingText}" />
+                            <TextBlock Text="{Binding KardexProductLabel, StringFormat='Producto: {0}'}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
+                            <TextBlock Text="{Binding ReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
                         </StackPanel>
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                            <TextBlock Text="PEPS · EXISTENCIA FINAL" FontSize="8" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" HorizontalAlignment="Right" />
-                            <TextBlock Text="{Binding KardexClosingStock}" Margin="0,2,0,0" FontSize="12" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" HorizontalAlignment="Right" />
-                            <TextBlock Text="{Binding KardexClosingValue}" Margin="0,1,0,0" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Right" />
-                        </StackPanel>
-                    </Grid>
+                    </DockPanel>
                 </Border>
                 <Grid Grid.Row="1" Margin="0,2,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="1" SelectedDate="{Binding KardexStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="3" SelectedDate="{Binding KardexEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBox Grid.Column="4" Text="{Binding KardexSearchText, UpdateSourceTrigger=PropertyChanged}" Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center" ToolTip="Buscar por lote, movimiento o fecha" />
                     <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
                     <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
                 <Border Grid.Row="2" Background="White" Padding="10,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                    <TextBlock Text="Cada entrada conserva su costo por lote. Las salidas consumen primero la capa más antigua; el saldo se presenta por lote." VerticalAlignment="Center" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <TextBlock VerticalAlignment="Center" FontSize="13"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
                 </Border>
                 <DataGrid Grid.Row="3" ItemsSource="{Binding KardexMovements}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="FECHA" Binding="{Binding Date}" Width="100" />
+                        <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="100" />
                         <DataGridTextColumn Header="MOVIMIENTO" Binding="{Binding Description}" Width="190" />
                         <DataGridTextColumn Header="LOTE" Binding="{Binding Lot}" Width="72" />
                         <DataGridTextColumn Header="ENTRADA · CANT." Binding="{Binding EntryQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
@@ -434,9 +398,7 @@
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <TextBlock Text="Estado de Situación Financiera" Margin="0,0,16,0" VerticalAlignment="Center"
                                    FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        <Border Grid.Column="1" Width="56" Height="68" Background="#193A52" CornerRadius="8">
-                            <Image Source="{StaticResource RocaMayaLogo}" Width="34" Height="52" Stretch="Uniform" />
-                        </Border>
+                        <Image Grid.Column="1" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" />
                         <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0">
                             <StackPanel Margin="0,0,12,6">
                                 <TextBlock Text="Fecha de corte" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
@@ -472,62 +434,120 @@
                         <DataGridTextColumn Header="SALDO" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="3" Text="{Binding StatementActionMessage, StringFormat='{}{0} · Página 1 de 1 · Carta vertical · encabezados repetidos previstos'}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <TextBlock Grid.Row="3" Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 
-            <Grid Visibility="{Binding IncomeStatementVisibility}">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="68" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="16,12" BorderBrush="{StaticResource RocaMayaBorderBrush}"
-                        BorderThickness="0,1" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <TextBlock Text="Estado de Resultados" Margin="0,0,16,0" VerticalAlignment="Center"
-                                   FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                        <Border Grid.Column="1" Width="56" Height="68" Background="#193A52" CornerRadius="8">
-                            <Image Source="{StaticResource RocaMayaLogo}" Width="34" Height="52" Stretch="Uniform" />
-                        </Border>
-                        <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0">
-                            <StackPanel Margin="0,0,12,6">
-                                <TextBlock Text="Desde" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                <DatePicker SelectedDate="{Binding IncomeStartDate, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="30" />
-                            </StackPanel>
-                            <StackPanel Margin="0,0,12,6">
-                                <TextBlock Text="Hasta" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                <DatePicker SelectedDate="{Binding IncomeEndDate, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="30" />
-                            </StackPanel>
-                            <TextBlock Text="{Binding StatementIssuedAtText}" Margin="0,0,16,8" FontSize="13"
-                                       VerticalAlignment="Bottom" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                            <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Height="34" Padding="10,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" VerticalAlignment="Bottom" />
-                            <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Height="34" Padding="10,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" VerticalAlignment="Bottom" />
-                        </WrapPanel>
-                    </Grid>
-                </Border>
-                <Border Grid.Row="1" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
-                        BorderThickness="0,1" Margin="0,0,0,8">
-                    <ItemsControl ItemsSource="{Binding IncomeMetrics}">
+            <ScrollViewer Visibility="{Binding IncomeStatementVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="0,0,12,8">
+                    <DockPanel Margin="0,0,0,4">
+                        <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" Width="92" Height="38" />
+                        <TextBlock Text="Estado de Resultados" Style="{StaticResource ReportHeadingText}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <WrapPanel Margin="0,0,0,8">
+                        <TextBlock Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox ItemsSource="{Binding IncomeMonthOptions}" SelectedItem="{Binding IncomeStartDate}" ItemStringFormat="MMMM yyyy"
+                                  Language="es-HN" AutomationProperties.Name="Mes inicial" Width="155" Height="28" Margin="0,0,12,0" />
+                        <TextBlock Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox ItemsSource="{Binding IncomeMonthOptions}" SelectedItem="{Binding IncomeEndDate}" ItemStringFormat="MMMM yyyy"
+                                  Language="es-HN" AutomationProperties.Name="Mes final" Width="155" Height="28" Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding StatementIssuedAtText}" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                        <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
+                        <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" />
+                    </WrapPanel>
+                    <ItemsControl ItemsSource="{Binding IncomeMetrics}" Margin="0,0,0,10">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="14,8" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,1,0">
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Label}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                        <TextBlock Text="{Binding Value}" Margin="0,4,0,0" FontSize="16" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource ReportMetadataText}" />
+                                    <TextBlock Text="{Binding Value}" FontSize="17" FontWeight="SemiBold" />
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </Border>
-                <DataGrid Grid.Row="2" ItemsSource="{Binding IncomeStatementLines}" RowStyle="{StaticResource StatementDataGridRowStyle}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="RUBRO" Binding="{Binding Group}" Width="1.5*" />
-                        <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Account}" Width="2.2*" />
-                        <DataGridTextColumn Header="MONTO" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                    </DataGrid.Columns>
-                </DataGrid>
-                <TextBlock Grid.Row="3" Text="{Binding StatementActionMessage, StringFormat='{}{0} · Página 1 de 1 · Carta vertical · encabezados repetidos previstos'}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-            </Grid>
+                    <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
+                        <DataGrid ItemsSource="{Binding IncomeStatementLines}" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="Auto" RowStyle="{StaticResource StatementDataGridRowStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Categoría" Binding="{Binding Group}" Width="1.7*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="Wrap" />
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Descripción" Binding="{Binding Account}" Width="2.2*" />
+                                <DataGridTextColumn Header="Cantidad" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    <TextBlock Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <StackPanel Margin="0,10,0,0">
+                        <TextBlock Text="Evolución mensual" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding IncomeChartScaleText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,8" />
+                        <WrapPanel Margin="0,0,0,8">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                <Rectangle Width="10" Height="10" Fill="{StaticResource RocaMayaBluePrimaryBrush}" Margin="0,0,5,0" />
+                                <TextBlock Text="Ventas" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                <Rectangle Width="10" Height="10" Fill="#9A5B23" Margin="0,0,5,0" />
+                                <TextBlock Text="Costos y gastos" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                <Rectangle Width="10" Height="10" Fill="#287553" Margin="0,0,5,0" />
+                                <TextBlock Text="Utilidad neta" />
+                            </StackPanel>
+                        </WrapPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <StackPanel Margin="0,24,0,0" VerticalAlignment="Top">
+                                <Border BorderThickness="0,0,1,0" BorderBrush="{StaticResource RocaMayaBorderBrush}">
+                                    <Grid Height="100" Margin="0,0,8,0" MinWidth="58">
+                                        <TextBlock Text="{Binding IncomeChartMaximumText}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
+                                        <TextBlock Text="{Binding IncomeChartMidpointText}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
+                                        <TextBlock Text="L 0.00" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
+                                    </Grid>
+                                </Border>
+                                <TextBlock Text="{Binding IncomeChartMinimumText}" HorizontalAlignment="Right" Margin="0,0,8,0" FontSize="11" />
+                            </StackPanel>
+                            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding IncomeChartMonths}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel MinWidth="100">
+                                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Height="24" FontWeight="SemiBold" />
+                                                <Grid Height="100" Margin="12,0">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                                    <Rectangle Grid.Column="0" Height="{Binding Sales.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
+                                                               ToolTip="{Binding Sales.Amount}" />
+                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="#9A5B23"
+                                                               ToolTip="{Binding Costs.Amount}" />
+                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="#287553"
+                                                               ToolTip="{Binding NetIncome.Amount}" />
+                                                </Grid>
+                                                <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1,0,0" />
+                                                <Grid Height="{Binding DataContext.IncomeChartNegativeHeight, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="12,0">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                                    <Rectangle Grid.Column="0" Height="{Binding Sales.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
+                                                               ToolTip="{Binding Sales.Amount}" />
+                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="#9A5B23"
+                                                               ToolTip="{Binding Costs.Amount}" />
+                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="#287553"
+                                                               ToolTip="{Binding NetIncome.Amount}" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>

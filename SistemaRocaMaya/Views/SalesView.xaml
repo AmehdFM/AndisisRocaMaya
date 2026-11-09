@@ -68,20 +68,14 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="12,9"
-                            BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Width="32" Height="32" Background="#193A52" CornerRadius="4" VerticalAlignment="Center">
-                                <Image Source="{StaticResource RocaMayaLogo}" Width="24" Height="24" Stretch="Uniform" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding CashReportIdentity}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                                <TextBlock Text="Reporte diario de ventas en efectivo" Margin="0,2,0,0" FontSize="17" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                <TextBlock Text="{Binding CashReportSubtitle}" Margin="0,2,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                <TextBlock Text="{Binding CashReportIssuedAtText}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                    <Border Style="{StaticResource ReportHeadingSurface}">
+                        <DockPanel>
+                            <Image Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" DockPanel.Dock="Left" Margin="0,0,16,0" />
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Ventas en efectivo por turno" Style="{StaticResource ReportHeadingText}" />
+                                <TextBlock Text="{Binding CashReportIssuedAtText}" Style="{StaticResource ReportMetadataText}" Margin="0,3,0,0" />
                             </StackPanel>
-                        </Grid>
+                        </DockPanel>
                     </Border>
                     <Grid Grid.Row="1" Margin="0,10,0,8">
                         <Grid.ColumnDefinitions>
@@ -89,9 +83,9 @@
                             <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
                             <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <DatePicker Grid.Column="1" SelectedDate="{Binding SessionStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                        <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                        <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <DatePicker Grid.Column="3" SelectedDate="{Binding SessionEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                         <TextBox Grid.Column="4" Text="{Binding SessionSearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
