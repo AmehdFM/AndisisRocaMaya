@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
+using SistemaRocaMaya.Services.Reports;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -70,7 +71,7 @@ public sealed class AccountingViewModel : ObservableObject
         ExportJournalCommand = new RelayCommand(() => JournalActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
         ExportLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
         PrintLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
-        ExportFinancialPositionCommand = new RelayCommand(() => StatementActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportFinancialPositionCommand = new RelayCommand(ExportFinancialPosition);
         ExportIncomeStatementCommand = new RelayCommand(() => StatementActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
         ExportKardexCommand = new RelayCommand(() => KardexActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
         PrintKardexCommand = new RelayCommand(() => KardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
@@ -566,6 +567,25 @@ public sealed class AccountingViewModel : ObservableObject
     {
         RefreshFinancialPositionOutput();
         RefreshIncomeStatementOutput();
+    }
+
+    private void ExportFinancialPosition()
+    {
+        try
+        {
+            RefreshFinancialPositionOutput();
+            var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
+            var rows = FinancialPositionLines.Select(line => new ReportStatementRow(
+                line.Group, line.Account, line.Amount, line.IsTotal, line.IsSectionHeader)).ToArray();
+            var path = PdfExportService.Save(new FinancialPositionDocument(cutoff, rows),
+                $"Estado_situacion_financiera_{cutoff:yyyy-MM}.pdf");
+            if (path is not null) StatementActionMessage = $"PDF guardado en {path}";
+        }
+        catch (Exception exception)
+        {
+            StatementActionMessage = $"No se pudo exportar el PDF. {exception.Message}";
+            MessageBox.Show(StatementActionMessage, "Exportar PDF", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void RefreshFinancialPositionOutput()
