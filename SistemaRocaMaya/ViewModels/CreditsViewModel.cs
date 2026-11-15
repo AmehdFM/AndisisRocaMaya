@@ -109,7 +109,7 @@ public sealed class CreditsViewModel : ObservableObject
         AgingCustomers = new ListCollectionView(_allAgingCustomers);
         AgingCustomers.Filter = FilterAgingCustomer;
         ExportAgingReportCommand = new RelayCommand(() => PdfExportService.Export(CreateAgingReport, "Antiguedad_saldos.pdf", message => AgingActionMessage = message));
-        PrintAgingReportCommand = new RelayCommand(() => AgingActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+        PrintAgingReportCommand = new RelayCommand(() => ReportPrintService.Print(CreateAgingReport, message => AgingActionMessage = message));
         ShowCustomerListCommand = new RelayCommand(() => SelectedCustomer = null);
         Store.Customers.CollectionChanged += Customers_CollectionChanged;
         foreach (var customer in Store.Customers)

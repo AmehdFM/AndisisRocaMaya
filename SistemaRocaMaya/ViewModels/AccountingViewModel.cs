@@ -70,14 +70,14 @@ public sealed class AccountingViewModel : ObservableObject
         InitializeOperationBasedReports();
         ExportJournalCommand = new RelayCommand(() => PdfExportService.Export(CreateJournalReport, "Libro_diario.pdf", message => JournalActionMessage = message));
         ExportLedgerCommand = new RelayCommand(() => PdfExportService.Export(CreateLedgerReport, "Libro_mayor.pdf", message => LedgerActionMessage = message));
-        PrintLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+        PrintLedgerCommand = new RelayCommand(() => ReportPrintService.Print(CreateLedgerReport, message => LedgerActionMessage = message));
         ExportFinancialPositionCommand = new RelayCommand(ExportFinancialPosition);
         ExportIncomeStatementCommand = new RelayCommand(() => PdfExportService.Export(CreateIncomeStatementReport, "Estado_resultados.pdf", message => StatementActionMessage = message));
         ExportKardexCommand = new RelayCommand(() => PdfExportService.Export(CreateKardexReport, "Kardex.pdf", message => KardexActionMessage = message));
-        PrintKardexCommand = new RelayCommand(() => KardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
-        PrintJournalCommand = new RelayCommand(() => JournalActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
-        PrintFinancialPositionCommand = new RelayCommand(() => StatementActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta vertical · Encabezados previstos para repetirse.");
-        PrintIncomeStatementCommand = new RelayCommand(() => StatementActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta vertical · Encabezados previstos para repetirse.");
+        PrintKardexCommand = new RelayCommand(() => ReportPrintService.Print(CreateKardexReport, message => KardexActionMessage = message));
+        PrintJournalCommand = new RelayCommand(() => ReportPrintService.Print(CreateJournalReport, message => JournalActionMessage = message));
+        PrintFinancialPositionCommand = new RelayCommand(() => ReportPrintService.Print(CreateFinancialPositionReport, message => StatementActionMessage = message));
+        PrintIncomeStatementCommand = new RelayCommand(() => ReportPrintService.Print(CreateIncomeStatementReport, message => StatementActionMessage = message));
         SubscribeToDemoChanges();
     }
 

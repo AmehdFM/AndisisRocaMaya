@@ -69,7 +69,7 @@ public sealed class SalesViewModel : ObservableObject
         Store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
         SelectedSession = Store.CashSessions.FirstOrDefault();
         ExportCashReportCommand = new RelayCommand(() => PdfExportService.Export(CreateCashReport, "Ventas_por_turno.pdf", message => CashReportActionMessage = message));
-        PrintCashReportCommand = new RelayCommand(() => CashReportActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+        PrintCashReportCommand = new RelayCommand(() => ReportPrintService.Print(CreateCashReport, message => CashReportActionMessage = message));
     }
 
     public TableReportDocument CreateCashReport()

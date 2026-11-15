@@ -134,7 +134,7 @@ public sealed class PurchasesViewModel : ObservableObject
         PurchaseCostRows = new ListCollectionView(_allPurchaseCostRows);
         PurchaseCostRows.Filter = FilterPurchaseCostRow;
         ExportPurchaseReportCommand = new RelayCommand(() => PdfExportService.Export(CreatePurchaseReport, "Compras_por_proveedor.pdf", message => PurchaseReportActionMessage = message));
-        PrintPurchaseReportCommand = new RelayCommand(() => PurchaseReportActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+        PrintPurchaseReportCommand = new RelayCommand(() => ReportPrintService.Print(CreatePurchaseReport, message => PurchaseReportActionMessage = message));
         _store.Purchases.CollectionChanged += Purchases_CollectionChanged;
         _store.Suppliers.CollectionChanged += Suppliers_CollectionChanged;
         foreach (var supplier in Suppliers) ReportSupplierNames.Add(supplier.Name);

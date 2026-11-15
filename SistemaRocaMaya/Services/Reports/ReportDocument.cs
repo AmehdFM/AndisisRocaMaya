@@ -15,6 +15,7 @@ public abstract class ReportDocument : IDocument
     private readonly string _title;
     private readonly string _period;
     private readonly bool _landscape;
+    public bool IsLandscape => _landscape;
 
     protected ReportDocument(string title, string period, bool landscape = false)
     {
