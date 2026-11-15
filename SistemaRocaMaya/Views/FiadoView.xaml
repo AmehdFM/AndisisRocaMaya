@@ -3,46 +3,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
     <UserControl.Resources>
-        <Style x:Key="PrimaryActionStyle" TargetType="Button">
-            <Setter Property="Height" Value="56" />
-            <Setter Property="Background" Value="#2A6F9E" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
+        <Style x:Key="PrimaryActionStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}" />
     </UserControl.Resources>
 
-    <Grid Background="#F3F6F8">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="64" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="28,0" VerticalAlignment="Center">
-            <TextBlock Text="P04 · Registrar fiado" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
-        </StackPanel>
+        <ContentControl Grid.Row="0" Style="{StaticResource AppPageHeader}" Content="Registrar fiado" Margin="16,8,16,0" />
 
-        <Grid Grid.Row="1" Margin="28,0,28,26">
+        <Grid Grid.Row="1" Margin="16,8,16,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.15*" />
                 <ColumnDefinition Width="0.85*" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Margin="0,0,24,0">
+            <Grid Grid.Column="0" Margin="0,0,12,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="52" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="0,0,0,12">
-                    <TextBlock Text="Cliente" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
+                    <TextBlock Text="Cliente" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 </StackPanel>
 
                 <TextBox Grid.Row="1" Height="44" Padding="13,0" VerticalContentAlignment="Center"
                          Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="13" Background="White" BorderBrush="#D5E0E7" BorderThickness="1" />
+                         FontSize="13" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1" />
 
                 <ScrollViewer Grid.Row="2" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding ClientesFiltrados}">
@@ -52,13 +42,13 @@
                                             HorizontalContentAlignment="Stretch" Cursor="Hand"
                                             Command="{Binding DataContext.SeleccionarClienteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}" ToolTip="Seleccionar cliente">
-                                        <Border x:Name="RowBackground" Padding="16,13" BorderBrush="#E8EDF1" BorderThickness="0,0,0,1">
+                                        <Border x:Name="RowBackground" Padding="16,13" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,0,0,1">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background" Value="White" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding EstaSeleccionado}" Value="True">
-                                                            <Setter Property="Background" Value="#E8F1F6" />
+                                                            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -69,14 +59,14 @@
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding Nombre}" FontSize="14" FontWeight="SemiBold" Foreground="#20394B" />
+                                                    <TextBlock Text="{Binding Nombre}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                                     <TextBlock Text="{Binding Dni, StringFormat='DNI: {0}'}" Margin="0,4,0,0"
-                                                               FontSize="11" Foreground="#718391" />
+                                                               FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                                    <TextBlock Text="Saldo actual" FontSize="10" Foreground="#718391" HorizontalAlignment="Right" />
+                                                    <TextBlock Text="Saldo actual" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" HorizontalAlignment="Right" />
                                                     <TextBlock Text="{Binding SaldoPendienteTexto}" Margin="0,3,0,0" FontSize="13"
-                                                               FontWeight="SemiBold" Foreground="#1F7A45" HorizontalAlignment="Right" />
+                                                               FontWeight="SemiBold" Foreground="{StaticResource RocaMayaSuccessBrush}" HorizontalAlignment="Right" />
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
@@ -88,48 +78,46 @@
             </Grid>
 
             <StackPanel Grid.Column="1">
-                <TextBlock Text="Resumen de la cuenta" FontSize="16" FontWeight="SemiBold" Foreground="#20394B" />
-                <TextBlock Text="Datos de demostración · no se guardarán" Margin="0,3,0,12" FontSize="11" Foreground="#718391" />
+                <TextBlock Text="Resumen de la cuenta" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <TextBlock Text="Datos de demostración · no se guardarán" Margin="0,3,0,12" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
 
                 <StackPanel>
-                        <TextBlock Text="CLIENTE SELECCIONADO" FontSize="10" FontWeight="Bold" Foreground="#5C7484" />
+                        <TextBlock Text="CLIENTE SELECCIONADO" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <TextBlock Text="{Binding ClienteResumen}" Margin="0,7,0,18" FontSize="14"
-                                   FontWeight="SemiBold" Foreground="#20394B" TextWrapping="Wrap" />
+                                   FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="Saldo pendiente actual" FontSize="12" Foreground="#526B7C" />
+                            <TextBlock Text="Saldo pendiente actual" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                             <TextBlock Grid.Column="1" Text="{Binding SaldoActualTexto}" FontSize="12" FontWeight="SemiBold"
-                                       Foreground="#1F7A45" />
+                                       Foreground="{StaticResource RocaMayaSuccessBrush}" />
                         </Grid>
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="Esta venta a crédito" FontSize="12" Foreground="#526B7C" />
+                            <TextBlock Text="Esta venta a crédito" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                             <TextBlock Grid.Column="1" Text="{Binding TotalVentaTexto}" FontSize="12" FontWeight="SemiBold"
-                                       Foreground="#1F7A45" />
+                                       Foreground="{StaticResource RocaMayaSuccessBrush}" />
                         </Grid>
-                        <Border Height="1" Background="#CADBE5" Margin="0,0,0,12" />
+                        <Border Height="1" Background="{StaticResource RocaMayaBorderBrush}" Margin="0,0,0,12" />
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="Nuevo saldo estimado" FontSize="13" FontWeight="Bold" Foreground="#20394B" />
+                            <TextBlock Text="Nuevo saldo estimado" FontSize="13" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                             <TextBlock Grid.Column="1" Text="{Binding SaldoNuevoTexto}" FontSize="17" FontWeight="Bold"
-                                       Foreground="#1F7A45" />
+                                       Foreground="{StaticResource RocaMayaSuccessBrush}" />
                         </Grid>
                 </StackPanel>
 
-                <TextBlock Text="{Binding MensajeEstado}" Margin="0,12,0,0" FontSize="12" Foreground="#526B7C" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding MensajeEstado}" Margin="0,12,0,0" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" TextWrapping="Wrap" />
 
                 <TextBlock Margin="0,10,0,0" Visibility="{Binding ConfirmacionVisibility}"
                            Text="Fiado preparado para el ticket de demostración." FontSize="12"
-                           FontWeight="SemiBold" Foreground="#276442" TextWrapping="Wrap" />
+                           FontWeight="SemiBold" Foreground="{StaticResource RocaMayaSuccessBrush}" TextWrapping="Wrap" />
 
                 <Button Margin="0,18,0,0" Style="{StaticResource PrimaryActionStyle}"
                         Content="Registrar fiado" Command="{Binding RegistrarFiadoCommand}"
                         AutomationProperties.Name="Registrar fiado de demostración" />
-                <Button Margin="0,8,0,0" Height="48"
+                <Button Style="{StaticResource AppButton}" Margin="0,8,0,0"
                         Content="{Binding DataContext.ReturnFromFiadoLabel, RelativeSource={RelativeSource AncestorType=Window}}"
-                        Command="{Binding DataContext.ReturnFromFiadoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                        Background="White" BorderBrush="#D5E0E7" BorderThickness="1"
-                        Foreground="#2A6F9E" FontSize="13" FontWeight="SemiBold" Cursor="Hand" />
+                        Command="{Binding DataContext.ReturnFromFiadoCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
             </StackPanel>
         </Grid>
     </Grid>

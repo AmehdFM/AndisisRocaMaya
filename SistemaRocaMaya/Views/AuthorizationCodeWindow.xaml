@@ -3,17 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Autorización · Roca Maya" Width="380" Height="260"
         ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
-        Background="{StaticResource RocaMayaCreamBrush}" FontFamily="Segoe UI">
+        Background="{StaticResource RocaMayaSurfaceBrush}" FontFamily="Segoe UI">
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <Border Background="{StaticResource RocaMayaBlueSecondaryBrush}" Padding="18,0">
-            <TextBlock Text="Autorización de supervisor" Foreground="White" FontSize="15"
+        <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1" Padding="16,6">
+            <DockPanel>
+                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Width="86" Height="36" Stretch="Uniform" Margin="12,0,0,0" AutomationProperties.Name="Consul Farma Roca Maya" />
+                <TextBlock Text="Autorización de supervisor" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontSize="17"
                        FontWeight="SemiBold" VerticalAlignment="Center" />
+            </DockPanel>
         </Border>
         <StackPanel Grid.Row="1" Margin="22,15">
             <TextBlock x:Name="OperationText" FontSize="12" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}"
                        TextWrapping="Wrap" />
-            <TextBlock Text="Código de 4 dígitos" Margin="0,12,0,4" FontSize="10" Foreground="#526A7A" />
+            <TextBlock Text="Código de 4 dígitos" Margin="0,12,0,4" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             <PasswordBox x:Name="CodeBox" MaxLength="4" Height="34" Padding="10,0"
                          VerticalContentAlignment="Center" Background="White"
                          BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
@@ -23,11 +26,9 @@
         </StackPanel>
         <Border Grid.Row="2" Background="White" Padding="18,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Cancelar" IsCancel="True" Click="Cancel_Click" Height="34" Padding="12,0"
-                        Margin="0,0,8,0" Background="White" BorderBrush="#C8DCE8"
-                        Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <Button Content="Autorizar" IsDefault="True" Click="Authorize_Click" Height="34" Padding="14,0"
-                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
+                <Button Style="{StaticResource AppButton}" Content="Cancelar" IsCancel="True" Click="Cancel_Click"
+                        Margin="0,0,8,0" />
+                <Button Style="{StaticResource AppPrimaryButton}" Content="Autorizar" IsDefault="True" Click="Authorize_Click" />
             </StackPanel>
         </Border>
     </Grid>

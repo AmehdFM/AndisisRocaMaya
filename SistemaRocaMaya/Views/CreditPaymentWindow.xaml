@@ -4,13 +4,10 @@
         Title="Registrar abono · Roca Maya"
         Width="370" Height="570" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource RocaMayaCreamBrush}" FontFamily="Segoe UI">
+        Background="{StaticResource RocaMayaSurfaceBrush}" FontFamily="Segoe UI">
     <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="Cursor" Value="Hand" />
+        <Style TargetType="Button" BasedOn="{StaticResource AppButton}">
             <Setter Property="FontFamily" Value="Segoe UI" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
     </Window.Resources>
 
@@ -21,9 +18,12 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Background="{StaticResource RocaMayaBlueSecondaryBrush}" Padding="18,0">
-            <TextBlock Text="Registrar abono" FontSize="17" FontWeight="SemiBold"
-                       Foreground="White" VerticalAlignment="Center" />
+        <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1" Padding="16,6">
+            <DockPanel>
+                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Width="86" Height="36" Stretch="Uniform" Margin="12,0,0,0" AutomationProperties.Name="Consul Farma Roca Maya" />
+                <TextBlock Text="Registrar abono" FontSize="17" FontWeight="SemiBold"
+                       Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" VerticalAlignment="Center" />
+            </DockPanel>
         </Border>
 
         <Grid Grid.Row="1" Margin="18,14">
@@ -34,16 +34,16 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Background="White" BorderBrush="#D8E3EA" BorderThickness="1" Padding="12,8">
+            <Border Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1" Padding="12,8">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Cliente" FontSize="10" Foreground="#526A7A" />
+                        <TextBlock Text="Cliente" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <TextBlock x:Name="CustomerNameText" Margin="0,2,0,0" FontSize="13" FontWeight="SemiBold"
                                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <TextBlock Text="Saldo pendiente" FontSize="10" Foreground="#526A7A" />
+                        <TextBlock Text="Saldo pendiente" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <TextBlock x:Name="BalanceText" Margin="0,2,0,0" FontSize="14" FontWeight="Bold"
                                    Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                     </StackPanel>
@@ -56,7 +56,7 @@
                     <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
                 <TextBlock Text="Cantidad del abono" Margin="0,0,0,4" FontSize="11" FontWeight="SemiBold"
-                           Foreground="#526A7A" />
+                           Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
                         BorderThickness="1" Padding="10,0">
                     <Grid>
@@ -71,11 +71,11 @@
                 </Border>
             </Grid>
 
-            <Border Grid.Row="2" Margin="0,9,0,0" Background="{StaticResource RocaMayaCreamBrush}"
-                    BorderBrush="#D8CDAF" BorderThickness="1" Padding="12,7">
+            <Border Grid.Row="2" Margin="0,9,0,0" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
+                    BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1" Padding="12,7">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <TextBlock Text="Saldo restante" VerticalAlignment="Center" FontSize="11" Foreground="#526A7A" />
+                    <TextBlock Text="Saldo restante" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <TextBlock x:Name="RemainingBalanceText" Grid.Column="1" VerticalAlignment="Center"
                                FontSize="17" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                 </Grid>
@@ -95,37 +95,32 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Row="0" Grid.Column="0" Tag="7" Content="7" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="0" Grid.Column="1" Tag="8" Content="8" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="0" Grid.Column="2" Tag="9" Content="9" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="0" Grid.Column="3" Tag="⌫" Content="⌫" Click="Key_Click" Margin="3" Background="{StaticResource RocaMayaCreamBrush}" BorderBrush="#D8CDAF" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="0" Grid.Column="0" Tag="7" Content="7" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="0" Grid.Column="1" Tag="8" Content="8" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="0" Grid.Column="2" Tag="9" Content="9" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="0" Grid.Column="3" Tag="⌫" Content="⌫" Click="Key_Click" Margin="3" />
 
-                <Button Grid.Row="1" Grid.Column="0" Tag="4" Content="4" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="1" Grid.Column="1" Tag="5" Content="5" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="1" Grid.Column="2" Tag="6" Content="6" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="1" Grid.Column="3" Tag="C" Content="C" Click="Key_Click" Margin="3" Background="{StaticResource RocaMayaCreamBrush}" BorderBrush="#D8CDAF" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="1" Grid.Column="0" Tag="4" Content="4" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="1" Grid.Column="1" Tag="5" Content="5" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="1" Grid.Column="2" Tag="6" Content="6" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="1" Grid.Column="3" Tag="C" Content="C" Click="Key_Click" Margin="3" />
 
-                <Button Grid.Row="2" Grid.Column="0" Tag="1" Content="1" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="2" Grid.Column="1" Tag="2" Content="2" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="2" Grid.Column="2" Tag="3" Content="3" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="2" Grid.Column="3" Tag="0" Content="0" Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="2" Grid.Column="0" Tag="1" Content="1" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="2" Grid.Column="1" Tag="2" Content="2" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="2" Grid.Column="2" Tag="3" Content="3" Click="Key_Click" Margin="3" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="2" Grid.Column="3" Tag="0" Content="0" Click="Key_Click" Margin="3" />
 
-                <Button Grid.Row="3" Grid.Column="0" Tag="." Content="." Click="Key_Click" Margin="3" Background="White" BorderBrush="#D8E3EA" />
-                <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Content="Saldo completo" Click="FullBalance_Click" Margin="3"
-                        Background="{StaticResource RocaMayaBluePrimaryBrush}" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}"
-                        Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <Button MinHeight="0" Style="{StaticResource AppButton}" Grid.Row="3" Grid.Column="0" Tag="." Content="." Click="Key_Click" Margin="3" />
+                <Button Style="{StaticResource AppButton}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Content="Saldo completo" Click="FullBalance_Click" Margin="3" />
             </Grid>
         </Grid>
 
         <Border Grid.Row="2" Background="White" Padding="18,10">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                <Button Content="Cancelar" Click="Cancel_Click" Height="38" Padding="14,0"
-                        Background="White" BorderBrush="#C8DCE8" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <Button x:Name="ConfirmButton" Grid.Column="1" Content="Registrar abono" Click="Confirm_Click"
-                        IsEnabled="False" Height="38" Padding="14,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}"
-                        BorderThickness="0" Foreground="White" />
-            </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource AppButton}" Content="Cancelar" Click="Cancel_Click" Margin="0,0,8,0" />
+                <Button Style="{StaticResource AppPrimaryButton}" x:Name="ConfirmButton" Content="Registrar abono" Click="Confirm_Click"
+                        IsEnabled="False" />
+            </StackPanel>
         </Border>
     </Grid>
 </Window>

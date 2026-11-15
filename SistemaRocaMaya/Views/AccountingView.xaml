@@ -3,31 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
     <UserControl.Resources>
-        <Style x:Key="AccountingReportHeader" TargetType="ContentControl">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ContentControl">
-                        <Border Style="{StaticResource ReportHeadingSurface}">
-                            <DockPanel>
-                                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
-                                       Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
-                                <TextBlock Text="{TemplateBinding Content}" Style="{StaticResource ReportHeadingText}"
-                                           VerticalAlignment="Center" />
-                            </DockPanel>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,1" />
-            <Setter Property="Padding" Value="10,0" />
-            <Setter Property="FontSize" Value="10" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
+        <Style x:Key="AccountingReportHeader" TargetType="ContentControl" BasedOn="{StaticResource AppPageHeader}" />
+        <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AppTableHeader}" />
         <Style TargetType="{x:Type DataGridCell}">
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,0" />
@@ -38,16 +15,7 @@
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-        <Style x:Key="ReportActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="34" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
-        </Style>
+        <Style x:Key="ReportActionButtonStyle" TargetType="Button" BasedOn="{StaticResource AppButton}" />
         <Style TargetType="{x:Type DataGridRow}">
             <Setter Property="Background" Value="White" />
             <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -87,7 +55,7 @@
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
             <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource RocaMayaDividerBrush}" />
             <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
-            <Setter Property="RowHeight" Value="40" />
+            <Setter Property="RowHeight" Value="34" />
             <Setter Property="ColumnHeaderHeight" Value="34" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="Background" Value="White" />
@@ -96,7 +64,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
         <Grid>
             <Grid Visibility="{Binding SummaryVisibility}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -104,7 +72,7 @@
                         <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Resumen contable" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
                             <Button Content="Exportar PDF" Command="{Binding ExportSummaryCommand}"
-                                    Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
+                                    Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
                             <Button Content="Imprimir" Command="{Binding PrintSummaryCommand}"
                                     Style="{StaticResource ReportActionButtonStyle}" />
                         </StackPanel>
@@ -127,7 +95,7 @@
                             </ItemsControl>
                         </Border>
 
-                        <TabControl ItemsSource="{Binding ManagementIndicators}" SelectedIndex="0" Margin="0,14,0,0"
+                        <TabControl ItemsSource="{Binding ManagementIndicators}" SelectedIndex="0" Margin="0,8,0,0"
                                     BorderThickness="0" Background="Transparent" Padding="0">
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
@@ -142,7 +110,7 @@
                                             <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </DockPanel>
                                         <DockPanel Margin="0,0,0,4">
-                                            <TextBlock DockPanel.Dock="Right" Text="{Binding ThresholdLabel}" Foreground="#9A5B23" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding ThresholdLabel}" Foreground="{StaticResource RocaMayaWarningBrush}" />
                                             <TextBlock Text="{Binding Unit}" Style="{StaticResource ReportMetadataText}" />
                                         </DockPanel>
                                         <Grid>
@@ -157,7 +125,7 @@
                                                 <Canvas Width="600" Height="150">
                                                     <Path Data="M 0,0 H 600 M 0,75 H 600" Stroke="{StaticResource RocaMayaDividerBrush}" StrokeThickness="1" />
                                                     <Path Data="M 0,0 V 150 H 600" Stroke="{StaticResource RocaMayaBorderBrush}" StrokeThickness="1" />
-                                                    <Path Data="{Binding ThresholdLine}" Stroke="#9A5B23" StrokeThickness="1.5" StrokeDashArray="5 3" />
+                                                    <Path Data="{Binding ThresholdLine}" Stroke="{StaticResource RocaMayaWarningBrush}" StrokeThickness="1.5" StrokeDashArray="5 3" />
                                                     <Path Data="{Binding Line}" Stroke="{StaticResource RocaMayaBlueSecondaryBrush}" StrokeThickness="2" />
                                                     <Path Data="{Binding Dots}" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                                 </Canvas>
@@ -211,7 +179,7 @@
                              Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
                              ToolTip="Buscar por referencia, concepto o fecha" />
                     <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportJournalCommand}"
-                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
+                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
                     <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintJournalCommand}"
                             Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
@@ -253,7 +221,7 @@
                              Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center"
                              ToolTip="Buscar por documento, concepto o fecha" />
                     <Button Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportLedgerCommand}"
-                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
+                            Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
                     <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintLedgerCommand}"
                             Style="{StaticResource ReportActionButtonStyle}" />
                     <TextBlock Grid.Column="8" Text="" />
@@ -302,7 +270,7 @@
                     <TextBlock Grid.Column="4" Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="12,0,7,0" />
                     <DatePicker Grid.Column="5" SelectedDate="{Binding KardexEndDate, UpdateSourceTrigger=PropertyChanged}" Height="32" />
                     <Button Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportKardexCommand}"
-                            Style="{StaticResource ReportActionButtonStyle}" Margin="12,0,6,0" />
+                            Style="{StaticResource ReportActionButtonStyle}" Margin="12,0,8,0" />
                     <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
                 <Border Grid.Row="2" Background="White" Padding="10,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
@@ -330,16 +298,20 @@
                 <StackPanel Margin="0,0,12,8">
                 <StackPanel Margin="0,0,0,8">
                     <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Estado de Situación Financiera" />
-                    <WrapPanel>
-                        <TextBlock Text="Mes de corte" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="Exportar PDF" Command="{Binding ExportFinancialPositionCommand}"
+                                    Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
+                            <Button Content="Imprimir" Command="{Binding PrintFinancialPositionCommand}"
+                                    Style="{StaticResource ReportActionButtonStyle}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Mes de corte" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding FinancialPositionCutoffMonth}"
                                   ItemStringFormat="MMMM yyyy" Language="es-HN" AutomationProperties.Name="Mes de corte"
                                   Width="155" Height="28" Margin="0,0,12,0" />
-                        <Button Content="Exportar PDF" Command="{Binding ExportFinancialPositionCommand}"
-                                Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
-                        <Button Content="Imprimir" Command="{Binding PrintFinancialPositionCommand}"
-                                Style="{StaticResource ReportActionButtonStyle}" Height="28" />
-                    </WrapPanel>
+                        </StackPanel>
+                    </DockPanel>
                 </StackPanel>
                 <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
                         BorderThickness="0,1" Margin="0,0,0,8">
@@ -406,16 +378,20 @@
             <ScrollViewer Visibility="{Binding IncomeStatementVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="0,0,12,8">
                     <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Estado de Resultados" />
-                    <WrapPanel Margin="0,0,0,8">
-                        <TextBlock Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <DockPanel Margin="0,0,0,8">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
+                            <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Desde" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding IncomeStartDate}" ItemStringFormat="MMMM yyyy"
                                   Language="es-HN" AutomationProperties.Name="Mes inicial" Width="155" Height="28" Margin="0,0,12,0" />
-                        <TextBlock Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBlock Text="Hasta" Style="{StaticResource ReportMetadataText}" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <ComboBox ItemsSource="{Binding ReportMonthOptions}" SelectedItem="{Binding IncomeEndDate}" ItemStringFormat="MMMM yyyy"
                                   Language="es-HN" AutomationProperties.Name="Mes final" Width="155" Height="28" Margin="0,0,12,0" />
-                        <Button Content="Exportar PDF" Command="{Binding ExportIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" Margin="0,0,6,0" />
-                        <Button Content="Imprimir" Command="{Binding PrintIncomeStatementCommand}" Style="{StaticResource ReportActionButtonStyle}" Height="28" />
-                    </WrapPanel>
+                        </StackPanel>
+                    </DockPanel>
                     <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
                         <DataGrid ItemsSource="{Binding IncomeStatementLines}" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="NaN" RowStyle="{StaticResource StatementDataGridRowStyle}">
                             <DataGrid.Columns>
@@ -462,11 +438,11 @@
                                 <TextBlock Text="Ventas" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                                <Rectangle Width="10" Height="10" Fill="#9A5B23" Margin="0,0,5,0" />
+                                <Rectangle Width="10" Height="10" Fill="{StaticResource RocaMayaWarningBrush}" Margin="0,0,5,0" />
                                 <TextBlock Text="Costos y gastos" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                                <Rectangle Width="10" Height="10" Fill="#287553" Margin="0,0,5,0" />
+                                <Rectangle Width="10" Height="10" Fill="{StaticResource RocaMayaSuccessBrush}" Margin="0,0,5,0" />
                                 <TextBlock Text="Utilidad neta" />
                             </StackPanel>
                         </WrapPanel>
@@ -495,9 +471,9 @@
                                                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
                                                     <Rectangle Grid.Column="0" Height="{Binding Sales.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
                                                                ToolTip="{Binding Sales.Amount}" />
-                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="#9A5B23"
+                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
                                                                ToolTip="{Binding Costs.Amount}" />
-                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="#287553"
+                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
                                                                ToolTip="{Binding NetIncome.Amount}" />
                                                 </Grid>
                                                 <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1,0,0" />
@@ -505,9 +481,9 @@
                                                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
                                                     <Rectangle Grid.Column="0" Height="{Binding Sales.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
                                                                ToolTip="{Binding Sales.Amount}" />
-                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="#9A5B23"
+                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
                                                                ToolTip="{Binding Costs.Amount}" />
-                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="#287553"
+                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
                                                                ToolTip="{Binding NetIncome.Amount}" />
                                                 </Grid>
                                             </StackPanel>

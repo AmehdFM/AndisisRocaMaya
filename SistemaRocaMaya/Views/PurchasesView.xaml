@@ -13,25 +13,18 @@
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-        <Style TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,2" />
-            <Setter Property="Padding" Value="8,5" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AppTableHeader}" />
     </UserControl.Resources>
-    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="28,18">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <Border Style="{StaticResource ReportHeadingSurface}">
             <DockPanel>
                 <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
                        Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
                 <Button DockPanel.Dock="Right" Content="＋  Crear producto" Click="CreateProduct_Click"
-                        Height="34" Padding="12,0" VerticalAlignment="Center">
+                        VerticalAlignment="Center">
                     <Button.Style>
-                        <Style TargetType="Button">
+                        <Style TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedIndex, ElementName=PurchaseTabs}" Value="0">
@@ -49,7 +42,7 @@
           <TabItem Header="Registrar compra">
           <Grid Margin="0,8,0,0">
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.8*" /><ColumnDefinition Width="0.95*" /></Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" Margin="0,0,18,0">
+            <Grid Grid.Column="0" Margin="0,0,12,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <Border Margin="0,0,0,10" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                         BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
@@ -68,9 +61,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
                             <TextBlock Text="{Binding StatusMessage}" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" Margin="0,0,0,4" />
-                            <Button Content="Registrar compra" Command="{Binding RegisterPurchaseCommand}"
-                                    Height="34" Padding="12,0" Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
-                                    FontSize="11" FontWeight="SemiBold" />
+                            <Button Style="{StaticResource AppPrimaryButton}" Content="Registrar compra" Command="{Binding RegisterPurchaseCommand}" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -170,10 +161,10 @@
                     <DatePicker Grid.Column="1" SelectedDate="{Binding ReportStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="3" SelectedDate="{Binding ReportEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-                    <ComboBox Grid.Column="4" ItemsSource="{Binding ReportSupplierNames}" SelectedItem="{Binding SelectedReportSupplier}" Height="32" Margin="12,0,6,0" VerticalContentAlignment="Center" ToolTip="Filtrar por proveedor" />
+                    <ComboBox Grid.Column="4" ItemsSource="{Binding ReportSupplierNames}" SelectedItem="{Binding SelectedReportSupplier}" Height="32" Margin="12,0,8,0" VerticalContentAlignment="Center" ToolTip="Filtrar por proveedor" />
                     <TextBox Grid.Column="5" Text="{Binding ReportProductSearchText, UpdateSourceTrigger=PropertyChanged}" Height="32" Padding="8,0" Margin="6,0" VerticalContentAlignment="Center" ToolTip="Buscar producto o código" />
-                    <Button Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportPurchaseReportCommand}" Height="34" Padding="10,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
-                    <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintPurchaseReportCommand}" Height="34" Padding="10,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
+                    <Button Style="{StaticResource AppButton}" Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportPurchaseReportCommand}" Margin="0,0,8,0" />
+                    <Button Style="{StaticResource AppButton}" Grid.Column="7" Content="Imprimir" Command="{Binding PrintPurchaseReportCommand}" />
                 </Grid>
                 <Border Grid.Row="1" Padding="0,5" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Margin="0,0,0,8">
                     <Grid>

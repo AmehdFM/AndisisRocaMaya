@@ -14,6 +14,16 @@
     <Color x:Key="RocaMayaBorder">#C8DCE8</Color>
     <Color x:Key="RocaMayaDivider">#D8E5ED</Color>
     <Color x:Key="RocaMayaTextSecondary">#526A7A</Color>
+    <Color x:Key="RocaMayaNavigation">#193A52</Color>
+    <Color x:Key="RocaMayaNavigationHover">#27485F</Color>
+    <Color x:Key="RocaMayaSuccess">#287553</Color>
+    <Color x:Key="RocaMayaSuccessSoft">#E5F2E9</Color>
+    <Color x:Key="RocaMayaWarning">#9A5B23</Color>
+    <Color x:Key="RocaMayaWarningSoft">#FFF0CC</Color>
+    <Color x:Key="RocaMayaNavigationText">#E7EFF3</Color>
+    <Color x:Key="RocaMayaNavigationMuted">#B7CBD8</Color>
+    <Color x:Key="RocaMayaNavigationBadge">#224761</Color>
+    <Color x:Key="RocaMayaOverlay">#BFF3F8FB</Color>
 
     <SolidColorBrush x:Key="RocaMayaBluePrimaryBrush" Color="{StaticResource RocaMayaBluePrimary}" />
     <SolidColorBrush x:Key="RocaMayaBlueBrightBrush" Color="{StaticResource RocaMayaBlueBright}" />
@@ -29,4 +39,14 @@
     <SolidColorBrush x:Key="RocaMayaBorderBrush" Color="{StaticResource RocaMayaBorder}" />
     <SolidColorBrush x:Key="RocaMayaDividerBrush" Color="{StaticResource RocaMayaDivider}" />
     <SolidColorBrush x:Key="RocaMayaTextSecondaryBrush" Color="{StaticResource RocaMayaTextSecondary}" />
+    <SolidColorBrush x:Key="RocaMayaNavigationBrush" Color="{StaticResource RocaMayaNavigation}" />
+    <SolidColorBrush x:Key="RocaMayaNavigationHoverBrush" Color="{StaticResource RocaMayaNavigationHover}" />
+    <SolidColorBrush x:Key="RocaMayaSuccessBrush" Color="{StaticResource RocaMayaSuccess}" />
+    <SolidColorBrush x:Key="RocaMayaSuccessSoftBrush" Color="{StaticResource RocaMayaSuccessSoft}" />
+    <SolidColorBrush x:Key="RocaMayaWarningBrush" Color="{StaticResource RocaMayaWarning}" />
+    <SolidColorBrush x:Key="RocaMayaWarningSoftBrush" Color="{StaticResource RocaMayaWarningSoft}" />
+    <SolidColorBrush x:Key="RocaMayaNavigationTextBrush" Color="{StaticResource RocaMayaNavigationText}" />
+    <SolidColorBrush x:Key="RocaMayaNavigationMutedBrush" Color="{StaticResource RocaMayaNavigationMuted}" />
+    <SolidColorBrush x:Key="RocaMayaNavigationBadgeBrush" Color="{StaticResource RocaMayaNavigationBadge}" />
+    <SolidColorBrush x:Key="RocaMayaOverlayBrush" Color="{StaticResource RocaMayaOverlay}" />
 </ResourceDictionary>

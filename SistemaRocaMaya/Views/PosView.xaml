@@ -3,27 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
     <UserControl.Resources>
-        <Style x:Key="ProductAddButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2A6F9E" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Height" Value="48" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-        <Style x:Key="CheckoutButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#1F7A45" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Height" Value="56" />
-            <Setter Property="FontSize" Value="17" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Cursor" Value="Hand" />
+        <Style x:Key="ProductAddButtonStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}" />
+        <Style x:Key="CheckoutButtonStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}">
+            <Setter Property="MinHeight" Value="40" />
         </Style>
     </UserControl.Resources>
 
     <Grid>
-        <Grid x:Name="CashScreenContent" Background="#F3F6F8">
+        <Grid x:Name="CashScreenContent" Background="{StaticResource RocaMayaSurfaceBrush}">
         <Grid.Style>
             <Style TargetType="Grid">
                 <Setter Property="Effect">
@@ -39,12 +26,12 @@
             </Style>
         </Grid.Style>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70" />
+            <RowDefinition Height="76" />
             <RowDefinition Height="*" />
             <RowDefinition Height="34" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="24,0">
+        <Grid Grid.Row="0" Margin="16,8,16,8" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -52,22 +39,18 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Caja" FontSize="24" FontWeight="Bold" Foreground="#20394B" />
+                <TextBlock Text="Caja" Style="{StaticResource ReportHeadingText}" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="0,0,14,0" VerticalAlignment="Center">
-                <TextBlock Text="{Binding CashStatusText}" FontSize="10" Foreground="#526A7A"
+                <TextBlock Text="{Binding CashStatusText}" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}"
                            HorizontalAlignment="Right" Margin="0,0,0,4" />
-                <Button Content="{Binding CashActionLabel}" Click="ToggleCashSession_Click"
-                        MinWidth="112" Height="32" Padding="12,0" HorizontalAlignment="Right"
-                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White"
-                        FontSize="11" FontWeight="SemiBold" Cursor="Hand" />
+                <Button Style="{StaticResource AppButton}" Content="{Binding CashActionLabel}" Click="ToggleCashSession_Click"
+                        MinWidth="112" HorizontalAlignment="Right" />
             </StackPanel>
-            <Button Grid.Column="2" MinWidth="150" Height="40" Padding="14,0"
-                    Background="#E8F1F6" BorderBrush="#C8DCE8" BorderThickness="1"
-                    Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" FontSize="12" FontWeight="SemiBold"
+            <Button Style="{StaticResource AppButton}" Grid.Column="2" MinWidth="150"
                     Command="{Binding DataContext.ToggleFocusCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    Content="{Binding DataContext.FocusButtonLabel, RelativeSource={RelativeSource AncestorType=Window}}"
-                    />
+                    Content="{Binding DataContext.FocusButtonLabel, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Image Grid.Column="3" Source="{StaticResource ReportWordmark}" Style="{StaticResource ReportWordmarkImage}" Margin="12,0" />
         </Grid>
 
         <Grid Grid.Row="1">
@@ -76,9 +59,9 @@
                 <ColumnDefinition Width="360" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Margin="24,0,18,12">
+            <Grid Grid.Column="0" Margin="16,0,12,12">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="58" />
+                    <RowDefinition Height="44" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
@@ -88,10 +71,10 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Grid>
-                        <TextBox x:Name="ProductSearchBox" Height="44" Padding="14,0" VerticalContentAlignment="Center"
-                                 FontSize="14" Background="White" BorderBrush="#D5E0E7" BorderThickness="1" />
+                        <TextBox x:Name="ProductSearchBox" Height="34" Padding="10,0" VerticalContentAlignment="Center"
+                                 FontSize="14" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1" />
                         <TextBlock Text="Buscar por código o nombre de producto" Margin="14,0,0,0"
-                                   VerticalAlignment="Center" Foreground="#8797A3" FontSize="13"
+                                   VerticalAlignment="Center" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="13"
                                    IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -106,7 +89,7 @@
                         </TextBlock>
                     </Grid>
                     <TextBlock Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center"
-                               Text="Escanear código" FontSize="12" Foreground="#718391" />
+                               Text="Escanear código" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </Grid>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
@@ -119,7 +102,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Width="225" Height="112" Margin="0,0,10,8" Padding="8"
-                                        Background="White" BorderBrush="#D8E3EA" BorderThickness="1">
+                                        Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -127,16 +110,16 @@
                                         </Grid.RowDefinitions>
                                         <StackPanel Margin="0,0,0,5">
                                             <TextBlock Text="{Binding Name}" FontSize="12"
-                                                       FontWeight="SemiBold" Foreground="#20394B" TextWrapping="Wrap" />
+                                                       FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" TextWrapping="Wrap" />
                                             <TextBlock Text="{Binding PriceText}" Margin="0,3,0,0" FontSize="14"
-                                                       FontWeight="Bold" Foreground="#1F7A45" />
+                                                       FontWeight="Bold" Foreground="{StaticResource RocaMayaSuccessBrush}" />
                                         </StackPanel>
                                         <Grid Grid.Row="1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="50" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                             <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" Height="32" Padding="4,0"
                                                      VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                                     Background="White" BorderBrush="#C8DCE8" BorderThickness="1" />
-                                            <Button Grid.Column="1" Margin="6,0,0,0" Height="32" Style="{StaticResource ProductAddButtonStyle}" Content="Agregar"
+                                                     Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1" />
+                                            <Button Grid.Column="1" Margin="6,0,0,0" Style="{StaticResource ProductAddButtonStyle}" Content="Agregar"
                                                 Command="{Binding DataContext.AddProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}" />
                                         </Grid>
@@ -148,8 +131,8 @@
                 </ScrollViewer>
             </Grid>
 
-            <Border Grid.Column="1" Background="White" BorderBrush="#DCE4E9" BorderThickness="1,0,0,0">
-                <Grid Margin="20,18,20,16">
+            <Border Grid.Column="1" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1,0,0,0">
+                <Grid Margin="12">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -158,11 +141,9 @@
 
                     <Grid Grid.Row="0" Margin="0,0,0,14">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Button Content="Vaciar" Height="34" MinWidth="68" Margin="0,0,12,0" Command="{Binding ClearCartCommand}"
-                                Background="{StaticResource RocaMayaDangerSoftBrush}" BorderThickness="0" Foreground="{StaticResource RocaMayaDangerBrush}"
-                                FontSize="11" FontWeight="SemiBold" Cursor="Hand" />
+                        <Button Style="{StaticResource AppDangerButton}" Content="Vaciar" MinWidth="68" Margin="0,0,12,0" Command="{Binding ClearCartCommand}" />
                         <TextBlock Grid.Column="1" Text="Venta actual" VerticalAlignment="Center" FontSize="17"
-                                   FontWeight="Bold" Foreground="#20394B" />
+                                   FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                     </Grid>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -175,15 +156,15 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="#314B5E" />
-                                            <TextBlock Text="{Binding QuantityAndPriceText}" Margin="0,3,0,0" FontSize="11" Foreground="#718391" />
+                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                            <TextBlock Text="{Binding QuantityAndPriceText}" Margin="0,3,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="×" Margin="0,0,8,0" Width="32" Height="32"
+                                            <Button Background="{StaticResource RocaMayaDangerSoftBrush}" Foreground="{StaticResource RocaMayaDangerBrush}" BorderBrush="{StaticResource RocaMayaDangerBrush}" Style="{StaticResource AppIconButton}" Content="×" Margin="0,0,8,0" Width="32" Height="32"
                                                     Command="{Binding DataContext.RemoveCartItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}" Background="{StaticResource RocaMayaDangerSoftBrush}" BorderThickness="0"
-                                                    Foreground="{StaticResource RocaMayaDangerBrush}" FontSize="17" Cursor="Hand" />
-                                            <TextBlock Text="{Binding LineTotalText}" Foreground="#1F7A45" FontSize="12"
+                                                    CommandParameter="{Binding}"
+                                                    FontSize="17" />
+                                            <TextBlock Text="{Binding LineTotalText}" Foreground="{StaticResource RocaMayaSuccessBrush}" FontSize="12"
                                                        FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </StackPanel>
                                     </Grid>
@@ -193,25 +174,24 @@
                     </ScrollViewer>
 
                     <StackPanel Grid.Row="2" Margin="0,12,0,0">
-                        <Border Height="1" Background="#E4EAEE" Margin="0,0,0,12" />
+                        <Border Height="1" Background="{StaticResource RocaMayaDividerBrush}" Margin="0,0,0,12" />
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="Subtotal" Foreground="#718391" FontSize="12" />
-                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Foreground="#314B5E" FontSize="12" />
+                            <TextBlock Text="Subtotal" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" />
+                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontSize="12" />
                         </Grid>
                         <Grid Margin="0,9,0,15">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="Total" Foreground="#20394B" FontSize="16" FontWeight="Bold" />
-                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Foreground="#1F7A45" FontSize="22" FontWeight="Bold" />
+                            <TextBlock Text="Total" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontSize="16" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Foreground="{StaticResource RocaMayaSuccessBrush}" FontSize="22" FontWeight="Bold" />
                         </Grid>
-                        <TextBlock Text="Método de pago" Margin="0,10,0,4" FontSize="11" FontWeight="SemiBold" Foreground="#526A7A" />
+                        <TextBlock Text="Método de pago" Margin="0,10,0,4" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         <ComboBox ItemsSource="{Binding PaymentMethods}" SelectedItem="{Binding SelectedPaymentMethod}"
                                   Height="28" MinHeight="28" Padding="6,0" FontSize="12" VerticalContentAlignment="Center"
-                                  Background="White" BorderBrush="#C8DCE8" />
+                                  Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" />
                         <StackPanel Margin="0,10,0,0" Visibility="{Binding CreditDetailsVisibility}">
-                            <TextBlock Text="Cliente" Margin="0,0,0,4" FontSize="11" FontWeight="SemiBold" Foreground="#526A7A" />
-                            <Button Height="30" Padding="8,0" HorizontalContentAlignment="Stretch"
-                                    Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}"
+                            <TextBlock Text="Cliente" Margin="0,0,0,4" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                            <Button Style="{StaticResource AppButton}" HorizontalContentAlignment="Stretch"
                                     Click="ChooseCustomer_Click">
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -230,21 +210,19 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Background="#E9EFF3">
+        <Border Grid.Row="2" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
             <DockPanel Margin="24,0" LastChildFill="False">
                 <TextBlock Text="Prototipo · Los productos y el carrito son datos de demostración" VerticalAlignment="Center"
-                           FontSize="10" Foreground="#637887" />
+                           FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </DockPanel>
         </Border>
         </Grid>
 
-        <Grid Panel.ZIndex="10" Background="#BFEFF6FA" Visibility="{Binding CashClosedOverlayVisibility}">
+        <Grid Panel.ZIndex="10" Background="{StaticResource RocaMayaOverlayBrush}" Visibility="{Binding CashClosedOverlayVisibility}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Caja cerrada" Margin="0,0,0,14" HorizontalAlignment="Center"
                            FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <Button Content="Abrir caja" Click="ToggleCashSession_Click" Width="230" Height="58"
-                        Background="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="0"
-                        Foreground="White" FontSize="16" FontWeight="SemiBold" Cursor="Hand" />
+                <Button Style="{StaticResource AppButton}" Content="Abrir caja" Click="ToggleCashSession_Click" Width="230" />
             </StackPanel>
         </Grid>
     </Grid>

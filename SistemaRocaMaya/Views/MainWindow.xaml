@@ -85,44 +85,8 @@
             </Setter>
         </Style>
 
-        <Style x:Key="LoginButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="48" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Normal" />
-            <Setter Property="Foreground" Value="{StaticResource RocaMayaCreamBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Background" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonSurface"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="Background" Value="{StaticResource RocaMayaBlackPureBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="Background" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="{StaticResource RocaMayaCreamBrush}" />
-                                <Setter TargetName="ButtonSurface" Property="BorderThickness" Value="2" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ButtonSurface" Property="Opacity" Value="0.55" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="LoginButtonStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}">
+            <Setter Property="Height" Value="40" />
         </Style>
     </Window.Resources>
 
@@ -178,14 +142,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0"
-                           Margin="0,0,0,18"
-                           Text="Roca Maya"
-                           FontSize="25"
-                           FontWeight="Normal"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                <Image Grid.Row="0" Source="{StaticResource ReportWordmark}" Width="160" Height="64" Stretch="Uniform" Margin="0,0,0,16" AutomationProperties.Name="Consul Farma Roca Maya" />
 
                 <TextBlock Grid.Row="1"
                            Margin="0,0,0,5"
@@ -210,12 +167,12 @@
                              AutomationProperties.Name="Contraseña" />
 
                 <Button Grid.Row="5"
-                        Margin="0,20,0,0"
+                        Margin="0,12,0,0"
                         Style="{StaticResource LoginButtonStyle}"
                         Content="Iniciar sesión"
                         Click="SignIn_Click" />
                 <TextBlock Grid.Row="6" Margin="0,8,0,0" TextAlignment="Center" FontSize="9"
-                           Foreground="#526A7A" Text="Demo: Administrador / Admin1234 · Empleado / Empleado1234" />
+                           Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Text="Demo: admin / admin · Empleado / Empleado1234" />
             </Grid>
         </Border>
     </Grid>

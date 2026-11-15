@@ -3,44 +3,39 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Nuevo proveedor · Roca Maya" Width="420" Height="405"
         ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
-        Background="{StaticResource RocaMayaCreamBrush}" FontFamily="Segoe UI">
+        Background="{StaticResource RocaMayaSurfaceBrush}" FontFamily="Segoe UI">
     <Window.Resources>
-        <Style TargetType="TextBox">
-            <Setter Property="Height" Value="38" />
+        <Style TargetType="TextBox" BasedOn="{StaticResource AppTextBox}">
+            <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="10,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
         </Style>
-        <Style TargetType="Button">
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Padding" Value="14,0" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource AppButton}" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="56" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <Border Background="{StaticResource RocaMayaBlueSecondaryBrush}" Padding="20,0">
-            <TextBlock Text="Nuevo proveedor" FontSize="17" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
+        <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1" Padding="16,6">
+            <DockPanel>
+                <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}" Width="86" Height="36" Stretch="Uniform" Margin="12,0,0,0" AutomationProperties.Name="Consul Farma Roca Maya" />
+                <TextBlock Text="Nuevo proveedor" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" VerticalAlignment="Center" />
+            </DockPanel>
         </Border>
         <StackPanel Grid.Row="1" Margin="22,18">
-            <TextBlock Text="Nombre del proveedor" FontSize="11" Foreground="#526A7A" Margin="0,0,0,4" />
+            <TextBlock Text="Nombre del proveedor" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,0,0,4" />
             <TextBox x:Name="NameBox" />
-            <TextBlock Text="Teléfono" FontSize="11" Foreground="#526A7A" Margin="0,12,0,4" />
+            <TextBlock Text="Teléfono" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,12,0,4" />
             <TextBox x:Name="PhoneBox" />
-            <TextBlock Text="Persona de contacto" FontSize="11" Foreground="#526A7A" Margin="0,12,0,4" />
+            <TextBlock Text="Persona de contacto" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,12,0,4" />
             <TextBox x:Name="ContactBox" />
             <TextBlock x:Name="ValidationText" Text="Escribe el nombre del proveedor."
-                       Margin="0,8,0,0" FontSize="10" Foreground="#9B2C2C" Visibility="Collapsed" />
+                       Margin="0,8,0,0" FontSize="10" Foreground="{StaticResource RocaMayaDangerBrush}" Visibility="Collapsed" />
         </StackPanel>
         <Border Grid.Row="2" Background="White" Padding="20,12">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Cancelar" IsCancel="True" Click="Cancel_Click" Margin="0,0,8,0"
-                        Background="White" BorderBrush="#C8DCE8" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                <Button Content="Crear proveedor" Click="Create_Click"
-                        Background="{StaticResource RocaMayaBlackPrimaryBrush}" BorderThickness="0" Foreground="White" />
+                <Button Style="{StaticResource AppButton}" Content="Cancelar" IsCancel="True" Click="Cancel_Click" Margin="0,0,8,0" />
+                <Button Style="{StaticResource AppPrimaryButton}" Content="Crear proveedor" Click="Create_Click" />
             </StackPanel>
         </Border>
     </Grid>

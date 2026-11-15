@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="Assets/ColorPalette.xaml" />
                 <ResourceDictionary Source="Assets/RocaMayaLogo.xaml" />
                 <ResourceDictionary Source="Assets/ReportPresentation.xaml" />
+                <ResourceDictionary Source="Assets/AppPresentation.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

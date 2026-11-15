@@ -12,7 +12,7 @@
         WindowStyle="{Binding ShellWindowStyle}"
         PreviewKeyDown="Window_PreviewKeyDown"
         Closing="ShellWindow_Closing"
-        Background="#F3F6F8"
+        Background="{StaticResource RocaMayaSurfaceBrush}"
         FontFamily="Segoe UI">
     <Window.Resources>
         <Style x:Key="NavigationButtonStyle" TargetType="Button">
@@ -20,7 +20,7 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="8,0" />
-            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="MinHeight" Value="42" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -31,7 +31,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Surface" Property="Background" Value="#27485F" />
+                                <Setter TargetName="Surface" Property="Background" Value="{StaticResource RocaMayaNavigationHoverBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -39,16 +39,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2A6F9E" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="18,11" />
-            <Setter Property="MinHeight" Value="48" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}" />
     </Window.Resources>
 
     <Grid>
@@ -57,7 +48,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border x:Name="SidebarSurface" Grid.Column="0" Width="232" Background="#193A52"
+        <Border x:Name="SidebarSurface" Grid.Column="0" Width="232" Background="{StaticResource RocaMayaNavigationBrush}"
                 Visibility="{Binding ShellChromeVisibility}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -72,11 +63,11 @@
                         <ColumnDefinition Width="32" />
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Margin="8,0,4,0" Padding="10,5"
-                            Background="#224761" CornerRadius="7"
+                            Background="{StaticResource RocaMayaNavigationBadgeBrush}" CornerRadius="7"
                             VerticalAlignment="Center"
                             Visibility="{Binding SidebarTextVisibility}">
                         <StackPanel>
-                            <TextBlock Text="VISTA DE PROTOTIPO" Foreground="#AFC5D2"
+                            <TextBlock Text="VISTA DE PROTOTIPO" Foreground="{StaticResource RocaMayaNavigationMutedBrush}"
                                        FontSize="9" FontWeight="Bold" />
                             <TextBlock Text="{Binding RoleLabel}" Foreground="White"
                                        FontSize="13" FontWeight="SemiBold" Margin="0,3,0,0" />
@@ -88,7 +79,7 @@
                             ToolTip="Contraer o desplegar la barra lateral"
                             Click="ToggleSidebar_Click">
                         <Border Height="36">
-                        <TextBlock Text="☰" FontSize="18" Foreground="#D4E1E8"
+                        <TextBlock Text="☰" FontSize="18" Foreground="{StaticResource RocaMayaNavigationTextBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Button>
@@ -110,20 +101,20 @@
                                     <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CommandParameter="{Binding}" ToolTip="{Binding Title}"
                                             AutomationProperties.Name="{Binding Title}">
-                                        <Border Padding="10,11" CornerRadius="7" Background="Transparent">
+                                        <Border Padding="10,9" CornerRadius="7" Background="Transparent">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="28" />
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Icon}" FontSize="15" Foreground="#D4E1E8"
+                                                <TextBlock Text="{Binding Icon}" FontSize="15" Foreground="{StaticResource RocaMayaNavigationTextBrush}"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="8,0,0,0"
-                                                           FontSize="13" Foreground="#E7EFF3" VerticalAlignment="Center"
+                                                           FontSize="13" Foreground="{StaticResource RocaMayaNavigationTextBrush}" VerticalAlignment="Center"
                                                            Visibility="{Binding DataContext.SidebarTextVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
                                                 <TextBlock Grid.Column="2" Text="{Binding ExpandGlyph}" Margin="6,0,2,0"
-                                                           FontSize="14" Foreground="#D4E1E8" VerticalAlignment="Center"
+                                                           FontSize="14" Foreground="{StaticResource RocaMayaNavigationTextBrush}" VerticalAlignment="Center"
                                                            Visibility="{Binding ExpandGlyphVisibility}" />
                                             </Grid>
                                         </Border>
@@ -131,7 +122,7 @@
                                             <Style TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="Background" Value="#2A6F9E" />
+                                                        <Setter Property="Background" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -143,16 +134,16 @@
                                                 <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding}" ToolTip="{Binding Title}"
                                                         AutomationProperties.Name="{Binding Title}">
-                                                    <Border Margin="18,0,0,0" Padding="8,10" CornerRadius="7" Background="Transparent">
+                                                    <Border Margin="18,0,0,0" Padding="8,8" CornerRadius="7" Background="Transparent">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="20" />
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Text="{Binding Icon}" FontSize="12" Foreground="#B7CBD8"
+                                                            <TextBlock Text="{Binding Icon}" FontSize="12" Foreground="{StaticResource RocaMayaNavigationMutedBrush}"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                             <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="6,0,0,0"
-                                                                       FontSize="12" Foreground="#E7EFF3" VerticalAlignment="Center"
+                                                                       FontSize="12" Foreground="{StaticResource RocaMayaNavigationTextBrush}" VerticalAlignment="Center"
                                                                        TextWrapping="Wrap"
                                                                        Visibility="{Binding DataContext.SidebarTextVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
                                                         </Grid>
@@ -161,7 +152,7 @@
                                                         <Style TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                                    <Setter Property="Background" Value="#2A6F9E" />
+                                                                    <Setter Property="Background" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -179,8 +170,8 @@
                 <StackPanel Grid.Row="2" Margin="8,0,8,4">
                     <Button Style="{StaticResource NavigationButtonStyle}" Click="SignOut_Click">
                         <StackPanel Orientation="Horizontal" Margin="10,10">
-                            <TextBlock Text="↪" Width="28" Foreground="#D4E1E8" FontSize="15" HorizontalAlignment="Center" />
-                            <TextBlock Text="Cerrar sesión" Foreground="#D4E1E8" FontSize="12"
+                            <TextBlock Text="↪" Width="28" Foreground="{StaticResource RocaMayaNavigationTextBrush}" FontSize="15" HorizontalAlignment="Center" />
+                            <TextBlock Text="Cerrar sesión" Foreground="{StaticResource RocaMayaNavigationTextBrush}" FontSize="12"
                                        Visibility="{Binding SidebarTextVisibility}" />
                         </StackPanel>
                     </Button>
@@ -194,12 +185,12 @@
             </Grid.RowDefinitions>
 
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                <Grid Margin="30,8,30,32">
+                <Grid Margin="{StaticResource AppPageMargin}">
                     <StackPanel Visibility="Collapsed">
                         <TextBlock Text="Resumen" Margin="0,0,0,20"
-                                   FontSize="27" FontWeight="Bold" Foreground="#20394B" />
+                                   FontSize="27" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
 
-                        <Border Background="White" BorderBrush="#E2E8ED" BorderThickness="0,1,0,1" Padding="0,18">
+                        <Border Background="White" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,1,0,1" Padding="0,18">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -207,46 +198,46 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Margin="18,0">
-                                    <TextBlock Text="VENTAS DE HOY" FontSize="10" FontWeight="Bold" Foreground="#718391" />
-                                    <TextBlock Text="L 12,480.00" Margin="0,8,0,0" FontSize="25" FontWeight="Bold" Foreground="#1F7A45" />
-                                    <TextBlock Text="18 ventas registradas" Margin="0,4,0,0" Foreground="#718391" FontSize="12" />
+                                    <TextBlock Text="VENTAS DE HOY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                    <TextBlock Text="L 12,480.00" Margin="0,8,0,0" FontSize="25" FontWeight="Bold" Foreground="{StaticResource RocaMayaSuccessBrush}" />
+                                    <TextBlock Text="18 ventas registradas" Margin="0,4,0,0" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" />
                                 </StackPanel>
-                                <Border Grid.Column="1" BorderBrush="#E2E8ED" BorderThickness="1,0,1,0">
+                                <Border Grid.Column="1" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="1,0,1,0">
                                     <StackPanel Margin="22,0">
-                                        <TextBlock Text="CAJA ACTUAL" FontSize="10" FontWeight="Bold" Foreground="#718391" />
-                                        <TextBlock Text="Abierta · Turno mañana" Margin="0,8,0,0" FontSize="17" FontWeight="SemiBold" Foreground="#20394B" />
-                                        <TextBlock Text="Apertura: 7:00 a. m." Margin="0,5,0,0" Foreground="#718391" FontSize="12" />
+                                        <TextBlock Text="CAJA ACTUAL" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                        <TextBlock Text="Abierta · Turno mañana" Margin="0,8,0,0" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                        <TextBlock Text="Apertura: 7:00 a. m." Margin="0,5,0,0" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" />
                                     </StackPanel>
                                 </Border>
                                 <StackPanel Grid.Column="2" Margin="22,0">
-                                    <TextBlock Text="PRODUCTOS POR PEDIR" FontSize="10" FontWeight="Bold" Foreground="#718391" />
-                                    <TextBlock Text="6 productos" Margin="0,8,0,0" FontSize="17" FontWeight="SemiBold" Foreground="#20394B" />
-                                    <TextBlock Text="Revisar existencias bajas" Margin="0,5,0,0" Foreground="#718391" FontSize="12" />
+                                    <TextBlock Text="PRODUCTOS POR PEDIR" FontSize="10" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                    <TextBlock Text="6 productos" Margin="0,8,0,0" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                    <TextBlock Text="Revisar existencias bajas" Margin="0,5,0,0" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" />
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <StackPanel Margin="0,24,0,0">
-                                <TextBlock Text="Actividad reciente" FontSize="17" FontWeight="SemiBold" Foreground="#20394B" />
-                                <TextBlock Text="Movimientos registrados durante el turno" Margin="0,4,0,14" FontSize="12" Foreground="#718391" />
-                                <Border Background="White" BorderBrush="#E2E8ED" BorderThickness="0,1,0,1" Padding="16,4">
+                                <TextBlock Text="Actividad reciente" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                <TextBlock Text="Movimientos registrados durante el turno" Margin="0,4,0,14" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                <Border Background="White" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,1,0,1" Padding="16,4">
                                     <StackPanel>
                                         <Grid Margin="0,11">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <StackPanel><TextBlock Text="Venta · Ticket 00418" Foreground="#314B5E" FontWeight="SemiBold" /><TextBlock Text="10:42 a. m. · Cajero" FontSize="11" Foreground="#718391" Margin="0,3,0,0" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="L 245.00" Foreground="#1F7A45" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <StackPanel><TextBlock Text="Venta · Ticket 00418" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="10:42 a. m. · Cajero" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="L 245.00" Foreground="{StaticResource RocaMayaSuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </Grid>
-                                        <Border Height="1" Background="#E8EDF1" />
+                                        <Border Height="1" Background="{StaticResource RocaMayaDividerBrush}" />
                                         <Grid Margin="0,11">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <StackPanel><TextBlock Text="Abono · Cuenta de María López" Foreground="#314B5E" FontWeight="SemiBold" /><TextBlock Text="10:18 a. m. · Caja" FontSize="11" Foreground="#718391" Margin="0,3,0,0" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="L 100.00" Foreground="#1F7A45" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <StackPanel><TextBlock Text="Abono · Cuenta de María López" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="10:18 a. m. · Caja" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="L 100.00" Foreground="{StaticResource RocaMayaSuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </Grid>
-                                        <Border Height="1" Background="#E8EDF1" />
+                                        <Border Height="1" Background="{StaticResource RocaMayaDividerBrush}" />
                                         <Grid Margin="0,11">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <StackPanel><TextBlock Text="Entrada de mercadería" Foreground="#314B5E" FontWeight="SemiBold" /><TextBlock Text="9:55 a. m. · Bodega" FontSize="11" Foreground="#718391" Margin="0,3,0,0" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="Inventario" Foreground="#5D7180" FontSize="12" VerticalAlignment="Center" />
+                                            <StackPanel><TextBlock Text="Entrada de mercadería" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="9:55 a. m. · Bodega" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Inventario" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
                                         </Grid>
                                     </StackPanel>
                                 </Border>
@@ -254,12 +245,12 @@
                     </StackPanel>
 
                     <StackPanel Visibility="{Binding PlaceholderVisibility}" VerticalAlignment="Top">
-                        <TextBlock Text="{Binding CurrentSectionTitle}" FontSize="27" FontWeight="Bold" Foreground="#20394B" />
-                        <Border Background="White" BorderBrush="#E2E8ED" BorderThickness="0,1,0,1" Padding="24,20">
+                        <TextBlock Text="{Binding CurrentSectionTitle}" FontSize="27" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                        <Border Background="White" BorderBrush="{StaticResource RocaMayaDividerBrush}" BorderThickness="0,1,0,1" Padding="24,20">
                             <StackPanel>
-                                <TextBlock Text="Esta sección se detallará en su paso de diseño." FontSize="15" Foreground="#314B5E" />
+                                <TextBlock Text="Esta sección se detallará en su paso de diseño." FontSize="15" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                 <TextBlock Text="La navegación y los permisos son de demostración; todavía no hay operaciones conectadas."
-                                           Margin="0,7,0,0" FontSize="12" Foreground="#718391" TextWrapping="Wrap" />
+                                           Margin="0,7,0,0" FontSize="12" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                     </StackPanel>

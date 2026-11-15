@@ -9,7 +9,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </UserControl.Resources>
-    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -141,9 +141,7 @@
                 </Grid.RowDefinitions>
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <Button Content="← Clientes" Command="{Binding ShowCustomerListCommand}" Height="36" Padding="12,0"
-                            Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}"
-                            Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" Cursor="Hand" />
+                    <Button Style="{StaticResource AppButton}" Content="← Clientes" Command="{Binding ShowCustomerListCommand}" />
                     <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding SelectedCustomer.Name}" FontSize="18" FontWeight="SemiBold"
                                    Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
@@ -159,10 +157,8 @@
                 <Grid Grid.Row="1" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <Button Grid.Column="1" Content="＋  Registrar abono" Click="RecordPayment_Click"
-                            IsEnabled="{Binding HasSelectedCustomer}" Height="40" Padding="16,0"
-                            Background="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="0"
-                            Foreground="White" FontSize="12" FontWeight="SemiBold" Cursor="Hand" />
+                    <Button Style="{StaticResource AppPrimaryButton}" Grid.Column="1" Content="＋  Registrar abono" Click="RecordPayment_Click"
+                            IsEnabled="{Binding HasSelectedCustomer}" />
                 </Grid>
                 <TextBox Grid.Row="2" Text="{Binding HistorySearchText, UpdateSourceTrigger=PropertyChanged}"
                          Height="34" Padding="10,0" Margin="0,0,0,8" VerticalContentAlignment="Center"
@@ -211,30 +207,30 @@
                     <TextBlock Text="Saldos al" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                     <DatePicker Grid.Column="1" SelectedDate="{Binding AgingAsOfDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
                     <TextBox Grid.Column="2" Text="{Binding AgingSearchText, UpdateSourceTrigger=PropertyChanged}" Margin="12,0" Height="32" Padding="9,0" VerticalContentAlignment="Center" ToolTip="Buscar por nombre o teléfono" />
-                    <Button Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportAgingReportCommand}" Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
-                    <Button Grid.Column="4" Content="Imprimir" Command="{Binding PrintAgingReportCommand}" Height="34" Padding="12,0" FontSize="10" FontWeight="SemiBold" Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
+                    <Button Style="{StaticResource AppButton}" Grid.Column="3" Content="Exportar PDF" Command="{Binding ExportAgingReportCommand}" Margin="0,0,8,0" />
+                    <Button Style="{StaticResource AppButton}" Grid.Column="4" Content="Imprimir" Command="{Binding PrintAgingReportCommand}" />
                 </Grid>
                 <DataGrid ItemsSource="{Binding AgingCustomers}" MaxHeight="320" MinRowHeight="30" ScrollViewer.HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.35*" />
-                        <DataGridTextColumn Header="CONTACTO" Binding="{Binding Phone}" Width="0.9*" />
-                        <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="0–30 DÍAS" Binding="{Binding Days0To30Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="31–60 DÍAS" Binding="{Binding Days31To60Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="61–90 DÍAS" Binding="{Binding Days61To90Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="MÁS DE 90" Binding="{Binding Over90Text}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="VENC. MÁS ANTIGUO" Binding="{Binding OldestDueDateText}" Width="1.2*" />
-                        <DataGridTextColumn Header="DÍAS DE MORA" Binding="{Binding DaysOverdueText}" Width="0.9*" />
-                        <DataGridTemplateColumn Header="ESTADO" Width="1.1*">
+                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.35*" MinWidth="130" />
+                        <DataGridTextColumn Header="CONTACTO" Binding="{Binding Phone}" Width="0.9*" MinWidth="85" />
+                        <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="0.9*" MinWidth="85" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="0–30 DÍAS" Binding="{Binding Days0To30Text}" Width="0.9*" MinWidth="85" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="31–60 DÍAS" Binding="{Binding Days31To60Text}" Width="0.9*" MinWidth="85" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="61–90 DÍAS" Binding="{Binding Days61To90Text}" Width="0.9*" MinWidth="85" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="MÁS DE 90" Binding="{Binding Over90Text}" Width="0.9*" MinWidth="85" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="VENC. MÁS ANTIGUO" Binding="{Binding OldestDueDateText}" Width="1.2*" MinWidth="130" />
+                        <DataGridTextColumn Header="DÍAS DE MORA" Binding="{Binding DaysOverdueText}" Width="0.9*" MinWidth="100" />
+                        <DataGridTemplateColumn Header="ESTADO" Width="1.1*" MinWidth="145">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Padding="7,3" CornerRadius="3" HorizontalAlignment="Left">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#E5F2E9" />
+                                                <Setter Property="Background" Value="{StaticResource RocaMayaSuccessSoftBrush}" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Mora de 1–30 días"><Setter Property="Background" Value="#FFF0CC" /></DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Mora mayor a 30 días"><Setter Property="Background" Value="#FCE3E1" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Mora de 1–30 días"><Setter Property="Background" Value="{StaticResource RocaMayaWarningSoftBrush}" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Mora mayor a 30 días"><Setter Property="Background" Value="{StaticResource RocaMayaDangerSoftBrush}" /></DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>

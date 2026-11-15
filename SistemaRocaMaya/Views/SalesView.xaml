@@ -3,16 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Segoe UI">
     <UserControl.Resources>
-        <Style TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBluePrimaryBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,2" />
-            <Setter Property="Padding" Value="8,5" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AppTableHeader}" />
     </UserControl.Resources>
-    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="30,20">
+    <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -37,12 +30,9 @@
             <DatePicker Grid.Column="1" SelectedDate="{Binding SessionStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
             <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             <DatePicker Grid.Column="3" SelectedDate="{Binding SessionEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
-            <Button Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}"
-                    Height="34" Padding="12,0" Margin="0,0,6,0" FontSize="11" FontWeight="SemiBold"
-                    Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
-            <Button Grid.Column="6" Content="Imprimir" Command="{Binding PrintCashReportCommand}"
-                    Height="34" Padding="12,0" FontSize="11" FontWeight="SemiBold"
-                    Background="White" BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" Cursor="Hand" />
+            <Button Style="{StaticResource AppButton}" Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}"
+                    Margin="0,0,8,0" />
+            <Button Style="{StaticResource AppButton}" Grid.Column="6" Content="Imprimir" Command="{Binding PrintCashReportCommand}" />
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
