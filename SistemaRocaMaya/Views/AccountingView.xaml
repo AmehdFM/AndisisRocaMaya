@@ -318,8 +318,8 @@
                 <TextBlock Grid.Row="4" Text="{Binding KardexActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 
-            <Grid Visibility="{Binding FinancialPositionVisibility}">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="68" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <ScrollViewer Visibility="{Binding FinancialPositionVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="0,0,12,8">
                 <StackPanel Margin="0,0,0,8">
                     <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Estado de Situación Financiera" />
                     <WrapPanel>
@@ -333,7 +333,7 @@
                                 Style="{StaticResource ReportActionButtonStyle}" Height="28" />
                     </WrapPanel>
                 </StackPanel>
-                <Border Grid.Row="1" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
+                <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}"
                         BorderThickness="0,1" Margin="0,0,0,8">
                     <ItemsControl ItemsSource="{Binding FinancialPositionMetrics}">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -349,15 +349,51 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Border>
-                <DataGrid Grid.Row="2" ItemsSource="{Binding FinancialPositionLines}" RowStyle="{StaticResource StatementDataGridRowStyle}">
+                <DataGrid ScrollViewer.VerticalScrollBarVisibility="Disabled" MinRowHeight="30" RowHeight="NaN" ItemsSource="{Binding FinancialPositionLines}" RowStyle="{StaticResource StatementDataGridRowStyle}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="GRUPO" Binding="{Binding Group}" Width="1.2*" />
                         <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="2.0*" />
                         <DataGridTextColumn Header="SALDO" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="3" Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-            </Grid>
+                <StackPanel Margin="0,14,0,4">
+                    <TextBlock Text="Comparativa de activos, patrimonio y pasivos" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <Grid Height="150" MinWidth="78" Margin="0,20,8,0">
+                                <TextBlock Text="{Binding FinancialPositionScaleTop}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
+                                <TextBlock Text="{Binding FinancialPositionScaleMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
+                                <TextBlock Text="L 0.00" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
+                            </Grid>
+                            <Grid Height="{Binding FinancialPositionNegativeHeight}">
+                                <TextBlock Text="{Binding FinancialPositionScaleBottom}" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" Margin="0,0,8,0" />
+                            </Grid>
+                        </StackPanel>
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding FinancialPositionBars}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Amount}" Height="20" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                                        <Grid Height="150">
+                                            <Rectangle Width="48" Height="{Binding PositiveHeight}" VerticalAlignment="Bottom" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                        </Grid>
+                                        <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" />
+                                        <Grid Height="{Binding DataContext.FinancialPositionNegativeHeight, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <Rectangle Width="48" Height="{Binding NegativeHeight}" VerticalAlignment="Top" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                        </Grid>
+                                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                    <TextBlock Text="{Binding FinancialPositionRecommendation}" TextWrapping="Wrap" FontSize="13" Margin="0,12,0,0" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                </StackPanel>
+            </ScrollViewer>
 
             <ScrollViewer Visibility="{Binding IncomeStatementVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="0,0,12,8">

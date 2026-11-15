@@ -305,6 +305,13 @@ public sealed class AccountingViewModel : ObservableObject
 
     public ObservableCollection<AccountingIndicatorViewModel> ManagementIndicators { get; } = [];
 
+    public IReadOnlyList<FinancialPositionBar> FinancialPositionBars { get; private set; } = [];
+    public string FinancialPositionRecommendation { get; private set; } = "";
+    public string FinancialPositionScaleTop { get; private set; } = "";
+    public string FinancialPositionScaleMiddle { get; private set; } = "";
+    public string FinancialPositionScaleBottom { get; private set; } = "";
+    public double FinancialPositionNegativeHeight { get; private set; }
+
     public ObservableCollection<AccountingMetricViewModel> FinancialPositionMetrics { get; } =
     [
         new("ACTIVOS", "L 52,900.00", ""),
@@ -579,7 +586,10 @@ public sealed class AccountingViewModel : ObservableObject
         var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
         var rows = FinancialPositionLines.Select(line => new ReportStatementRow(
             line.Group, line.Account, line.Amount, line.IsTotal, line.IsSectionHeader)).ToArray();
-        return new FinancialPositionDocument(cutoff, rows);
+        var chart = new ReportChart("Comparativa de activos, patrimonio y pasivos",
+            ["Activos", "Patrimonio", "Pasivos"],
+            [new("Saldos al corte", [_reportAssets, _reportEquity, _reportPayables])]);
+        return new FinancialPositionDocument(cutoff, rows, chart, FinancialPositionRecommendation);
     }
 
     public TableReportDocument CreateJournalReport() => new(
@@ -648,23 +658,48 @@ public sealed class AccountingViewModel : ObservableObject
         FinancialPositionMetrics.Add(new("PASIVOS", FormatMoney(_reportPayables), ""));
         FinancialPositionMetrics.Add(new("PATRIMONIO", FormatMoney(_reportEquity), ""));
         FinancialPositionLines.Clear();
-        FinancialPositionLines.Add(new("ACTIVOS", "", "", false, true));
+        FinancialPositionLines.Add(new("ACTIVOS CORRIENTES", "", "", false, true));
         FinancialPositionLines.Add(new("", "Caja", FormatMoney(_reportCash), false));
         FinancialPositionLines.Add(new("", "Crédito por cobrar", FormatMoney(_reportReceivables), false));
-        FinancialPositionLines.Add(new("", "Inventario de mercadería · costo PEPS", FormatMoney(_reportInventory), false));
+        FinancialPositionLines.Add(new("", "Inventario de mercadería", FormatMoney(_reportInventory), false));
         FinancialPositionLines.Add(new("", "Pagos anticipados", FormatMoney(0m), false));
         FinancialPositionLines.Add(new("TOTAL ACTIVOS CORRIENTES", "", FormatMoney(_reportAssets), true));
         FinancialPositionLines.Add(new("ACTIVOS NO CORRIENTES", "", "", false, true));
         FinancialPositionLines.Add(new("", "Propiedad, planta y equipo neto", FormatMoney(0m), false));
+        FinancialPositionLines.Add(new("TOTAL ACTIVOS NO CORRIENTES", "", FormatMoney(0m), true));
         FinancialPositionLines.Add(new("TOTAL ACTIVOS", "", FormatMoney(_reportAssets), true));
-        FinancialPositionLines.Add(new("PASIVOS", "", "", false, true));
+        FinancialPositionLines.Add(new("PASIVOS CORRIENTES", "", "", false, true));
         FinancialPositionLines.Add(new("", "Proveedores", FormatMoney(_reportPayables), false));
+        FinancialPositionLines.Add(new("TOTAL PASIVOS CORRIENTES", "", FormatMoney(_reportPayables), true));
+        FinancialPositionLines.Add(new("PASIVOS NO CORRIENTES", "", "", false, true));
+        FinancialPositionLines.Add(new("", "Deudas a largo plazo", FormatMoney(0m), false));
+        FinancialPositionLines.Add(new("TOTAL PASIVOS NO CORRIENTES", "", FormatMoney(0m), true));
         FinancialPositionLines.Add(new("TOTAL PASIVOS", "", FormatMoney(_reportPayables), true));
         FinancialPositionLines.Add(new("PATRIMONIO", "", "", false, true));
         FinancialPositionLines.Add(new("", "Capital y resultados acumulados", FormatMoney(_reportEquity - _reportNetIncomeAtCutoff), false));
         FinancialPositionLines.Add(new("", "Resultado neto acumulado al corte", FormatMoney(_reportNetIncomeAtCutoff), false));
         FinancialPositionLines.Add(new("TOTAL PATRIMONIO", "", FormatMoney(_reportEquity), true));
         FinancialPositionLines.Add(new("TOTAL PASIVOS Y PATRIMONIO", "", FormatMoney(_reportPayables + _reportEquity), true));
+        var balances = new (string Name, decimal Amount)[]
+        {
+            ("Activos", _reportAssets), ("Patrimonio", _reportEquity), ("Pasivos", _reportPayables)
+        };
+        var maximum = Math.Max(1m, balances.Max(item => Math.Abs(item.Amount)));
+        var minimum = Math.Min(0m, balances.Min(item => item.Amount));
+        FinancialPositionBars = balances.Select(item => new FinancialPositionBar(item.Name, FormatMoney(item.Amount),
+            (double)(Math.Max(0m, item.Amount) / maximum * 150m),
+            (double)(-Math.Min(0m, item.Amount) / maximum * 150m))).ToArray();
+        FinancialPositionScaleTop = FormatMoney(maximum);
+        FinancialPositionScaleMiddle = FormatMoney(maximum / 2m);
+        FinancialPositionScaleBottom = minimum < 0 ? FormatMoney(minimum) : "";
+        FinancialPositionNegativeHeight = (double)(-minimum / maximum * 150m);
+        FinancialPositionRecommendation = new FinancialPositionAssessment(_reportAssets, _reportPayables).Recommendation;
+        OnPropertyChanged(nameof(FinancialPositionBars));
+        OnPropertyChanged(nameof(FinancialPositionScaleTop));
+        OnPropertyChanged(nameof(FinancialPositionScaleMiddle));
+        OnPropertyChanged(nameof(FinancialPositionScaleBottom));
+        OnPropertyChanged(nameof(FinancialPositionNegativeHeight));
+        OnPropertyChanged(nameof(FinancialPositionRecommendation));
     }
 
     private void RefreshIncomeStatementOutput()
@@ -1069,3 +1104,5 @@ public sealed record StatementLineViewModel(string Group, string Account, string
 
 public sealed record IncomeChartBar(double AboveZero, double BelowZero, string Amount, decimal Value);
 public sealed record IncomeChartMonth(string Label, IncomeChartBar Sales, IncomeChartBar Costs, IncomeChartBar NetIncome);
+
+public sealed record FinancialPositionBar(string Name, string Amount, double PositiveHeight, double NegativeHeight);
