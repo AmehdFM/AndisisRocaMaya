@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
+using SistemaRocaMaya.Services.Reports;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -67,8 +68,21 @@ public sealed class SalesViewModel : ObservableObject
         CashSessions.Filter = FilterSession;
         Store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
         SelectedSession = Store.CashSessions.FirstOrDefault();
-        ExportCashReportCommand = new RelayCommand(() => CashReportActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportCashReportCommand = new RelayCommand(() => PdfExportService.Export(CreateCashReport, "Ventas_por_turno.pdf", message => CashReportActionMessage = message));
         PrintCashReportCommand = new RelayCommand(() => CashReportActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
+    }
+
+    public TableReportDocument CreateCashReport()
+    {
+        if (SelectedSession is not { } session || !CashSessions.Contains(session))
+            throw new InvalidOperationException("Selecciona una caja dentro del período consultado.");
+        return new("Ventas en efectivo por turno", $"Caja {session.Id} · Apertura: {session.OpenedText} · Cierre: {session.ClosedText}",
+            [new("Ticket"), new("Fecha y hora", 1.5f), new("Cliente", 1.5f), new("Artículos", 0.7f, true), new("Total efectivo", 1, true)],
+            SelectedCashSales.Select(sale => new ReportRow(
+                [sale.Ticket, sale.DateText, sale.CustomerName, sale.Lines.Count.ToString(), sale.TotalText])).ToArray(),
+            landscape: true, notes: [
+                $"Fondo inicial: {session.OpeningAmountText} · Ventas en efectivo: {OperationalDemoStore.FormatMoney(session.CashSales)}",
+                $"Esperado: {session.ExpectedAmountText} · Contado: {session.ClosingAmountText} · Diferencia: {session.DifferenceText}"]);
     }
 
     private bool FilterSession(object item)

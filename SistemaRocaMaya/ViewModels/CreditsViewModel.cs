@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
+using SistemaRocaMaya.Services.Reports;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -107,7 +108,7 @@ public sealed class CreditsViewModel : ObservableObject
         CustomersWithCredit.Filter = FilterCustomer;
         AgingCustomers = new ListCollectionView(_allAgingCustomers);
         AgingCustomers.Filter = FilterAgingCustomer;
-        ExportAgingReportCommand = new RelayCommand(() => AgingActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportAgingReportCommand = new RelayCommand(() => PdfExportService.Export(CreateAgingReport, "Antiguedad_saldos.pdf", message => AgingActionMessage = message));
         PrintAgingReportCommand = new RelayCommand(() => AgingActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
         ShowCustomerListCommand = new RelayCommand(() => SelectedCustomer = null);
         Store.Customers.CollectionChanged += Customers_CollectionChanged;
@@ -116,6 +117,26 @@ public sealed class CreditsViewModel : ObservableObject
             SubscribeCustomer(customer);
         }
         RefreshAgingCustomers();
+    }
+
+    public TableReportDocument CreateAgingReport()
+    {
+        var customers = AgingCustomers.Cast<CreditAgingCustomerViewModel>().ToArray();
+        var chart = new ReportChart("Saldos por tramo de antigüedad",
+            ["0–30 días", "31–60 días", "61–90 días", "Más de 90 días"],
+            [new("Saldo pendiente", [customers.Sum(row => row.Days0To30), customers.Sum(row => row.Days31To60),
+                customers.Sum(row => row.Days61To90), customers.Sum(row => row.Over90)])]);
+        var rankings = AgingRankings.Select(ranking => $"{ranking.Title}: " +
+            (ranking.Rows.Count == 0 ? ranking.EmptyMessage
+                : string.Join(" · ", ranking.Rows.Select(row => $"{row.CustomerName} ({row.Value})")))).ToArray();
+        return new("Antigüedad de cuentas por cobrar", $"Saldos al {AgingAsOfDate:dd/MM/yyyy} · Búsqueda: {AgingSearchText}",
+            [new("Cliente", 1.4f), new("Contacto"), new("Saldo", 1, true), new("0–30 días", 1, true),
+                new("31–60 días", 1, true), new("61–90 días", 1, true), new("Más de 90", 1, true),
+                new("Vencimiento"), new("Días de mora"), new("Estado", 1.3f)],
+            customers.Select(row => new ReportRow([row.CustomerName, row.Phone, row.BalanceText,
+                row.Days0To30Text, row.Days31To60Text, row.Days61To90Text, row.Over90Text,
+                row.OldestDueDateText, row.DaysOverdueText, row.Status])).ToArray(),
+            landscape: true, notes: rankings, chart: chart);
     }
 
     private bool FilterCustomer(object item) => item is CustomerRecord customer

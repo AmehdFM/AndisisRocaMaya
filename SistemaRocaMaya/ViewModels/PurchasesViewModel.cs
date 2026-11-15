@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
 using SistemaRocaMaya.Services;
+using SistemaRocaMaya.Services.Reports;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -132,7 +133,7 @@ public sealed class PurchasesViewModel : ObservableObject
         PurchasesView.Filter = FilterPurchase;
         PurchaseCostRows = new ListCollectionView(_allPurchaseCostRows);
         PurchaseCostRows.Filter = FilterPurchaseCostRow;
-        ExportPurchaseReportCommand = new RelayCommand(() => PurchaseReportActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportPurchaseReportCommand = new RelayCommand(() => PdfExportService.Export(CreatePurchaseReport, "Compras_por_proveedor.pdf", message => PurchaseReportActionMessage = message));
         PrintPurchaseReportCommand = new RelayCommand(() => PurchaseReportActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
         _store.Purchases.CollectionChanged += Purchases_CollectionChanged;
         _store.Suppliers.CollectionChanged += Suppliers_CollectionChanged;
@@ -146,6 +147,17 @@ public sealed class PurchasesViewModel : ObservableObject
         SelectedSupplier = Suppliers.FirstOrDefault();
         RefreshPurchaseCostRows();
     }
+
+    public TableReportDocument CreatePurchaseReport() => new(
+        "Historial de compras por proveedor",
+        $"{SelectedReportSupplier} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · Producto: {ReportProductSearchText}",
+        [new("Fecha"), new("Compra", 0.8f), new("Proveedor", 1.4f), new("Producto", 1.4f), new("Cantidad", 0.7f, true),
+            new("Costo unitario", 1, true), new("Costo anterior", 1, true), new("Variación L", 1, true),
+            new("Variación %", 0.9f, true), new("Total", 1, true)],
+        PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Select(row => new ReportRow(
+            [row.DateText, row.PurchaseNumber, row.SupplierName, row.ProductName, row.QuantityText,
+                row.UnitCostText, row.PreviousUnitCostText, row.UnitCostDifferenceText, row.UnitCostVariationText, row.LineTotalText])).ToArray(),
+        landscape: true, notes: [$"Compras totales: {PurchaseReportPurchaseCountText} · Productos totales: {PurchaseReportLineCountText} · Monto acumulado: {PurchaseReportTotalText}"]);
 
     private bool FilterProductRow(object item) => item is PurchaseEntryViewModel row
         && (string.IsNullOrWhiteSpace(ProductSearchText)

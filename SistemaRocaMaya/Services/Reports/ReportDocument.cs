@@ -14,11 +14,13 @@ public abstract class ReportDocument : IDocument
     protected const string Divider = "#C8DCE8";
     private readonly string _title;
     private readonly string _period;
+    private readonly bool _landscape;
 
-    protected ReportDocument(string title, string period)
+    protected ReportDocument(string title, string period, bool landscape = false)
     {
         _title = title;
         _period = period;
+        _landscape = landscape;
     }
 
     public DocumentMetadata GetMetadata() => new() { Title = _title, Author = "Consul Farma Roca Maya" };
@@ -27,7 +29,7 @@ public abstract class ReportDocument : IDocument
     {
         container.Page(page =>
         {
-            page.Size(PageSizes.Letter);
+            page.Size(_landscape ? PageSizes.Letter.Landscape() : PageSizes.Letter);
             page.Margin(36);
             page.DefaultTextStyle(style => style.FontFamily("Lato").FontSize(10).FontColor(Ink));
             page.Header().PaddingBottom(18).Column(column =>

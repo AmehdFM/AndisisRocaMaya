@@ -68,12 +68,12 @@ public sealed class AccountingViewModel : ObservableObject
         _selectedKardexProduct = KardexProducts.FirstOrDefault(product => product.Name == "Arroz 1 libra")
             ?? KardexProducts.FirstOrDefault();
         InitializeOperationBasedReports();
-        ExportJournalCommand = new RelayCommand(() => JournalActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
-        ExportLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportJournalCommand = new RelayCommand(() => PdfExportService.Export(CreateJournalReport, "Libro_diario.pdf", message => JournalActionMessage = message));
+        ExportLedgerCommand = new RelayCommand(() => PdfExportService.Export(CreateLedgerReport, "Libro_mayor.pdf", message => LedgerActionMessage = message));
         PrintLedgerCommand = new RelayCommand(() => LedgerActionMessage = "Demostración: la impresión no se envía a una impresora en este prototipo.");
         ExportFinancialPositionCommand = new RelayCommand(ExportFinancialPosition);
-        ExportIncomeStatementCommand = new RelayCommand(() => StatementActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
-        ExportKardexCommand = new RelayCommand(() => KardexActionMessage = "Demostración: la exportación a PDF no genera un archivo en este prototipo.");
+        ExportIncomeStatementCommand = new RelayCommand(() => PdfExportService.Export(CreateIncomeStatementReport, "Estado_resultados.pdf", message => StatementActionMessage = message));
+        ExportKardexCommand = new RelayCommand(() => PdfExportService.Export(CreateKardexReport, "Kardex.pdf", message => KardexActionMessage = message));
         PrintKardexCommand = new RelayCommand(() => KardexActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
         PrintJournalCommand = new RelayCommand(() => JournalActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta horizontal · Encabezados previstos para repetirse.");
         PrintFinancialPositionCommand = new RelayCommand(() => StatementActionMessage = "Vista de impresión de demostración · Página 1 de 1 · Papel carta vertical · Encabezados previstos para repetirse.");
@@ -569,23 +569,63 @@ public sealed class AccountingViewModel : ObservableObject
         RefreshIncomeStatementOutput();
     }
 
-    private void ExportFinancialPosition()
+    private void ExportFinancialPosition() => PdfExportService.Export(
+        CreateFinancialPositionReport, $"Estado_situacion_financiera_{FinancialPositionCutoffMonth:yyyy-MM}.pdf",
+        message => StatementActionMessage = message);
+
+    public FinancialPositionDocument CreateFinancialPositionReport()
     {
-        try
-        {
-            RefreshFinancialPositionOutput();
-            var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
-            var rows = FinancialPositionLines.Select(line => new ReportStatementRow(
-                line.Group, line.Account, line.Amount, line.IsTotal, line.IsSectionHeader)).ToArray();
-            var path = PdfExportService.Save(new FinancialPositionDocument(cutoff, rows),
-                $"Estado_situacion_financiera_{cutoff:yyyy-MM}.pdf");
-            if (path is not null) StatementActionMessage = $"PDF guardado en {path}";
-        }
-        catch (Exception exception)
-        {
-            StatementActionMessage = $"No se pudo exportar el PDF. {exception.Message}";
-            MessageBox.Show(StatementActionMessage, "Exportar PDF", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        RefreshFinancialPositionOutput();
+        var cutoff = LastDayOfMonth(FinancialPositionCutoffMonth ?? DateTime.Today);
+        var rows = FinancialPositionLines.Select(line => new ReportStatementRow(
+            line.Group, line.Account, line.Amount, line.IsTotal, line.IsSectionHeader)).ToArray();
+        return new FinancialPositionDocument(cutoff, rows);
+    }
+
+    public TableReportDocument CreateJournalReport() => new(
+        "Libro Diario Contable", $"{FormatPeriod(JournalStartDate, JournalEndDate)} · Búsqueda: {JournalSearchText}",
+        [new("Fecha"), new("Documento"), new("Concepto", 2), new("Cuenta", 1.5f), new("Debe", 1, true), new("Haber", 1, true)],
+        JournalEntries.Cast<JournalEntryViewModel>().Select(entry => new ReportRow(
+            [entry.DateText, entry.Reference, entry.Description, entry.Account, entry.DebitText, entry.CreditText])).ToArray(),
+        landscape: true);
+
+    public TableReportDocument CreateLedgerReport() => new(
+        "Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)} · Búsqueda: {LedgerSearchText}",
+        [new("Fecha"), new("Concepto", 2), new("Debe", 1, true), new("Haber", 1, true), new("Saldo", 1, true)],
+        LedgerEntries.Cast<LedgerEntryViewModel>().Select(entry => new ReportRow(
+            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray(),
+        landscape: true);
+
+    public TableReportDocument CreateKardexReport()
+    {
+        if (SelectedKardexProduct is null) throw new InvalidOperationException("Selecciona un producto para exportar su Kardex.");
+        return new("Kardex de Inventario PEPS",
+            $"{SelectedKardexProduct.Name} · {FormatPeriod(KardexStartDate, KardexEndDate)}",
+            [new("Fecha"), new("Movimiento", 1.6f), new("Entrada cant.", 0.8f, true),
+                new("Entrada costo unit.", 1, true), new("Entrada total", 1, true),
+                new("Salida cant.", 0.8f, true), new("Salida costo unit.", 1, true), new("Salida total", 1, true),
+                new("Saldo cant.", 0.8f, true), new("Saldo costo unit.", 1, true), new("Saldo total", 1, true)],
+            KardexMovements.Cast<KardexMovementViewModel>().Select(entry => new ReportRow(
+                [entry.DateText, entry.Description, entry.EntryQuantity, entry.EntryUnitCost, entry.EntryTotal,
+                    entry.ExitQuantity, entry.ExitUnitCost, entry.ExitTotal, entry.BalanceQuantity, entry.BalanceUnitCost, entry.BalanceTotal])).ToArray(),
+            landscape: true, notes: [$"{KardexClosingStock} · {KardexClosingValue}"]);
+    }
+
+    public TableReportDocument CreateIncomeStatementReport()
+    {
+        RefreshIncomeStatementOutput();
+        var months = IncomeChartMonths.ToArray();
+        var chart = new ReportChart("Evolución mensual",
+            months.Select(month => month.Label).ToArray(),
+            [
+                new("Ventas", months.Select(month => month.Sales.Value).ToArray()),
+                new("Costos y gastos", months.Select(month => month.Costs.Value).ToArray()),
+                new("Utilidad neta", months.Select(month => month.NetIncome.Value).ToArray())
+            ]);
+        return new("Estado de Resultados", $"Meses: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}",
+            [new("Categoría", 1.7f), new("Descripción", 2.2f), new("Cantidad", 1, true)],
+            IncomeStatementLines.Select(line => new ReportRow([line.Group, line.Account, line.Amount], line.IsTotal)).ToArray(),
+            chart: chart);
     }
 
     private void RefreshFinancialPositionOutput()
@@ -698,7 +738,7 @@ public sealed class AccountingViewModel : ObservableObject
         IncomeChartBar Bar(decimal amount) => new(
             (double)(Math.Max(0m, amount) / scale * 100m),
             (double)(-Math.Min(0m, amount) / scale * 100m),
-            FormatMoney(amount));
+            FormatMoney(amount), amount);
 
         IncomeChartMonths.Clear();
         foreach (var month in monthlyValues)
@@ -1027,5 +1067,5 @@ public sealed record KardexMovementViewModel(
 
 public sealed record StatementLineViewModel(string Group, string Account, string Amount, bool IsTotal, bool IsSectionHeader = false);
 
-public sealed record IncomeChartBar(double AboveZero, double BelowZero, string Amount);
+public sealed record IncomeChartBar(double AboveZero, double BelowZero, string Amount, decimal Value);
 public sealed record IncomeChartMonth(string Label, IncomeChartBar Sales, IncomeChartBar Costs, IncomeChartBar NetIncome);
