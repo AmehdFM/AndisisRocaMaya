@@ -79,6 +79,25 @@ public sealed class AccountingViewModel : ObservableObject
         PrintFinancialPositionCommand = new RelayCommand(() => ReportPrintService.Print(CreateFinancialPositionReport, message => StatementActionMessage = message));
         PrintIncomeStatementCommand = new RelayCommand(() => ReportPrintService.Print(CreateIncomeStatementReport, message => StatementActionMessage = message));
         SubscribeToDemoChanges();
+        ExportSummaryCommand = new RelayCommand(() => PdfExportService.Export(CreateSummaryReport,
+            "Resumen_contable.pdf", message => SummaryActionMessage = message));
+        PrintSummaryCommand = new RelayCommand(() => ReportPrintService.Print(CreateSummaryReport,
+            message => SummaryActionMessage = message));
+    }
+
+    private string _summaryActionMessage = "";
+    public string SummaryActionMessage
+    {
+        get => _summaryActionMessage;
+        private set => SetProperty(ref _summaryActionMessage, value);
+    }
+    public IRelayCommand ExportSummaryCommand { get; }
+    public IRelayCommand PrintSummaryCommand { get; }
+
+    public FinancialIndicatorsDocument CreateSummaryReport()
+    {
+        RefreshManagementIndicators(CalculateSaleCosts());
+        return new FinancialIndicatorsDocument(DateTime.Today, ManagementIndicators.ToArray());
     }
 
     public string SelectedSection

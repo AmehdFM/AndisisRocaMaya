@@ -102,6 +102,12 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Resumen contable" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                            <Button Content="Exportar PDF" Command="{Binding ExportSummaryCommand}"
+                                    Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,6,0" />
+                            <Button Content="Imprimir" Command="{Binding PrintSummaryCommand}"
+                                    Style="{StaticResource ReportActionButtonStyle}" />
+                        </StackPanel>
                         <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                                 BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1">
                             <ItemsControl ItemsSource="{Binding SummaryMetrics}">
@@ -176,6 +182,8 @@
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
                         </TabControl>
+                        <TextBlock Text="{Binding SummaryActionMessage}" TextWrapping="Wrap" Margin="0,6,0,0"
+                                   Style="{StaticResource ReportMetadataText}" />
 
                     </StackPanel>
                 </ScrollViewer>
