@@ -17,7 +17,7 @@ public sealed class CreditsViewModel : ObservableObject
     private string _historySearchText = "";
     private string _statusMessage = "";
     private CustomerRecord? _selectedCustomer;
-    private string _agingSearchText = "";
+    private int _selectedAgingCustomerId;
     private DateTime _agingAsOfDate = DateTime.Today;
     private string _agingActionMessage = "Plazo de crédito: 30 días.";
     private const int DemoCreditTermDays = 30;
@@ -34,12 +34,13 @@ public sealed class CreditsViewModel : ObservableObject
         get => _agingActionMessage;
         private set => SetProperty(ref _agingActionMessage, value);
     }
-    public string AgingSearchText
+    public IReadOnlyList<AgingCustomerOption> AgingCustomerOptions { get; private set; } = [];
+    public int SelectedAgingCustomerId
     {
-        get => _agingSearchText;
+        get => _selectedAgingCustomerId;
         set
         {
-            if (SetProperty(ref _agingSearchText, value))
+            if (SetProperty(ref _selectedAgingCustomerId, value))
             {
                 AgingCustomers.Refresh();
                 RefreshAgingSummary();
@@ -117,6 +118,7 @@ public sealed class CreditsViewModel : ObservableObject
         {
             SubscribeCustomer(customer);
         }
+        RefreshAgingCustomerOptions();
         RefreshAgingCustomers();
     }
 
@@ -130,7 +132,8 @@ public sealed class CreditsViewModel : ObservableObject
         var rankings = AgingRankings.Select(ranking => $"{ranking.Title}: " +
             (ranking.Rows.Count == 0 ? ranking.EmptyMessage
                 : string.Join(" · ", ranking.Rows.Select(row => $"{row.CustomerName} ({row.Value})")))).ToArray();
-        return new("Antigüedad de cuentas por cobrar", $"Saldos al {AgingAsOfDate:dd/MM/yyyy} · Búsqueda: {AgingSearchText}",
+        var customerName = AgingCustomerOptions.FirstOrDefault(option => option.Id == SelectedAgingCustomerId)?.Name;
+        return new("Antigüedad de cuentas por cobrar", $"Saldos al {AgingAsOfDate:dd/MM/yyyy} · {customerName}",
             [new("Cliente", 1.4f), new("Contacto"), new("Saldo", 1, true), new("0–30 días", 1, true),
                 new("31–60 días", 1, true), new("61–90 días", 1, true), new("Más de 90", 1, true),
                 new("Vencimiento"), new("Días de mora"), new("Estado", 1.3f)],
@@ -154,9 +157,23 @@ public sealed class CreditsViewModel : ObservableObject
             || movement.Date.ToString("dd/MM/yyyy").Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
     private bool FilterAgingCustomer(object item) => item is CreditAgingCustomerViewModel customer
-        && (string.IsNullOrWhiteSpace(AgingSearchText)
-            || customer.CustomerName.Contains(AgingSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
-            || customer.Phone.Contains(AgingSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        && (SelectedAgingCustomerId == 0 || customer.CustomerId == SelectedAgingCustomerId);
+
+    private void RefreshAgingCustomerOptions()
+    {
+        var comparer = StringComparer.Create(OperationalDemoStore.HondurasCulture, ignoreCase: true);
+        AgingCustomerOptions =
+        [
+            new(0, "Todos los clientes"),
+            .. Store.Customers.OrderBy(customer => customer.Name, comparer).ThenBy(customer => customer.Id)
+                .Select(customer => new AgingCustomerOption(customer.Id, customer.Name))
+        ];
+        if (!AgingCustomerOptions.Any(option => option.Id == SelectedAgingCustomerId))
+            SelectedAgingCustomerId = 0;
+
+        OnPropertyChanged(nameof(AgingCustomerOptions));
+        OnPropertyChanged(nameof(SelectedAgingCustomerId));
+    }
 
     private void SubscribeCustomer(CustomerRecord customer)
     {
@@ -255,6 +272,7 @@ public sealed class CreditsViewModel : ObservableObject
         var status = overdueDays == 0 ? "Vigente" : overdueDays <= 30 ? "Mora de 1–30 días" : "Mora mayor a 30 días";
 
         return new CreditAgingCustomerViewModel(
+            customer.Id,
             customer.Name,
             customer.Phone,
             days0To30 + days31To60 + days61To90 + over90,
@@ -294,10 +312,10 @@ public sealed class CreditsViewModel : ObservableObject
         {
             foreach (CustomerRecord customer in e.NewItems)
             {
-                customer.PropertyChanged += Customer_PropertyChanged;
-                customer.CreditHistory.CollectionChanged += CreditHistory_CollectionChanged;
+                SubscribeCustomer(customer);
             }
         }
+        RefreshAgingCustomerOptions();
         CustomersWithCredit.Refresh();
         RefreshAgingCustomers();
     }
@@ -316,7 +334,10 @@ public sealed class CreditsViewModel : ObservableObject
     private void CreditHistory_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => RefreshAgingCustomers();
 }
 
+public sealed record AgingCustomerOption(int Id, string Name);
+
 public sealed record CreditAgingCustomerViewModel(
+    int CustomerId,
     string CustomerName,
     string Phone,
     decimal Balance,
