@@ -34,7 +34,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="USUARIO" Binding="{Binding Nombre}" Width="2*" />
                             <DataGridTextColumn Header="ROL" Binding="{Binding Rol.Nombre}" Width="1.2*" />
-                            <DataGridCheckBoxColumn Header="ACTIVO" Binding="{Binding Activo}" Width="0.8*" />
+                            <DataGridCheckBoxColumn HeaderStyle="{StaticResource AppCenteredTableHeader}" Header="ACTIVO" Binding="{Binding Activo}" Width="0.8*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -47,10 +47,10 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ROL" Binding="{Binding Nombre}" Width="0.8*" IsReadOnly="True" />
                             <DataGridTextColumn Header="PANTALLAS" Binding="{Binding PermisosTexto}" Width="1.7*" IsReadOnly="True" />
-                            <DataGridCheckBoxColumn Header="ABRIR CAJA" Binding="{Binding PuedeAbrirCaja, UpdateSourceTrigger=PropertyChanged}" Width="0.9*" />
-                            <DataGridCheckBoxColumn Header="CONCEDER CRÉDITO" Binding="{Binding PuedeVenderCredito, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
-                            <DataGridCheckBoxColumn Header="CREAR PRODUCTOS" Binding="{Binding PuedeCrearProductos, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
-                            <DataGridCheckBoxColumn Header="CREAR CLIENTES" Binding="{Binding PuedeCrearClientes, UpdateSourceTrigger=PropertyChanged}" Width="1.0*" />
+                            <DataGridCheckBoxColumn HeaderStyle="{StaticResource AppCenteredTableHeader}" Header="ABRIR CAJA" Binding="{Binding PuedeAbrirCaja, UpdateSourceTrigger=PropertyChanged}" Width="0.9*" />
+                            <DataGridCheckBoxColumn HeaderStyle="{StaticResource AppCenteredTableHeader}" Header="CONCEDER CRÉDITO" Binding="{Binding PuedeVenderCredito, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
+                            <DataGridCheckBoxColumn HeaderStyle="{StaticResource AppCenteredTableHeader}" Header="CREAR PRODUCTOS" Binding="{Binding PuedeCrearProductos, UpdateSourceTrigger=PropertyChanged}" Width="1.1*" />
+                            <DataGridCheckBoxColumn HeaderStyle="{StaticResource AppCenteredTableHeader}" Header="CREAR CLIENTES" Binding="{Binding PuedeCrearClientes, UpdateSourceTrigger=PropertyChanged}" Width="1.0*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

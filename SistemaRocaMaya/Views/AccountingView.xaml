@@ -222,8 +222,8 @@
                             <DataGridTextColumn Header="HORA" Binding="{Binding TimeText}" Width="0.9*" />
                             <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.5*" />
                             <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.3*" />
-                            <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                            <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                            <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                            <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                         </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
@@ -260,7 +260,8 @@
                 <TabControl Grid.Row="2">
                     <TabItem Header="Detalle de la cuenta">
                         <DockPanel Margin="0,8,0,0">
-                            <DataGrid ItemsSource="{Binding LedgerEntries}" RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
+                            <DataGrid ItemsSource="{Binding LedgerEntries}" ColumnHeaderStyle="{StaticResource AppCenteredTableHeader}"
+                                      RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
                                 <DataGrid.Resources>
                                     <Style x:Key="LedgerCellTextStyle" TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -268,11 +269,6 @@
                                         <Setter Property="TextAlignment" Value="Center" />
                                     </Style>
                                 </DataGrid.Resources>
-                                <DataGrid.ColumnHeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    </Style>
-                                </DataGrid.ColumnHeaderStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
                                     <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
@@ -288,10 +284,10 @@
                             <DataGrid ItemsSource="{Binding LedgerTotals}" RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.5*" />
-                                    <DataGridTextColumn Header="SALDO INICIAL" Binding="{Binding OpeningText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                    <DataGridTextColumn Header="SALDO FINAL" Binding="{Binding ClosingText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                    <DataGridTextColumn Header="SALDO INICIAL" Binding="{Binding OpeningText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                                    <DataGridTextColumn Header="SALDO FINAL" Binding="{Binding ClosingText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </DockPanel>
@@ -330,15 +326,15 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="100" />
                         <DataGridTextColumn Header="MOVIMIENTO" Binding="{Binding Description}" Width="190" />
-                        <DataGridTextColumn Header="ENTRADA · CANT." Binding="{Binding EntryQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding EntryUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding EntryTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="SALIDA · CANT." Binding="{Binding ExitQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding ExitUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding ExitTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="SALDO · CANT." Binding="{Binding BalanceQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding BalanceUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding BalanceTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="ENTRADA · CANT." Binding="{Binding EntryQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding EntryUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding EntryTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="SALIDA · CANT." Binding="{Binding ExitQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding ExitUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding ExitTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="SALDO · CANT." Binding="{Binding BalanceQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding BalanceUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding BalanceTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <TextBlock Grid.Row="4" Text="{Binding KardexActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
@@ -383,7 +379,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="GRUPO" Binding="{Binding Group}" Width="1.2*" />
                         <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="2.0*" />
-                        <DataGridTextColumn Header="SALDO" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        <DataGridTextColumn Header="SALDO" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <StackPanel Margin="0,14,0,4">
@@ -454,7 +450,7 @@
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
                                 <DataGridTextColumn Header="Descripción" Binding="{Binding Account}" Width="2.2*" />
-                                <DataGridTextColumn Header="Cantidad" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                <DataGridTextColumn Header="Cantidad" Binding="{Binding Amount}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>

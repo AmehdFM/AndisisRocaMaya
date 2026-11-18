@@ -79,18 +79,18 @@
                         <DataGridTextColumn Header="PRODUCTO" Binding="{Binding Name}" Width="1.5*" IsReadOnly="True" />
                         <DataGridTextColumn Header="ID" Binding="{Binding ProductId}" Width="0.7*" IsReadOnly="True" />
                         <DataGridTextColumn Header="EXISTENCIA" Binding="{Binding StockText}" Width="0.65*" IsReadOnly="True" />
-                        <DataGridTemplateColumn Header="CANTIDAD" Width="0.8*">
+                        <DataGridTemplateColumn Header="CANTIDAD" HeaderStyle="{StaticResource AppCenteredTableHeader}" Width="0.8*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate><TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                                        Height="30" Padding="5,0" VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Center" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
+                                                       TextAlignment="Center" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="COSTO UNIT." Width="0.9*">
+                        <DataGridTemplateColumn Header="COSTO UNIT." HeaderStyle="{StaticResource AppRightTableHeader}" Width="0.9*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate><TextBox Text="{Binding UnitCostText, UpdateSourceTrigger=PropertyChanged}"
                                                        Height="30" Padding="5,0" VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Right" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
+                                                       TextAlignment="Right" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="VENCE" Width="1.05*" MinWidth="120">
@@ -177,12 +177,12 @@
                         <DataGridTextColumn Header="COMPRA" Binding="{Binding PurchaseNumber}" Width="0.7*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="PROVEEDOR" Binding="{Binding SupplierName}" Width="1.2*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="PRODUCTO" Binding="{Binding ProductName}" Width="1.3*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
-                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding QuantityText}" Width="0.65*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
-                        <DataGridTextColumn Header="COSTO UNITARIO" Binding="{Binding UnitCostText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
-                        <DataGridTextColumn Header="COSTO ANTERIOR" Binding="{Binding PreviousUnitCostText}" Width="1.1*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
-                        <DataGridTextColumn Header="VARIACIÓN L" Binding="{Binding UnitCostDifferenceText}" Width="0.9*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
-                        <DataGridTextColumn Header="VARIACIÓN %" Binding="{Binding UnitCostVariationText}" Width="0.8*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
-                        <DataGridTextColumn Header="TOTAL DE LÍNEA" Binding="{Binding LineTotalText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" />
+                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding QuantityText}" Width="0.65*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO UNITARIO" Binding="{Binding UnitCostText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO ANTERIOR" Binding="{Binding PreviousUnitCostText}" Width="1.1*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="VARIACIÓN L" Binding="{Binding UnitCostDifferenceText}" Width="0.9*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="VARIACIÓN %" Binding="{Binding UnitCostVariationText}" Width="0.8*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="TOTAL DE LÍNEA" Binding="{Binding LineTotalText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                     </DataGrid.Columns>
                 </DataGrid>
                 <TextBlock Grid.Row="3" Text="{Binding PurchaseReportActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
