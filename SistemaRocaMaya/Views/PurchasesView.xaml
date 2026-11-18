@@ -150,7 +150,7 @@
           <TabItem Header="Historial de compras por proveedor">
             <Grid Margin="0,8,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -163,15 +163,38 @@
                     <Button Style="{StaticResource AppButton}" Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportPurchaseReportCommand}" Margin="0,0,8,0" />
                     <Button Style="{StaticResource AppButton}" Grid.Column="7" Content="Imprimir" Command="{Binding PrintPurchaseReportCommand}" />
                 </Grid>
-                <Border Grid.Row="1" Padding="0,5" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Margin="0,0,0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Compras totales" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportPurchaseCountText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" /></StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Productos totales" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportLineCountText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" /></StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Monto acumulado" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportTotalText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" /></StackPanel>
-                    </Grid>
-                </Border>
+                <CheckBox Grid.Row="1" Content="Detalles de proveedor" IsChecked="{Binding ShowSupplierDetails}"
+                          Margin="0,0,0,8" VerticalAlignment="Center" />
                 <DataGrid Grid.Row="2" MinRowHeight="27" ScrollViewer.HorizontalScrollBarVisibility="Auto" ItemsSource="{Binding PurchaseCostRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowSupplierDetails}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
+                        <DataGridTextColumn Header="PRODUCTO" Binding="{Binding ProductName}" Width="1.3*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
+                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding QuantityText}" Width="0.65*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="COSTO" Binding="{Binding UnitCostText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="TOTAL" Binding="{Binding LineTotalText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <DataGrid Grid.Row="2" MinRowHeight="27" ScrollViewer.HorizontalScrollBarVisibility="Auto" ItemsSource="{Binding PurchaseCostRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowSupplierDetails}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="COMPRA" Binding="{Binding PurchaseNumber}" Width="0.7*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
@@ -185,7 +208,15 @@
                         <DataGridTextColumn Header="TOTAL DE LÍNEA" Binding="{Binding LineTotalText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <TextBlock Grid.Row="3" Text="{Binding PurchaseReportActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                <Border Grid.Row="3" Padding="0,5" Background="{StaticResource RocaMayaBlueSurfaceBrush}" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1" Margin="0,8,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Compras totales" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportPurchaseCountText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" /></StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Productos totales" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportLineCountText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" /></StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center"><TextBlock Text="Valor total" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding PurchaseReportTotalText}" FontSize="13" VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" /></StackPanel>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="4" Text="{Binding PurchaseReportActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
           </TabItem>
           <TabItem Header="Proveedores" Visibility="{Binding DataContext.SupplierTabVisibility, RelativeSource={RelativeSource AncestorType=Window}}">

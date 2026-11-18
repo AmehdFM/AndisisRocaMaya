@@ -3,8 +3,8 @@ using QuestPDF.Infrastructure;
 
 namespace SistemaRocaMaya.Services.Reports;
 
-public sealed record ReportColumn(string Title, float Width = 1, bool Numeric = false);
-public sealed record ReportRow(IReadOnlyList<string> Cells, bool IsTotal = false);
+public sealed record ReportColumn(string Title, float Width = 1, bool Numeric = false, bool Centered = false, string? Group = null);
+public sealed record ReportRow(IReadOnlyList<string> Cells, bool IsTotal = false, bool StartsGroup = false);
 
 public sealed class TableReportDocument : ReportDocument
 {
@@ -12,10 +12,12 @@ public sealed class TableReportDocument : ReportDocument
     private readonly IReadOnlyList<ReportRow> _rows;
     private readonly IReadOnlyList<string> _notes;
     private readonly ReportChart? _chart;
+    private readonly ReportTableSummary? _summary;
+    private readonly bool _groupSeparators;
 
     public TableReportDocument(string title, string context, IReadOnlyList<ReportColumn> columns,
         IReadOnlyList<ReportRow> rows, bool landscape = false, IReadOnlyList<string>? notes = null,
-        ReportChart? chart = null) : base(title, context, landscape)
+        ReportChart? chart = null, ReportTableSummary? summary = null, bool groupSeparators = false) : base(title, context, landscape)
     {
         if (columns.Count == 0 || rows.Any(row => row.Cells.Count != columns.Count))
             throw new ArgumentException("Las filas deben coincidir con las columnas del reporte.");
@@ -23,6 +25,8 @@ public sealed class TableReportDocument : ReportDocument
         _rows = rows;
         _notes = notes ?? [];
         _chart = chart;
+        _summary = summary;
+        _groupSeparators = groupSeparators;
     }
 
     protected override void ComposeContent(IContainer container)
@@ -40,11 +44,26 @@ public sealed class TableReportDocument : ReportDocument
                 });
                 table.Header(header =>
                 {
+                    if (_columns.Any(definition => definition.Group is not null))
+                    {
+                        var index = 0;
+                        while (index < _columns.Count)
+                        {
+                            var group = _columns[index].Group;
+                            var end = index + 1;
+                            while (end < _columns.Count && _columns[end].Group == group) end++;
+                            header.Cell().ColumnSpan((uint)(end - index)).Background(PaleBlue)
+                                .BorderBottom(1).BorderColor(Divider).Padding(4).AlignCenter().Text(group ?? "").SemiBold();
+                            index = end;
+                        }
+                    }
+
                     foreach (var definition in _columns)
                     {
                         var cell = header.Cell().Background(PaleBlue).BorderBottom(1).BorderColor(Blue)
                             .Padding(5).DefaultTextStyle(style => style.FontSize(9).SemiBold());
-                        if (definition.Numeric) cell = cell.AlignRight();
+                        if (definition.Centered) cell = cell.AlignCenter();
+                        else if (definition.Numeric) cell = cell.AlignRight();
                         cell.Text(definition.Title);
                     }
                 });
@@ -53,14 +72,22 @@ public sealed class TableReportDocument : ReportDocument
                     for (var index = 0; index < _columns.Count; index++)
                     {
                         var cell = table.Cell().Background(row.IsTotal ? PaleBlue : "#FFFFFF")
-                            .BorderBottom(0.5f).BorderColor(Divider).Padding(5)
                             .DefaultTextStyle(style => row.IsTotal ? style.FontSize(9).SemiBold() : style.FontSize(9));
-                        if (_columns[index].Numeric) cell = cell.AlignRight();
+                        if (_groupSeparators && row.StartsGroup)
+                            cell = cell.BorderTop(1).BorderColor(Blue);
+                        else if (!_groupSeparators)
+                            cell = cell.BorderBottom(0.5f).BorderColor(Divider);
+                        cell = cell.Padding(5);
+                        if (_columns[index].Centered) cell = cell.AlignCenter();
+                        else if (_columns[index].Numeric) cell = cell.AlignRight();
                         cell.Text(row.Cells[index]);
                     }
                 }
             });
             if (_rows.Count == 0) column.Item().PaddingTop(8).Text("Sin registros para los criterios seleccionados.");
+
+            if (_summary is not null)
+                column.Item().PaddingTop(12).Element(_summary.Compose);
 
             if (_chart is not null)
             {
@@ -70,4 +97,38 @@ public sealed class TableReportDocument : ReportDocument
             }
         });
     }
+}
+
+public sealed record ReportTableSummary(string Title, IReadOnlyList<string> Headers, IReadOnlyList<ReportRow> Rows)
+{
+    public void Compose(IContainer container)
+    {
+        container.Column(column =>
+        {
+            column.Item().PaddingBottom(5).Text(Title).SemiBold();
+            column.Item().Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    foreach (var _ in Headers) columns.RelativeColumn();
+                });
+                table.Header(header =>
+                {
+                    foreach (var label in Headers)
+                        header.Cell().Background(ReportSummaryBackground).Padding(6).AlignCenter().Text(label).SemiBold();
+                });
+                foreach (var row in Rows)
+                {
+                    foreach (var value in row.Cells)
+                    {
+                        var cell = table.Cell().Padding(6).AlignCenter();
+                        if (row.IsTotal) cell.Text(value).SemiBold();
+                        else cell.Text(value);
+                    }
+                }
+            });
+        });
+    }
+
+    private const string ReportSummaryBackground = "#EAF5FB";
 }

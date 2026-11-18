@@ -148,16 +148,32 @@ public sealed class PurchasesViewModel : ObservableObject
         RefreshPurchaseCostRows();
     }
 
-    public TableReportDocument CreatePurchaseReport() => new(
-        "Historial de compras por proveedor",
-        $"{SelectedReportSupplier} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · Producto: {ReportProductSearchText}",
-        [new("Fecha"), new("Compra", 0.8f), new("Proveedor", 1.4f), new("Producto", 1.4f), new("Cantidad", 0.7f, true),
-            new("Costo unitario", 1, true), new("Costo anterior", 1, true), new("Variación L", 1, true),
-            new("Variación %", 0.9f, true), new("Total", 1, true)],
-        PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Select(row => new ReportRow(
-            [row.DateText, row.PurchaseNumber, row.SupplierName, row.ProductName, row.QuantityText,
-                row.UnitCostText, row.PreviousUnitCostText, row.UnitCostDifferenceText, row.UnitCostVariationText, row.LineTotalText])).ToArray(),
-        landscape: true, notes: [$"Compras totales: {PurchaseReportPurchaseCountText} · Productos totales: {PurchaseReportLineCountText} · Monto acumulado: {PurchaseReportTotalText}"]);
+    private bool _showSupplierDetails;
+
+    public bool ShowSupplierDetails
+    {
+        get => _showSupplierDetails;
+        set => SetProperty(ref _showSupplierDetails, value);
+    }
+
+    public TableReportDocument CreatePurchaseReport()
+    {
+        var detailed = ShowSupplierDetails;
+        ReportColumn[] columns = detailed
+            ? [new("Fecha"), new("Compra", 0.8f), new("Proveedor", 1.4f), new("Producto", 1.4f), new("Cantidad", 0.7f, true),
+                new("Costo unitario", 1, true), new("Costo anterior", 1, true), new("Variación L", 1, true),
+                new("Variación %", 0.9f, true), new("Total", 1, true)]
+            : [new("Fecha"), new("Producto", 2), new("Cantidad", 1, true), new("Costo", 1, true), new("Total", 1, true)];
+        var rows = PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Select(row => new ReportRow(detailed
+            ? [row.DateText, row.PurchaseNumber, row.SupplierName, row.ProductName, row.QuantityText,
+                row.UnitCostText, row.PreviousUnitCostText, row.UnitCostDifferenceText, row.UnitCostVariationText, row.LineTotalText]
+            : [row.DateText, row.ProductName, row.QuantityText, row.UnitCostText, row.LineTotalText])).ToArray();
+        return new("Historial de compras por proveedor",
+            $"{SelectedReportSupplier} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · Producto: {ReportProductSearchText}",
+            columns, rows, landscape: true, summary: new("Totales de compras",
+                ["Compras totales", "Productos totales", "Valor total"],
+                [new([PurchaseReportPurchaseCountText, PurchaseReportLineCountText, PurchaseReportTotalText], IsTotal: true)]));
+    }
 
     private bool FilterProductRow(object item) => item is PurchaseEntryViewModel row
         && (string.IsNullOrWhiteSpace(ProductSearchText)

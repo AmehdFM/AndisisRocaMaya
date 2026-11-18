@@ -62,6 +62,38 @@
             <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBorderBrush}" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
+        <Style x:Key="CenteredReportCell" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="ReportTotalsPanel" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource RocaMayaBlueSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,6" />
+        </Style>
+        <Style x:Key="KardexGroupColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource AppTableHeader}">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                            <Border Background="{StaticResource RocaMayaBlueSelectedBrush}">
+                                <ContentPresenter Content="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <UniformGrid Grid.Row="1" Rows="1">
+                                <TextBlock Text="Cantidad" Style="{StaticResource CenteredReportCell}" />
+                                <TextBlock Text="Valor" Style="{StaticResource CenteredReportCell}" />
+                                <TextBlock Text="Valor total" Style="{StaticResource CenteredReportCell}" />
+                            </UniformGrid>
+                        </Grid>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
@@ -216,14 +248,24 @@
                                         Style="{StaticResource ReportActionButtonStyle}" />
                             </StackPanel>
                         </DockPanel>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding JournalEntries}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="HORA" Binding="{Binding TimeText}" Width="0.9*" />
-                            <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.5*" />
-                            <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.3*" />
-                            <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                            <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        </DataGrid.Columns>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding JournalEntries}" CanUserSortColumns="False">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding StartsGroup}" Value="True">
+                                            <Setter Property="BorderThickness" Value="0,2,0,0" />
+                                            <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="HORA" Binding="{Binding TimeText}" Width="0.9*" />
+                                <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.5*" />
+                                <DataGridTextColumn Header="CUENTA" Binding="{Binding DisplayAccount}" Width="1.3*" />
+                                <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" HeaderStyle="{StaticResource AppCenteredTableHeader}" />
+                                <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" HeaderStyle="{StaticResource AppCenteredTableHeader}" />
+                            </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
                                    Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
@@ -247,10 +289,12 @@
                     </Grid.ColumnDefinitions>
                     <ComboBox ItemsSource="{Binding LedgerAccounts}" SelectedItem="{Binding SelectedLedgerAccount}"
                               Height="32" VerticalContentAlignment="Center" ToolTip="Selecciona la cuenta contable" />
-                    <TextBlock Grid.Column="1" Text="Desde" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="2" SelectedDate="{Binding LedgerStartDate, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Grid.Column="3" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="4" SelectedDate="{Binding LedgerEndDate, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Grid.Column="1" Text="Año" Margin="12,0,7,0" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="2" ItemsSource="{Binding JournalYears}" SelectedItem="{Binding SelectedLedgerYear}"
+                              AutomationProperties.Name="Año del Libro Mayor" />
+                    <TextBlock Grid.Column="3" Text="Mes" Margin="12,0,7,0" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="4" ItemsSource="{Binding JournalMonths}" DisplayMemberPath="Name" SelectedValuePath="Number"
+                              SelectedValue="{Binding SelectedLedgerMonth}" AutomationProperties.Name="Mes del Libro Mayor" />
                     <Button Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportLedgerCommand}" ToolTip="Exporta la cuenta seleccionada"
                             Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
                     <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintLedgerCommand}" ToolTip="Imprime la cuenta seleccionada"
@@ -259,21 +303,21 @@
                 <TabControl Grid.Row="2">
                     <TabItem Header="Detalle de la cuenta">
                         <DockPanel Margin="0,8,0,0">
+                            <Border DockPanel.Dock="Bottom" Style="{StaticResource ReportTotalsPanel}" Margin="0,8,0,0">
+                                <UniformGrid Rows="1">
+                                    <StackPanel><TextBlock Text="Abonado" /><TextBlock Text="{Binding SelectedLedgerTotals.DebitText}" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel><TextBlock Text="Acreditado" /><TextBlock Text="{Binding SelectedLedgerTotals.CreditText}" FontWeight="SemiBold" /></StackPanel>
+                                    <StackPanel><TextBlock Text="Saldo final" /><TextBlock Text="{Binding SelectedLedgerTotals.ClosingText}" FontWeight="SemiBold" /></StackPanel>
+                                </UniformGrid>
+                            </Border>
                             <DataGrid ItemsSource="{Binding LedgerEntries}" ColumnHeaderStyle="{StaticResource AppCenteredTableHeader}"
-                                      RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
-                                <DataGrid.Resources>
-                                    <Style x:Key="LedgerCellTextStyle" TargetType="TextBlock">
-                                        <Setter Property="HorizontalAlignment" Value="Center" />
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="TextAlignment" Value="Center" />
-                                    </Style>
-                                </DataGrid.Resources>
+                                      CanUserSortColumns="False">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                                    <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                    <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                    <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </DockPanel>
@@ -297,8 +341,8 @@
             </Grid>
 
             <Grid Visibility="{Binding KardexVisibility}">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Kardex de Inventario PEPS" />
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Hoja de Kardex" />
                 <Grid Grid.Row="1" Margin="0,2,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" />
@@ -318,24 +362,60 @@
                             Style="{StaticResource ReportActionButtonStyle}" Margin="12,0,8,0" />
                     <Button Grid.Column="7" Content="Imprimir" Command="{Binding PrintKardexCommand}" Style="{StaticResource ReportActionButtonStyle}" />
                 </Grid>
-                <Border Grid.Row="2" Background="White" Padding="10,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
-                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
-                </Border>
-                <DataGrid Grid.Row="3" ItemsSource="{Binding KardexMovements}" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <DataGrid Grid.Row="2" ItemsSource="{Binding KardexMovements}" ColumnHeaderHeight="54"
+                          CanUserSortColumns="False" CanUserReorderColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="100" />
-                        <DataGridTextColumn Header="MOVIMIENTO" Binding="{Binding Description}" Width="190" />
-                        <DataGridTextColumn Header="ENTRADA · CANT." Binding="{Binding EntryQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding EntryUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding EntryTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="SALIDA · CANT." Binding="{Binding ExitQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding ExitUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding ExitTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="SALDO · CANT." Binding="{Binding BalanceQuantity}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO UNIT." Binding="{Binding BalanceUnitCost}" Width="100" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
-                        <DataGridTextColumn Header="COSTO TOTAL" Binding="{Binding BalanceTotal}" Width="105" ElementStyle="{StaticResource NumericCellTextStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="Fecha" Binding="{Binding DateText}" Width="100" />
+                        <DataGridTextColumn Header="Movimiento" Binding="{Binding Description}" Width="112" />
+                        <DataGridTemplateColumn Header="Entrada" Width="252" HeaderStyle="{StaticResource KardexGroupColumnHeader}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <UniformGrid Rows="1">
+                                        <TextBlock Text="{Binding EntryQuantity}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding EntryUnitCost}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding EntryTotal}" Style="{StaticResource CenteredReportCell}" />
+                                    </UniformGrid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Salida" Width="252" HeaderStyle="{StaticResource KardexGroupColumnHeader}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <UniformGrid Rows="1">
+                                        <TextBlock Text="{Binding ExitQuantity}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding ExitUnitCost}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding ExitTotal}" Style="{StaticResource CenteredReportCell}" />
+                                    </UniformGrid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Totales" Width="252" HeaderStyle="{StaticResource KardexGroupColumnHeader}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <UniformGrid Rows="1">
+                                        <TextBlock Text="{Binding BalanceQuantity}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding BalanceUnitCost}" Style="{StaticResource CenteredReportCell}" />
+                                        <TextBlock Text="{Binding BalanceTotal}" Style="{StaticResource CenteredReportCell}" />
+                                    </UniformGrid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+                <Border Grid.Row="3" Style="{StaticResource ReportTotalsPanel}" Margin="0,8,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Existencias por lote al corte" FontWeight="SemiBold" Margin="0,0,0,5" />
+                        <DataGrid ItemsSource="{Binding KardexRemainingStock}" MaxHeight="135" RowHeight="26"
+                                  CanUserSortColumns="False" ColumnHeaderStyle="{StaticResource AppCenteredTableHeader}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Cantidad" Binding="{Binding Quantity}" Width="*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                <DataGridTextColumn Header="Valor unitario" Binding="{Binding UnitValueText}" Width="*" ElementStyle="{StaticResource CenteredReportCell}" />
+                                <DataGridTextColumn Header="Valor total" Binding="{Binding TotalValueText}" Width="*" ElementStyle="{StaticResource CenteredReportCell}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock FontWeight="SemiBold" Margin="0,5,0,0"><Run Text="{Binding KardexClosingStock, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding KardexClosingValue, Mode=OneWay}" /></TextBlock>
+                    </StackPanel>
+                </Border>
                 <TextBlock Grid.Row="4" Text="{Binding KardexActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>
 

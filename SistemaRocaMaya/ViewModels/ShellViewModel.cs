@@ -272,7 +272,7 @@ public sealed partial class ShellViewModel : ObservableObject
         accountingMenu.Children.Add(new NavigationItemViewModel("Libro mayor", "▤"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Estado de resultados", "▧"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Estado de situación financiera", "▥"));
-        accountingMenu.Children.Add(new NavigationItemViewModel("Kardex PEPS", "↔"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Control de Inventario", "↔", "Hoja de Kardex"));
         MenuItems.Add(accountingMenu);
     }
 }
