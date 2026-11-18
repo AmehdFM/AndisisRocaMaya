@@ -26,11 +26,12 @@ public sealed class AccountingViewModel : ObservableObject
 
     private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
     private string _selectedSection = "Resumen contable";
-    private string _journalSearchText = "";
     private string _ledgerSearchText = "";
     private string _selectedLedgerAccount = "Caja";
-    private DateTime? _journalStartDate = DateTime.Today.AddDays(-31);
-    private DateTime? _journalEndDate = DateTime.Today;
+    private int _selectedJournalYear = DateTime.Today.Year;
+    private int _selectedJournalMonth = DateTime.Today.Month;
+    private DateTime? _selectedJournalDay;
+    private bool _printWholeJournalMonth;
     private DateTime? _ledgerStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _ledgerEndDate = DateTime.Today;
     private DateTime? _financialPositionCutoffMonth = FirstDayOfMonth(DateTime.Today);
@@ -196,31 +197,43 @@ public sealed class AccountingViewModel : ObservableObject
     public ListCollectionView JournalEntries { get; }
     public ListCollectionView LedgerEntries { get; }
 
-    public DateTime? JournalStartDate
+    public IReadOnlyList<int> JournalYears { get; private set; } = [];
+    public IReadOnlyList<JournalMonthOption> JournalMonths { get; } = Enumerable.Range(1, 12)
+        .Select(month => new JournalMonthOption(month,
+            OperationalDemoStore.HondurasCulture.DateTimeFormat.GetMonthName(month))).ToArray();
+    public IReadOnlyList<DateTime> JournalDays { get; private set; } = [];
+
+    public int SelectedJournalYear
     {
-        get => _journalStartDate;
+        get => _selectedJournalYear;
         set
         {
-            if (SetProperty(ref _journalStartDate, value)) RefreshJournal();
+            if (SetProperty(ref _selectedJournalYear, value)) RefreshJournalDays();
         }
     }
 
-    public DateTime? JournalEndDate
+    public int SelectedJournalMonth
     {
-        get => _journalEndDate;
+        get => _selectedJournalMonth;
         set
         {
-            if (SetProperty(ref _journalEndDate, value)) RefreshJournal();
+            if (SetProperty(ref _selectedJournalMonth, value)) RefreshJournalDays();
         }
     }
 
-    public string JournalSearchText
+    public DateTime? SelectedJournalDay
     {
-        get => _journalSearchText;
+        get => _selectedJournalDay;
         set
         {
-            if (SetProperty(ref _journalSearchText, value)) RefreshJournal();
+            if (SetProperty(ref _selectedJournalDay, value)) JournalEntries.Refresh();
         }
+    }
+
+    public bool PrintWholeJournalMonth
+    {
+        get => _printWholeJournalMonth;
+        set => SetProperty(ref _printWholeJournalMonth, value);
     }
 
     public DateTime? LedgerStartDate
@@ -381,40 +394,43 @@ public sealed class AccountingViewModel : ObservableObject
     {
         _allJournalEntries.Clear();
         _allLedgerEntries.Clear();
-        var periodStart = JournalStartDate?.Date ?? DateTime.Today.AddDays(-31);
-        var periodEnd = JournalEndDate?.Date ?? DateTime.Today;
+        var periodStart = DateTime.Today.AddDays(-31);
+        var periodEnd = DateTime.Today;
         var saleCosts = CalculateSaleCosts();
         var postings = new List<AccountingPosting>();
 
-        foreach (var purchase in _store.Purchases.Where(purchase => IsInPeriod(purchase.Date, periodStart, periodEnd)))
+        foreach (var purchase in _store.Purchases)
         {
-            postings.Add(new(purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Inventario", purchase.Total, 0m));
-            postings.Add(new(purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Proveedores", 0m, purchase.Total));
+            var transactionId = postings.Count;
+            postings.Add(new(transactionId, purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Inventario", purchase.Total, 0m));
+            postings.Add(new(transactionId, purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Proveedores", 0m, purchase.Total));
         }
 
-        foreach (var sale in _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)))
+        foreach (var sale in _store.Sales)
         {
+            var transactionId = postings.Count;
             var account = sale.PaymentType == SalePaymentType.Cash ? "Caja" : "Crédito por cobrar";
-            postings.Add(new(sale.Date, sale.Ticket, "Venta de mercadería", account, sale.Total, 0m));
-            postings.Add(new(sale.Date, sale.Ticket, "Venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
+            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Venta de mercadería", account, sale.Total, 0m));
+            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
             var cost = saleCosts.GetValueOrDefault(sale.Id);
             if (cost > 0m)
             {
-                postings.Add(new(sale.Date, sale.Ticket, "Costo de mercadería vendida", "Costo de ventas", cost, 0m));
-                postings.Add(new(sale.Date, sale.Ticket, "Costo de mercadería vendida", "Inventario", 0m, cost));
+                postings.Add(new(transactionId, sale.Date, sale.Ticket, "Costo de mercadería vendida", "Costo de ventas", cost, 0m));
+                postings.Add(new(transactionId, sale.Date, sale.Ticket, "Costo de mercadería vendida", "Inventario", 0m, cost));
             }
         }
 
         foreach (var customer in _store.Customers)
-        foreach (var payment in customer.CreditHistory.Where(movement => movement.Type == CreditMovementType.Payment && IsInPeriod(movement.Date, periodStart, periodEnd)))
+        foreach (var payment in customer.CreditHistory.Where(movement => movement.Type == CreditMovementType.Payment))
         {
+            var transactionId = postings.Count;
             var reference = $"AB-{customer.Id:000}-{payment.Date:MMdd}";
-            postings.Add(new(payment.Date, reference, $"Abono recibido · {customer.Name}", "Caja", payment.Amount, 0m));
-            postings.Add(new(payment.Date, reference, $"Abono recibido · {customer.Name}", "Crédito por cobrar", 0m, payment.Amount));
+            postings.Add(new(transactionId, payment.Date, reference, $"Abono recibido · {customer.Name}", "Caja", payment.Amount, 0m));
+            postings.Add(new(transactionId, payment.Date, reference, $"Abono recibido · {customer.Name}", "Crédito por cobrar", 0m, payment.Amount));
         }
 
-        foreach (var posting in postings.OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ThenBy(posting => posting.Account))
-            _allJournalEntries.Add(new(posting.Date, posting.Reference, posting.Description, posting.Account, posting.Debit, posting.Credit));
+        foreach (var posting in postings.OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ThenBy(posting => posting.TransactionId).ThenBy(posting => posting.Account))
+            _allJournalEntries.Add(new(posting.TransactionId, posting.Date, posting.Reference, posting.Description, posting.Account, posting.Debit, posting.Credit));
 
         _reportRevenue = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => sale.Total);
         _reportCostOfSales = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
@@ -437,10 +453,11 @@ public sealed class AccountingViewModel : ObservableObject
             ["Ingresos por ventas"] = _reportRevenue,
             ["Proveedores"] = _reportPayables
         };
+        var ledgerPostings = postings.Where(posting => IsInPeriod(posting.Date, periodStart, periodEnd)).ToArray();
         foreach (var account in LedgerAccounts)
         {
             var creditNormal = IsCreditNormal(account);
-            var entries = postings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
+            var entries = ledgerPostings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
             var movement = entries.Sum(posting => creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit);
             var balance = endingBalances.GetValueOrDefault(account) - movement;
             _allLedgerEntries.Add(new(account, periodStart, "", "Saldo inicial", 0m, 0m, balance));
@@ -454,7 +471,7 @@ public sealed class AccountingViewModel : ObservableObject
         BuildKardex();
         PopulateFinancialReports();
         RefreshManagementIndicators(saleCosts);
-        JournalEntries.Refresh();
+        RefreshJournalPeriod();
         LedgerEntries.Refresh();
         KardexMovements.Refresh();
         OnPropertyChanged(nameof(KardexClosingStock));
@@ -611,12 +628,24 @@ public sealed class AccountingViewModel : ObservableObject
         return new FinancialPositionDocument(cutoff, rows, chart, FinancialPositionRecommendation);
     }
 
-    public TableReportDocument CreateJournalReport() => new(
-        "Libro Diario Contable", $"{FormatPeriod(JournalStartDate, JournalEndDate)} · Búsqueda: {JournalSearchText}",
-        [new("Fecha"), new("Documento"), new("Concepto", 2), new("Cuenta", 1.5f), new("Debe", 1, true), new("Haber", 1, true)],
-        JournalEntries.Cast<JournalEntryViewModel>().Select(entry => new ReportRow(
-            [entry.DateText, entry.Reference, entry.Description, entry.Account, entry.DebitText, entry.CreditText])).ToArray(),
-        landscape: true);
+    public TableReportDocument CreateJournalReport()
+    {
+        var rows = _allJournalEntries
+            .Where(entry => PrintWholeJournalMonth ? IsInJournalMonth(entry.Date) : entry.Date.Date == SelectedJournalDay)
+            .GroupBy(entry => entry.TransactionId)
+            .SelectMany(transaction => transaction.Select((entry, index) => new ReportRow(
+                [index == 0 ? entry.DateText : "", entry.Reference, entry.Description, entry.Account, entry.DebitText, entry.CreditText])))
+            .ToArray();
+        if (rows.Length == 0)
+            throw new InvalidOperationException("No hay partidas en el período seleccionado.");
+
+        var period = PrintWholeJournalMonth
+            ? new DateTime(SelectedJournalYear, SelectedJournalMonth, 1).ToString("MMMM yyyy", OperationalDemoStore.HondurasCulture)
+            : SelectedJournalDay?.ToString("dd/MM/yyyy");
+        return new("Libro Diario Contable", $"Período: {period}",
+            [new("Fecha"), new("Documento"), new("Concepto", 2), new("Cuenta", 1.5f), new("Debe", 1, true), new("Haber", 1, true)],
+            rows, landscape: true);
+    }
 
     public TableReportDocument CreateLedgerReport() => new(
         "Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)} · Búsqueda: {LedgerSearchText}",
@@ -989,18 +1018,11 @@ public sealed class AccountingViewModel : ObservableObject
     private static bool IsInPeriod(DateTime date, DateTime start, DateTime end) => date.Date >= start.Date && date.Date <= end.Date;
     private static bool IsCreditNormal(string account) => account is "Proveedores" or "Ingresos por ventas";
 
-    private bool FilterJournalEntry(object item)
-    {
-        if (item is not JournalEntryViewModel entry) return false;
-        if (JournalStartDate is DateTime start && entry.Date.Date < start.Date) return false;
-        if (JournalEndDate is DateTime end && entry.Date.Date > end.Date) return false;
+    private bool FilterJournalEntry(object item) =>
+        item is JournalEntryViewModel entry && entry.Date.Date == SelectedJournalDay;
 
-        var query = JournalSearchText.Trim();
-        return query.Length == 0
-            || entry.Reference.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || entry.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || entry.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
-    }
+    private bool IsInJournalMonth(DateTime date) =>
+        date.Year == SelectedJournalYear && date.Month == SelectedJournalMonth;
 
     private bool FilterLedgerEntry(object item)
     {
@@ -1035,8 +1057,37 @@ public sealed class AccountingViewModel : ObservableObject
         .OrderBy(movement => movement.Date)
         .LastOrDefault();
 
-    private void RefreshJournal()
+    private void RefreshJournalPeriod()
     {
+        var years = _allJournalEntries.Select(entry => entry.Date.Year).Append(DateTime.Today.Year)
+            .Distinct().OrderByDescending(year => year).ToArray();
+        if (!JournalYears.SequenceEqual(years))
+        {
+            JournalYears = years;
+            OnPropertyChanged(nameof(JournalYears));
+            OnPropertyChanged(nameof(SelectedJournalYear));
+        }
+
+        RefreshJournalDays();
+    }
+
+    private void RefreshJournalDays()
+    {
+        var previousDay = SelectedJournalDay;
+        var days = _allJournalEntries.Where(entry => IsInJournalMonth(entry.Date))
+            .Select(entry => entry.Date.Date).Distinct().OrderByDescending(day => day).ToArray();
+        if (!JournalDays.SequenceEqual(days))
+        {
+            JournalDays = days;
+            OnPropertyChanged(nameof(JournalDays));
+        }
+
+        var selectedDay = previousDay is DateTime day && days.Contains(day)
+            ? day
+            : days.Select(date => (DateTime?)date).FirstOrDefault();
+        if (!SetProperty(ref _selectedJournalDay, selectedDay, nameof(SelectedJournalDay)))
+            OnPropertyChanged(nameof(SelectedJournalDay));
+
         JournalEntries.Refresh();
     }
 
@@ -1066,7 +1117,7 @@ public sealed class AccountingViewModel : ObservableObject
 
     private Visibility VisibilityFor(string title) => SelectedSection == title ? Visibility.Visible : Visibility.Collapsed;
 
-    private sealed record AccountingPosting(DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit);
+    private sealed record AccountingPosting(int TransactionId, DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit);
 
     private sealed class InventoryCostLayer(string lot, int remainingQuantity, decimal unitCost)
     {
@@ -1085,9 +1136,12 @@ public sealed record AccountingIndicatorViewModel(
 
 public sealed record IndicatorMonth(string Label, string Value);
 
-public sealed record JournalEntryViewModel(DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit)
+public sealed record JournalMonthOption(int Number, string Name);
+
+public sealed record JournalEntryViewModel(int TransactionId, DateTime Date, string Reference, string Description, string Account, decimal Debit, decimal Credit)
 {
     public string DateText => Date.ToString("dd/MM/yyyy");
+    public string TimeText => Date.ToString("HH:mm");
     public string DebitText => Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
     public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
 }
