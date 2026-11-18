@@ -17,13 +17,10 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
         var groups = new[]
         {
             new IndicatorGroup("Rentabilidad de las ventas",
-                "Muestra cuánto queda de cada L 100 vendidos. Si el margen cae, revisa si subió el costo de la mercadería o bajó el precio de venta.",
                 indicators.Take(2).ToArray()),
             new IndicatorGroup("Capacidad de pago",
-                "Compara la cobertura de las obligaciones corrientes con y sin inventario. Si la cobertura cae al excluirlo, revisa los cobros pendientes y los pagos próximos.",
                 indicators.Skip(2).Take(2).ToArray()),
             new IndicatorGroup("Financiamiento y rendimiento",
-                "Lee el endeudamiento junto con la rentabilidad del patrimonio. Si aumenta la deuda sin una mejora del rendimiento, revisa qué se está financiando con esos recursos.",
                 indicators.Skip(4).ToArray())
         };
 
@@ -37,7 +34,6 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
 
                 foreach (var indicator in group.Indicators)
                     column.Item().PaddingTop(8).Element(body => ComposeIndicator(body, indicator));
-                column.Item().PaddingTop(12).Element(new ReportCallout("Qué revisar", group.Review).Compose);
             }
         });
     }
@@ -81,7 +77,7 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
                     Cell().Text(indicator.Name);
                     Cell().AlignRight().Text(previous);
                     Cell().AlignRight().Text(current).SemiBold();
-                    Cell().AlignRight().Text(FormatChange(indicator));
+                    Cell().AlignRight().Text(indicator.Comparison.Text).FontColor(indicator.Comparison.Color);
                     Cell().AlignRight().Text(reference.Length == 0 ? "—" : reference);
                 }
             });
@@ -90,7 +86,7 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
             {
                 notes.Item().Text("Cómo interpretar la comparación").SemiBold();
                 notes.Item().PaddingTop(5).Text("El mes actual incluye operaciones hasta la fecha de corte. El mes anterior corresponde al mes completo.");
-                notes.Item().PaddingTop(5).Text("La variación se expresa en puntos porcentuales (pp) o veces. Un guion indica que falta un dato para el cálculo o que no hay referencia.");
+                notes.Item().PaddingTop(5).Text("La variación se expresa en puntos porcentuales (pp) o veces. Un guion indica que no hay dato o referencia en la columna correspondiente.");
                 notes.Item().PaddingTop(5).Text("El resultado usa las ventas y el costo registrado de la mercadería. Al no incluir gastos operativos, intereses ni impuestos, el margen neto coincide con el margen bruto.");
             });
         });
@@ -105,24 +101,14 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
                 row.RelativeItem().Text(indicator.Name).FontSize(13).SemiBold();
                 row.AutoItem().PaddingLeft(10).Text(indicator.Value).FontSize(13).FontColor("#245F8C").SemiBold();
             });
-            section.Item().PaddingTop(3).Text($"Variación frente al mes anterior: {FormatChange(indicator)}")
-                .FontSize(9).FontColor("#526A7A");
             section.Item().PaddingTop(6).Svg(RenderTrend(indicator)).FitWidth();
+            section.Item().PaddingTop(5).Text($"Qué significa: {indicator.Definition}");
+            section.Item().PaddingTop(4).Text($"Frente al mes anterior: {indicator.Comparison.Text}")
+                .FontColor(indicator.Comparison.Color).SemiBold();
         });
     }
 
-    private static string FormatChange(AccountingIndicatorViewModel indicator)
-    {
-        if (indicator.Months.Count < 2 || indicator.Months[^2].Amount is not decimal previous
-            || indicator.Months[^1].Amount is not decimal current)
-            return "—";
-
-        var change = current - previous;
-        var unit = indicator.Unit == "%" ? "pp" : indicator.Unit;
-        return $"{change.ToString("+0.00;-0.00;0.00", OperationalDemoStore.HondurasCulture)} {unit}";
-    }
-
-    private sealed record IndicatorGroup(string Title, string Review, IReadOnlyList<AccountingIndicatorViewModel> Indicators);
+    private sealed record IndicatorGroup(string Title, IReadOnlyList<AccountingIndicatorViewModel> Indicators);
 
     private static string RenderTrend(AccountingIndicatorViewModel indicator)
     {

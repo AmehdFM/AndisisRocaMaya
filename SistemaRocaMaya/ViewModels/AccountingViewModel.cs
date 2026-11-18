@@ -987,23 +987,23 @@ public sealed class AccountingViewModel : ObservableObject
         var labels = months.Select(month => month.Label).ToArray();
 
         AccountingIndicatorViewModel Indicator(string name, string unit, IEnumerable<decimal?> values,
-            Func<decimal, string> interpret, decimal? threshold = null) =>
-            BuildIndicator(name, unit, labels, values.ToArray(), interpret, threshold);
+            string definition, decimal? threshold = null, bool lowerIsBetter = false) =>
+            BuildIndicator(name, unit, labels, values.ToArray(), definition, threshold, lowerIsBetter);
 
         var indicators = new[]
         {
             Indicator("Margen bruto", "%", months.Select(month => month.GrossMargin),
-                value => $"Por cada L 100 vendidos quedan {FormatMoney(value)} después de cubrir la mercadería."),
+                "Porcentaje de las ventas que queda después de cubrir el costo de la mercadería vendida."),
             Indicator("Margen neto", "%", months.Select(month => month.NetMargin),
-                value => $"Por cada L 100 vendidos, el resultado neto es {FormatMoney(value)}."),
+                "Porcentaje de las ventas que queda como utilidad después de descontar costos, gastos e impuestos."),
             Indicator("Liquidez corriente", "veces", months.Select(month => month.Liquidity),
-                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en activos corrientes.", 1.5m),
+                "Cuántos lempiras de activos corrientes respaldan cada lempira de deuda a corto plazo.", 1.5m),
             Indicator("Prueba ácida", "veces", months.Select(month => month.QuickRatio),
-                value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en caja y cuentas por cobrar.", 1.0m),
+                "Cuántos lempiras de efectivo y cuentas por cobrar respaldan cada lempira de deuda a corto plazo, sin contar el inventario.", 1.0m),
             Indicator("Endeudamiento", "%", months.Select(month => month.DebtRatio),
-                value => $"De cada L 100 en activos, {FormatMoney(value)} están financiados con pasivos.", 60m),
+                "Porcentaje de los activos que se financia con deudas y otras obligaciones.", 60m, lowerIsBetter: true),
             Indicator("Rentabilidad del patrimonio", "%", months.Select(month => month.ReturnOnEquity),
-                value => $"Por cada L 100 de patrimonio al corte, la utilidad del mes fue {FormatMoney(value)}.")
+                "Porcentaje de utilidad que genera el negocio en relación con su patrimonio.")
         };
 
 
@@ -1025,7 +1025,7 @@ public sealed class AccountingViewModel : ObservableObject
         denominator > 0m ? numerator / denominator * multiplier : null;
 
     private static AccountingIndicatorViewModel BuildIndicator(string name, string unit,
-        IReadOnlyList<string> labels, IReadOnlyList<decimal?> values, Func<decimal, string> interpret, decimal? threshold)
+        IReadOnlyList<string> labels, IReadOnlyList<decimal?> values, string definition, decimal? threshold, bool lowerIsBetter)
     {
         var available = values.OfType<decimal>().ToArray();
         var bottom = Math.Min(0m, available.DefaultIfEmpty().Min());
@@ -1073,7 +1073,7 @@ public sealed class AccountingViewModel : ObservableObject
 
         var current = values[^1];
         return new(name, current is decimal latest ? $"{latest:0.00} {unit}" : "Sin dato", unit,
-            current is decimal result ? interpret(result) : "Este indicador no se puede calcular para el mes actual porque falta su base de cálculo.",
+            definition, IndicatorMonthComparison.Compare(values.Count > 1 ? values[^2] : null, current, unit, lowerIsBetter),
             $"{top:0.##}", $"{(top + bottom) / 2m:0.##}", $"{bottom:0.##}", line, dots, thresholdLine, thresholdLabel, periods);
     }
 
@@ -1208,7 +1208,7 @@ public sealed class AccountingViewModel : ObservableObject
 public sealed record AccountingMetricViewModel(string Label, string Value, string Detail);
 
 public sealed record AccountingIndicatorViewModel(
-    string Name, string Value, string Unit, string Explanation,
+    string Name, string Value, string Unit, string Definition, IndicatorMonthComparison Comparison,
     string AxisTop, string AxisMiddle, string AxisBottom,
     PathGeometry Line, GeometryGroup Dots, LineGeometry? ThresholdLine, string ThresholdLabel, IReadOnlyList<IndicatorMonth> Months);
 
