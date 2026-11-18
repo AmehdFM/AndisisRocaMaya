@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using SistemaRocaMaya.ViewModels;
 
 namespace SistemaRocaMaya.Views
@@ -11,6 +12,14 @@ namespace SistemaRocaMaya.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void UsernameBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            e.Handled = true;
+            PasswordInput.Focus();
         }
 
         private void SignIn_Click(object sender, RoutedEventArgs e)

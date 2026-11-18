@@ -141,6 +141,7 @@
                            Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                 <TextBox Grid.Row="2"
                          x:Name="UsernameBox"
+                         PreviewKeyDown="UsernameBox_PreviewKeyDown"
                          Style="{StaticResource LoginTextBoxStyle}"
                          AutomationProperties.Name="Usuario" />
 
@@ -159,6 +160,7 @@
                         Margin="0,12,0,0"
                         Style="{StaticResource LoginButtonStyle}"
                         Content="Iniciar sesión"
+                        IsDefault="True"
                         Click="SignIn_Click" />
                 <TextBlock Grid.Row="6" Margin="0,8,0,0" TextAlignment="Center" FontSize="9"
                            Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Text="Demo: admin / admin · Empleado / Empleado1234" />
