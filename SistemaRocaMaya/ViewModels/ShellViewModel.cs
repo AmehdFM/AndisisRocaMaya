@@ -267,7 +267,7 @@ public sealed partial class ShellViewModel : ObservableObject
         }
 
         var accountingMenu = new NavigationItemViewModel("Contabilidad", "≡", "Contabilidad");
-        accountingMenu.Children.Add(new NavigationItemViewModel("Resumen contable", "▦"));
+        accountingMenu.Children.Add(new NavigationItemViewModel("Indicadores financieros", "▦"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Libro diario", "≡"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Libro mayor", "▤"));
         accountingMenu.Children.Add(new NavigationItemViewModel("Estado de resultados", "▧"));

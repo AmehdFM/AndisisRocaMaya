@@ -7,7 +7,7 @@ namespace SistemaRocaMaya.Services.Reports;
 public sealed record ReportChartSeries(string Name, IReadOnlyList<decimal> Values);
 
 public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IReadOnlyList<ReportChartSeries> Series,
-    string CategoryAxisTitle)
+    string? CategoryAxisTitle = null)
 {
     private static readonly string[] Colors = ["#245F8C", "#92531D", "#24724F"];
     private const int CategoriesPerPage = 6;
@@ -36,7 +36,7 @@ public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IRe
         static string Escape(string value) => SecurityElement.Escape(value) ?? "";
         double Y(decimal value) => PlotTop + (double)((maximum - value) / (maximum - minimum)) * (PlotBottom - PlotTop);
         var valueStart = PlotBottom + 38;
-        var graphicHeight = valueStart + Series.Count * 15 + 26;
+        var graphicHeight = valueStart + Series.Count * 15 + (CategoryAxisTitle is null ? 6 : 26);
         var svg = new StringBuilder($"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 728 {graphicHeight}\" font-family=\"Lato\" font-size=\"12\" fill=\"#172B3A\">");
         var pageTitle = Labels.Count > CategoriesPerPage
             ? $"{Title} ({start / CategoriesPerPage + 1}/{(Labels.Count + CategoriesPerPage - 1) / CategoriesPerPage})"
@@ -79,7 +79,9 @@ public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IRe
             }
         }
         svg.Append($"<path d=\"M {PlotLeft},{PlotTop} V {PlotBottom} H {PlotRight} M {PlotLeft},{Number(zero)} H {PlotRight}\" fill=\"none\" stroke=\"#526A7A\" stroke-width=\"1.25\"/>");
-        svg.Append($"<text x=\"{(PlotLeft + PlotRight) / 2}\" y=\"{graphicHeight - 8}\" text-anchor=\"middle\" font-weight=\"700\">{Escape(CategoryAxisTitle)}</text></svg>");
+        if (CategoryAxisTitle is { } axisTitle)
+            svg.Append($"<text x=\"{(PlotLeft + PlotRight) / 2}\" y=\"{graphicHeight - 8}\" text-anchor=\"middle\" font-weight=\"700\">{Escape(axisTitle)}</text>");
+        svg.Append("</svg>");
         return svg.ToString();
     }
 }

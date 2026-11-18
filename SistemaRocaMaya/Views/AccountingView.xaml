@@ -101,7 +101,7 @@
             <Grid Visibility="{Binding SummaryVisibility}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Resumen contable" />
+                        <ContentControl Style="{StaticResource AccountingReportHeader}" Content="Indicadores financieros" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
                             <Button Content="Exportar PDF" Command="{Binding ExportSummaryCommand}"
                                     Style="{StaticResource ReportActionButtonStyle}" Margin="0,0,8,0" />
@@ -176,7 +176,13 @@
                                         </Grid>
                                         <TextBlock Text="Mes contable" HorizontalAlignment="Center"
                                                    Style="{StaticResource ReportMetadataText}" Margin="0,4,0,0" />
-                                        <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,12,0,3" />
+                                        <Border Style="{StaticResource ReportTotalsPanel}" Margin="0,12,0,3">
+                                            <StackPanel>
+                                                <TextBlock Text="Cómo interpretar este indicador" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                                <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" FontSize="14" Margin="0,4,0,0" />
+                                            </StackPanel>
+                                        </Border>
                                     </StackPanel>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
@@ -499,7 +505,15 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Grid>
-                    <TextBlock Text="{Binding FinancialPositionRecommendation}" TextWrapping="Wrap" FontSize="13" Margin="0,12,0,0" />
+                    <Border Style="{StaticResource ReportTotalsPanel}" Margin="0,12,0,0"
+                            BorderBrush="{Binding FinancialPositionFinancing.RecommendationColor}" BorderThickness="3,1,1,1">
+                        <StackPanel>
+                            <TextBlock Text="Consejo de financiamiento" FontSize="16" FontWeight="Bold"
+                                       Foreground="{Binding FinancialPositionFinancing.RecommendationColor}" />
+                            <TextBlock Text="{Binding FinancialPositionFinancing.Recommendation}" TextWrapping="Wrap" FontSize="15"
+                                       Foreground="{Binding FinancialPositionFinancing.RecommendationColor}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
                 <TextBlock Text="{Binding StatementActionMessage}" Margin="0,6,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </StackPanel>
@@ -630,7 +644,45 @@
                                 </ItemsControl>
                             </ScrollViewer>
                         </Grid>
-                        <TextBlock Text="Mes contable" HorizontalAlignment="Center" Style="{StaticResource ReportChartAxisText}" Margin="0,5,0,0" />
+                        <StackPanel Margin="0,12,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IncomePeriodChanges.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="Variación del primer al último mes" FontWeight="SemiBold" Margin="0,0,0,5" />
+                            <ItemsControl ItemsSource="{Binding IncomePeriodChanges}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource ReportTotalsPanel}" Margin="0,0,5,0">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Text}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsFavorable}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{StaticResource RocaMayaSuccessBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsFavorable}" Value="False">
+                                                                    <Setter Property="Foreground" Value="{StaticResource RocaMayaDangerBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

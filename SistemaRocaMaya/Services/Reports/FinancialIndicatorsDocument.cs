@@ -9,7 +9,7 @@ using SistemaRocaMaya.ViewModels;
 namespace SistemaRocaMaya.Services.Reports;
 
 public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<AccountingIndicatorViewModel> indicators)
-    : ReportDocument("Resumen contable",
+    : ReportDocument("Indicadores financieros",
         $"Indicadores financieros · {cutoff.AddMonths(-5):MM/yyyy} – {cutoff:MM/yyyy} · Corte {cutoff:dd/MM/yyyy}")
 {
     protected override void ComposeContent(IContainer container)
@@ -34,9 +34,10 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
             {
                 column.Item().PageBreak();
                 column.Item().Text(group.Title).FontSize(18).SemiBold();
-                column.Item().PaddingTop(5).PaddingBottom(15).Text(group.Review);
+
                 foreach (var indicator in group.Indicators)
-                    column.Item().PaddingBottom(14).Element(body => ComposeIndicator(body, indicator));
+                    column.Item().PaddingTop(8).Element(body => ComposeIndicator(body, indicator));
+                column.Item().PaddingTop(12).Element(new ReportCallout("Qué revisar", group.Review).Compose);
             }
         });
     }

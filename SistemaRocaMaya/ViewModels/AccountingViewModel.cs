@@ -16,7 +16,7 @@ public sealed class AccountingViewModel : ObservableObject
 {
     private static readonly HashSet<string> AccountingSections = new(StringComparer.Ordinal)
     {
-        "Resumen contable",
+        "Indicadores financieros",
         "Libro diario",
         "Libro mayor",
         "Hoja de Kardex",
@@ -25,7 +25,7 @@ public sealed class AccountingViewModel : ObservableObject
     };
 
     private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
-    private string _selectedSection = "Resumen contable";
+    private string _selectedSection = "Indicadores financieros";
     private int _selectedManagementIndicatorIndex;
     private string _selectedLedgerAccount = "Caja";
     private int _selectedJournalYear = DateTime.Today.Year;
@@ -35,7 +35,7 @@ public sealed class AccountingViewModel : ObservableObject
     private int _selectedLedgerYear = DateTime.Today.Year;
     private int _selectedLedgerMonth = DateTime.Today.Month;
     private DateTime? _financialPositionCutoffMonth = FirstDayOfMonth(DateTime.Today);
-    private DateTime? _incomeStartDate = FirstDayOfMonth(DateTime.Today).AddMonths(-1);
+    private DateTime? _incomeStartDate = FirstDayOfMonth(DateTime.Today).AddMonths(-5);
     private DateTime? _incomeEndDate = FirstDayOfMonth(DateTime.Today);
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _kardexEndDate = DateTime.Today;
@@ -107,7 +107,7 @@ public sealed class AccountingViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedSection, value))
             {
-                if (value == "Resumen contable")
+                if (value == "Indicadores financieros")
                 {
                     SelectedManagementIndicatorIndex = 0;
                     OnPropertyChanged(nameof(SelectedManagementIndicatorIndex));
@@ -323,7 +323,7 @@ public sealed class AccountingViewModel : ObservableObject
         private set => SetProperty(ref _kardexActionMessage, value);
     }
 
-    public Visibility SummaryVisibility => VisibilityFor("Resumen contable");
+    public Visibility SummaryVisibility => VisibilityFor("Indicadores financieros");
     public Visibility JournalVisibility => VisibilityFor("Libro diario");
     public Visibility LedgerVisibility => VisibilityFor("Libro mayor");
     public Visibility KardexVisibility => VisibilityFor("Hoja de Kardex");
@@ -350,7 +350,8 @@ public sealed class AccountingViewModel : ObservableObject
     }
 
     public IReadOnlyList<FinancialPositionBar> FinancialPositionBars { get; private set; } = [];
-    public string FinancialPositionRecommendation { get; private set; } = "";
+    public FinancialPositionAssessment FinancialPositionFinancing { get; private set; } = new(0m, 0m);
+    public IReadOnlyList<IncomePeriodChange> IncomePeriodChanges { get; private set; } = [];
     public string FinancialPositionScaleTop { get; private set; } = "";
     public string FinancialPositionScaleMiddle { get; private set; } = "";
     public string FinancialPositionScaleBottom { get; private set; } = "";
@@ -650,7 +651,8 @@ public sealed class AccountingViewModel : ObservableObject
         var chart = new ReportChart("Comparativa de activos, patrimonio y pasivos",
             ["Activos", "Patrimonio", "Pasivos"],
             [new("Saldos al corte", [_reportAssets, _reportEquity, _reportPayables])], "Grupo contable");
-        return new FinancialPositionDocument(cutoff, rows, chart, FinancialPositionRecommendation);
+        return new FinancialPositionDocument(cutoff, rows, chart,
+            new("Consejo de financiamiento", FinancialPositionFinancing.Recommendation, FinancialPositionFinancing.RecommendationColor));
     }
 
     public TableReportDocument CreateJournalReport()
@@ -721,11 +723,12 @@ public sealed class AccountingViewModel : ObservableObject
                 new("Ventas", months.Select(month => month.Sales.Value).ToArray()),
                 new("Costos y gastos", months.Select(month => month.Costs.Value).ToArray()),
                 new("Utilidad neta", months.Select(month => month.NetIncome.Value).ToArray())
-            ], "Mes contable");
+            ]);
         return new("Estado de Resultados", $"Meses: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}",
             [new("Categoría", 1.7f), new("Descripción", 2.2f), new("Cantidad", 1, true)],
             IncomeStatementLines.Select(line => new ReportRow([line.Group, line.Account, line.Amount], line.IsTotal)).ToArray(),
-            chart: chart);
+            chart: chart, chartCallouts: IncomePeriodChanges.Select(change => new ReportCallout(change.Label, change.Text,
+                change.IsFavorable switch { true => "#24724F", false => "#A52532", null => "#455D6F" })).ToArray());
     }
 
     private void RefreshFinancialPositionOutput()
@@ -783,13 +786,13 @@ public sealed class AccountingViewModel : ObservableObject
         FinancialPositionScaleMiddle = FormatMoney(maximum / 2m);
         FinancialPositionScaleBottom = minimum < 0 ? FormatMoney(minimum) : "";
         FinancialPositionNegativeHeight = (double)(-minimum / maximum * 150m);
-        FinancialPositionRecommendation = new FinancialPositionAssessment(_reportAssets, _reportPayables).Recommendation;
+        FinancialPositionFinancing = new(_reportAssets, _reportPayables);
         OnPropertyChanged(nameof(FinancialPositionBars));
         OnPropertyChanged(nameof(FinancialPositionScaleTop));
         OnPropertyChanged(nameof(FinancialPositionScaleMiddle));
         OnPropertyChanged(nameof(FinancialPositionScaleBottom));
         OnPropertyChanged(nameof(FinancialPositionNegativeHeight));
-        OnPropertyChanged(nameof(FinancialPositionRecommendation));
+        OnPropertyChanged(nameof(FinancialPositionFinancing));
     }
 
     private void RefreshIncomeStatementOutput()
@@ -844,6 +847,20 @@ public sealed class AccountingViewModel : ObservableObject
             ? Enumerable.Range(0, monthCount).Select(firstMonth.AddMonths)
             : totalsByMonth.Keys.OrderBy(month => month);
         var monthlyValues = months.Select(month => (Date: month, Totals: totalsByMonth.GetValueOrDefault(month))).ToArray();
+
+        IncomePeriodChanges = [];
+        if (showEmptyMonths && monthlyValues.Length > 1)
+        {
+            var first = monthlyValues[0].Totals;
+            var last = monthlyValues[^1].Totals;
+            IncomePeriodChanges =
+            [
+                IncomePeriodChange.Compare("Ventas", first.Sales, last.Sales),
+                IncomePeriodChange.Compare("Costos y gastos", first.Costs, last.Costs, lowerIsBetter: true),
+                IncomePeriodChange.Compare("Utilidad neta", first.Sales - first.Costs, last.Sales - last.Costs)
+            ];
+        }
+        OnPropertyChanged(nameof(IncomePeriodChanges));
 
         var amounts = monthlyValues.SelectMany(month => new[] { month.Totals.Sales, month.Totals.Costs, month.Totals.Sales - month.Totals.Costs }).ToArray();
         var scale = Math.Max(1m, amounts.Select(Math.Abs).DefaultIfEmpty().Max());

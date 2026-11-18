@@ -6,7 +6,7 @@ namespace SistemaRocaMaya.Services.Reports;
 public sealed record ReportStatementRow(string Group, string Account, string Amount, bool IsTotal, bool IsSectionHeader);
 
 public sealed class FinancialPositionDocument(DateTime cutoff, IReadOnlyList<ReportStatementRow> rows,
-    ReportChart? chart = null, string? recommendation = null)
+    ReportChart? chart = null, ReportCallout? recommendation = null)
     : ReportDocument("Estado de Situación Financiera",
         $"Al cierre de {cutoff.ToString("MMMM yyyy", OperationalDemoStore.HondurasCulture)} · Corte {cutoff:dd/MM/yyyy}")
 {
@@ -54,8 +54,8 @@ public sealed class FinancialPositionDocument(DateTime cutoff, IReadOnlyList<Rep
                 {
                     foreach (var svg in chart.RenderPages())
                         comparison.Item().Svg(svg).FitWidth();
-                    if (!string.IsNullOrWhiteSpace(recommendation))
-                        comparison.Item().PaddingTop(6).Text(recommendation);
+                    if (recommendation is not null)
+                        comparison.Item().PaddingTop(12).Element(recommendation.Compose);
                 });
             }
         });

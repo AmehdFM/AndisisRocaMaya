@@ -310,6 +310,97 @@ public sealed class OperationalDemoStore : ObservableObject
         var hostal = CreateCustomer("Hostal La Ceiba Alta", "9000-0225", CustomerType.Company, "08019027002025");
         var reposteria = CreateCustomer("Repostería Vista del Valle", "9000-0226", CustomerType.Company, "08019027002026");
 
+        var firstDayOfCurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var historicalMonth9 = firstDayOfCurrentMonth.AddMonths(-9);
+        RecordPurchase(distributor, historicalMonth9, [
+            new(rice, 24, 17.25m, historicalMonth9.AddDays(120)),
+            new(beans, 15, 24m, historicalMonth9.AddDays(100)),
+            new(coffee, 8, 54m, historicalMonth9.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth9.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 24, rice.SalePrice), new(beans, 15, beans.SalePrice)
+        ], historicalMonth9.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 8, coffee.SalePrice)
+        ], historicalMonth9.AddHours(14));
+        CloseCashSession([new(500m, 3), new(200m, 2), new(50m, 1), new(20m, 1), new(10m, 1), new(2m, 1)], historicalMonth9.AddHours(17));
+
+        var historicalMonth8 = firstDayOfCurrentMonth.AddMonths(-8);
+        RecordPurchase(distributor, historicalMonth8, [
+            new(rice, 36, 17.50m, historicalMonth8.AddDays(120)),
+            new(beans, 16, 25m, historicalMonth8.AddDays(100)),
+            new(coffee, 11, 55m, historicalMonth8.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth8.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 36, rice.SalePrice), new(beans, 16, beans.SalePrice)
+        ], historicalMonth8.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 11, coffee.SalePrice)
+        ], historicalMonth8.AddHours(14));
+        CloseCashSession([new(500m, 5), new(20m, 1), new(5m, 1), new(1m, 1)], historicalMonth8.AddHours(17));
+
+        var historicalMonth7 = firstDayOfCurrentMonth.AddMonths(-7);
+        RecordPurchase(distributor, historicalMonth7, [
+            new(rice, 30, 18.00m, historicalMonth7.AddDays(120)),
+            new(beans, 20, 25m, historicalMonth7.AddDays(100)),
+            new(coffee, 14, 57m, historicalMonth7.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth7.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 30, rice.SalePrice), new(beans, 20, beans.SalePrice)
+        ], historicalMonth7.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 14, coffee.SalePrice)
+        ], historicalMonth7.AddHours(14));
+        CloseCashSession([new(500m, 5), new(200m, 1), new(20m, 2), new(5m, 1), new(2m, 2)], historicalMonth7.AddHours(17));
+
+        var historicalMonth6 = firstDayOfCurrentMonth.AddMonths(-6);
+        RecordPurchase(distributor, historicalMonth6, [
+            new(rice, 36, 17.75m, historicalMonth6.AddDays(120)),
+            new(beans, 18, 26m, historicalMonth6.AddDays(100)),
+            new(coffee, 12, 57m, historicalMonth6.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth6.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 36, rice.SalePrice), new(beans, 18, beans.SalePrice)
+        ], historicalMonth6.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 12, coffee.SalePrice)
+        ], historicalMonth6.AddHours(14));
+        CloseCashSession([new(500m, 5), new(100m, 1), new(50m, 1), new(20m, 1)], historicalMonth6.AddHours(17));
+
+        var historicalMonth5 = firstDayOfCurrentMonth.AddMonths(-5);
+        RecordPurchase(distributor, historicalMonth5, [
+            new(rice, 32, 18.25m, historicalMonth5.AddDays(120)),
+            new(beans, 15, 27m, historicalMonth5.AddDays(100)),
+            new(coffee, 15, 59m, historicalMonth5.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth5.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 32, rice.SalePrice), new(beans, 15, beans.SalePrice)
+        ], historicalMonth5.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 15, coffee.SalePrice)
+        ], historicalMonth5.AddHours(14));
+        CloseCashSession([new(500m, 5), new(200m, 1), new(2m, 1)], historicalMonth5.AddHours(17));
+
+        var historicalMonth4 = firstDayOfCurrentMonth.AddMonths(-4);
+        RecordPurchase(distributor, historicalMonth4, [
+            new(rice, 42, 18.75m, historicalMonth4.AddDays(120)),
+            new(beans, 20, 26m, historicalMonth4.AddDays(100)),
+            new(coffee, 15, 58m, historicalMonth4.AddDays(90))
+        ]);
+        OpenCashSession([new(200m, 1), new(100m, 1)], historicalMonth4.AddHours(7));
+        RecordSale(SalePaymentType.Cash, null, [
+            new(rice, 42, rice.SalePrice), new(beans, 20, beans.SalePrice)
+        ], historicalMonth4.AddHours(9));
+        RecordSale(SalePaymentType.Cash, merendero, [
+            new(coffee, 15, coffee.SalePrice)
+        ], historicalMonth4.AddHours(14));
+        CloseCashSession([new(500m, 6), new(100m, 1), new(5m, 1), new(2m, 1)], historicalMonth4.AddHours(17));
+
         var reportDay115 = DateTime.Today.AddDays(-115);
         RecordPurchase(distributor, reportDay115, [
             new(rice, 32, 17.50m, reportDay115.AddDays(200)),
