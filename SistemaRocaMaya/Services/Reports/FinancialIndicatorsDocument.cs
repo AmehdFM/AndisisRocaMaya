@@ -14,25 +14,114 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
 {
     protected override void ComposeContent(IContainer container)
     {
+        var groups = new[]
+        {
+            new IndicatorGroup("Rentabilidad de las ventas",
+                "Muestra cuánto queda de cada L 100 vendidos. Si el margen cae, revisa si subió el costo de la mercadería o bajó el precio de venta.",
+                indicators.Take(2).ToArray()),
+            new IndicatorGroup("Capacidad de pago",
+                "Compara la cobertura de las obligaciones corrientes con y sin inventario. Si la cobertura cae al excluirlo, revisa los cobros pendientes y los pagos próximos.",
+                indicators.Skip(2).Take(2).ToArray()),
+            new IndicatorGroup("Financiamiento y rendimiento",
+                "Lee el endeudamiento junto con la rentabilidad del patrimonio. Si aumenta la deuda sin una mejora del rendimiento, revisa qué se está financiando con esos recursos.",
+                indicators.Skip(4).ToArray())
+        };
+
         container.Column(column =>
         {
-            for (var index = 0; index < indicators.Count; index++)
+            column.Item().Element(ComposeOverview);
+            foreach (var group in groups.Where(group => group.Indicators.Count > 0))
             {
-                if (index > 0 && index % 2 == 0) column.Item().PageBreak();
-                var indicator = indicators[index];
-                column.Item().PaddingBottom(18).Column(section =>
-                {
-                    section.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text(indicator.Name).FontSize(14).SemiBold();
-                        row.AutoItem().PaddingLeft(10).Text(indicator.Value).FontSize(14).FontColor(Blue).SemiBold();
-                    });
-                    section.Item().PaddingTop(8).Svg(RenderTrend(indicator)).FitWidth();
-                    section.Item().PaddingTop(6).Text(indicator.Explanation);
-                });
+                column.Item().PageBreak();
+                column.Item().Text(group.Title).FontSize(18).SemiBold();
+                column.Item().PaddingTop(5).PaddingBottom(15).Text(group.Review);
+                foreach (var indicator in group.Indicators)
+                    column.Item().PaddingBottom(14).Element(body => ComposeIndicator(body, indicator));
             }
         });
     }
+
+    private void ComposeOverview(IContainer container)
+    {
+        var currentLabel = cutoff.ToString("MMM yy", OperationalDemoStore.HondurasCulture);
+        var previousLabel = cutoff.AddMonths(-1).ToString("MMM yy", OperationalDemoStore.HondurasCulture);
+
+        container.Column(column =>
+        {
+            column.Item().Text("Lectura del período").FontSize(18).SemiBold();
+            column.Item().PaddingTop(5).PaddingBottom(16)
+                .Text("Consulta el valor al corte, su variación respecto al mes anterior y la referencia cuando aplica. Las páginas siguientes muestran la evolución de los últimos seis meses.");
+            column.Item().Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2.25f);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1.25f);
+                });
+                table.Header(header =>
+                {
+                    foreach (var heading in new[] { "Indicador", previousLabel, currentLabel, "Variación", "Referencia" })
+                    {
+                        var cell = header.Cell().Background(PaleBlue).Padding(6);
+                        if (heading != "Indicador") cell = cell.AlignRight();
+                        cell.Text(heading).SemiBold();
+                    }
+                });
+
+                foreach (var indicator in indicators)
+                {
+                    var previous = indicator.Months.Count > 1 ? indicator.Months[^2].Value : "—";
+                    var current = indicator.Months.LastOrDefault()?.Value ?? "—";
+                    var reference = indicator.ThresholdLabel.Replace("Referencia: ", "");
+                    IContainer Cell() => table.Cell().BorderBottom(0.5f).BorderColor(Divider).Padding(6);
+                    Cell().Text(indicator.Name);
+                    Cell().AlignRight().Text(previous);
+                    Cell().AlignRight().Text(current).SemiBold();
+                    Cell().AlignRight().Text(FormatChange(indicator));
+                    Cell().AlignRight().Text(reference.Length == 0 ? "—" : reference);
+                }
+            });
+
+            column.Item().PaddingTop(18).BorderLeft(2).BorderColor(Blue).Background(PaleBlue).Padding(10).Column(notes =>
+            {
+                notes.Item().Text("Cómo interpretar la comparación").SemiBold();
+                notes.Item().PaddingTop(5).Text("El mes actual incluye operaciones hasta la fecha de corte. El mes anterior corresponde al mes completo.");
+                notes.Item().PaddingTop(5).Text("La variación se expresa en puntos porcentuales (pp) o veces. Un guion indica que falta un dato para el cálculo o que no hay referencia.");
+                notes.Item().PaddingTop(5).Text("El resultado usa las ventas y el costo registrado de la mercadería. Al no incluir gastos operativos, intereses ni impuestos, el margen neto coincide con el margen bruto.");
+            });
+        });
+    }
+
+    private static void ComposeIndicator(IContainer container, AccountingIndicatorViewModel indicator)
+    {
+        container.Border(1).BorderColor(Divider).Padding(10).Column(section =>
+        {
+            section.Item().Row(row =>
+            {
+                row.RelativeItem().Text(indicator.Name).FontSize(13).SemiBold();
+                row.AutoItem().PaddingLeft(10).Text(indicator.Value).FontSize(13).FontColor("#245F8C").SemiBold();
+            });
+            section.Item().PaddingTop(3).Text($"Variación frente al mes anterior: {FormatChange(indicator)}")
+                .FontSize(9).FontColor("#526A7A");
+            section.Item().PaddingTop(6).Svg(RenderTrend(indicator)).FitWidth();
+        });
+    }
+
+    private static string FormatChange(AccountingIndicatorViewModel indicator)
+    {
+        if (indicator.Months.Count < 2 || indicator.Months[^2].Amount is not decimal previous
+            || indicator.Months[^1].Amount is not decimal current)
+            return "—";
+
+        var change = current - previous;
+        var unit = indicator.Unit == "%" ? "pp" : indicator.Unit;
+        return $"{change.ToString("+0.00;-0.00;0.00", OperationalDemoStore.HondurasCulture)} {unit}";
+    }
+
+    private sealed record IndicatorGroup(string Title, string Review, IReadOnlyList<AccountingIndicatorViewModel> Indicators);
 
     private static string RenderTrend(AccountingIndicatorViewModel indicator)
     {
@@ -53,7 +142,8 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
         if (indicator.ThresholdLine is { } reference)
             svg.Append($"<path d=\"M {Number(reference.StartPoint.X)},{Number(reference.StartPoint.Y)} L {Number(reference.EndPoint.X)},{Number(reference.EndPoint.Y)}\" fill=\"none\" stroke=\"#9A5B23\" stroke-dasharray=\"5 3\"/>");
         var path = indicator.Line.ToString(CultureInfo.InvariantCulture);
-        svg.Append($"<path d=\"{Escape(path)}\" fill=\"none\" stroke=\"#245F8C\" stroke-width=\"2\"/>");
+        if (indicator.Line.Figures.Count > 0)
+            svg.Append($"<path d=\"{Escape(path)}\" fill=\"none\" stroke=\"#245F8C\" stroke-width=\"2\"/>");
         foreach (var dot in indicator.Dots.Children.OfType<EllipseGeometry>())
             svg.Append($"<circle cx=\"{Number(dot.Center.X)}\" cy=\"{Number(dot.Center.Y)}\" r=\"3.5\" fill=\"#245F8C\"/>");
         svg.Append("</g>");

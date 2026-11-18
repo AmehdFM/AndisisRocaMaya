@@ -1001,7 +1001,7 @@ public sealed class AccountingViewModel : ObservableObject
         var periods = new IndicatorMonth[values.Count];
         for (var index = 0; index < values.Count; index++)
         {
-            periods[index] = new(labels[index], values[index] is decimal amount ? $"{amount:0.00} {unit}" : "—");
+            periods[index] = new(labels[index], values[index] is decimal amount ? $"{amount:0.00} {unit}" : "—", values[index]);
             if (values[index] is not decimal value)
             {
                 segment = null;
@@ -1173,7 +1173,7 @@ public sealed record AccountingIndicatorViewModel(
     string AxisTop, string AxisMiddle, string AxisBottom,
     PathGeometry Line, GeometryGroup Dots, LineGeometry? ThresholdLine, string ThresholdLabel, IReadOnlyList<IndicatorMonth> Months);
 
-public sealed record IndicatorMonth(string Label, string Value);
+public sealed record IndicatorMonth(string Label, string Value, decimal? Amount);
 
 public sealed record JournalMonthOption(int Number, string Name);
 
