@@ -56,8 +56,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,7,10,7">
                             <TextBlock Text="Fecha de compra" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,0,0,3" />
-                            <DatePicker SelectedDate="{Binding PurchaseDate}" Height="28" Padding="5,0" VerticalContentAlignment="Center"
-                                        Background="White" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" />
+                            <DatePicker SelectedDate="{Binding PurchaseDate}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
                             <TextBlock Text="{Binding StatusMessage}" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" Margin="0,0,0,4" />
@@ -94,11 +93,9 @@
                                                        HorizontalContentAlignment="Right" BorderBrush="{StaticResource RocaMayaBluePrimaryBrush}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="VENCE" Width="1.05*">
+                        <DataGridTemplateColumn Header="VENCE" Width="1.05*" MinWidth="120">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate><DatePicker SelectedDate="{Binding ExpirationDate, UpdateSourceTrigger=PropertyChanged}"
-                                                          Height="28" Padding="5,0" VerticalContentAlignment="Center"
-                                                          Background="White" BorderBrush="{StaticResource RocaMayaBorderBrush}" /></DataTemplate>
+                                <DataTemplate><DatePicker SelectedDate="{Binding ExpirationDate, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
@@ -158,9 +155,9 @@
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="1" SelectedDate="{Binding ReportStartDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
+                    <DatePicker Grid.Column="1" SelectedDate="{Binding ReportStartDate, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <DatePicker Grid.Column="3" SelectedDate="{Binding ReportEndDate, UpdateSourceTrigger=PropertyChanged}" Height="30" />
+                    <DatePicker Grid.Column="3" SelectedDate="{Binding ReportEndDate, UpdateSourceTrigger=PropertyChanged}" />
                     <ComboBox Grid.Column="4" ItemsSource="{Binding ReportSupplierNames}" SelectedItem="{Binding SelectedReportSupplier}" Height="32" Margin="12,0,8,0" VerticalContentAlignment="Center" ToolTip="Filtrar por proveedor" />
                     <TextBox Grid.Column="5" Text="{Binding ReportProductSearchText, UpdateSourceTrigger=PropertyChanged}" Height="32" Padding="8,0" Margin="6,0" VerticalContentAlignment="Center" ToolTip="Buscar producto o código" />
                     <Button Style="{StaticResource AppButton}" Grid.Column="6" Content="Exportar PDF" Command="{Binding ExportPurchaseReportCommand}" Margin="0,0,8,0" />
