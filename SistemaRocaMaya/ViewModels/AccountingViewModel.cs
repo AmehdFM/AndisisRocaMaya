@@ -629,7 +629,7 @@ public sealed class AccountingViewModel : ObservableObject
             line.Group, line.Account, line.Amount, line.IsTotal, line.IsSectionHeader)).ToArray();
         var chart = new ReportChart("Comparativa de activos, patrimonio y pasivos",
             ["Activos", "Patrimonio", "Pasivos"],
-            [new("Saldos al corte", [_reportAssets, _reportEquity, _reportPayables])]);
+            [new("Saldos al corte", [_reportAssets, _reportEquity, _reportPayables])], "Grupo contable");
         return new FinancialPositionDocument(cutoff, rows, chart, FinancialPositionRecommendation);
     }
 
@@ -689,7 +689,7 @@ public sealed class AccountingViewModel : ObservableObject
                 new("Ventas", months.Select(month => month.Sales.Value).ToArray()),
                 new("Costos y gastos", months.Select(month => month.Costs.Value).ToArray()),
                 new("Utilidad neta", months.Select(month => month.NetIncome.Value).ToArray())
-            ]);
+            ], "Mes contable");
         return new("Estado de Resultados", $"Meses: {IncomeStartDate:MM/yyyy} – {IncomeEndDate:MM/yyyy}",
             [new("Categoría", 1.7f), new("Descripción", 2.2f), new("Cantidad", 1, true)],
             IncomeStatementLines.Select(line => new ReportRow([line.Group, line.Account, line.Amount], line.IsTotal)).ToArray(),

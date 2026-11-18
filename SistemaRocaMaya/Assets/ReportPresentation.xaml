@@ -37,4 +37,21 @@
         <Setter Property="Foreground" Value="{StaticResource RocaMayaTextSecondaryBrush}" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
+    <Style x:Key="ReportChartAxisText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource RocaMayaTextSecondaryBrush}" />
+    </Style>
+    <Style x:Key="ReportChartValueText" TargetType="TextBlock" BasedOn="{StaticResource ReportChartAxisText}">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource RocaMayaBlackPrimaryBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="ReportChartGuide" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+    <Style x:Key="ReportChartBaseline" TargetType="Border" BasedOn="{StaticResource ReportChartGuide}">
+        <Setter Property="BorderBrush" Value="{StaticResource RocaMayaTextSecondaryBrush}" />
+    </Style>
 </ResourceDictionary>

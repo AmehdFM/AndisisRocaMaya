@@ -111,20 +111,20 @@
                                         </DockPanel>
                                         <DockPanel Margin="0,0,0,4">
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding ThresholdLabel}" Foreground="{StaticResource RocaMayaWarningBrush}" />
-                                            <TextBlock Text="{Binding Unit}" Style="{StaticResource ReportMetadataText}" />
+                                            <TextBlock Text="{Binding Unit, StringFormat='Unidad: {0}'}" Style="{StaticResource ReportChartAxisText}" />
                                         </DockPanel>
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions><RowDefinition Height="150" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                                             <Grid MinWidth="46" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding AxisTop}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
-                                                <TextBlock Text="{Binding AxisMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
-                                                <TextBlock Text="{Binding AxisBottom}" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
+                                                <TextBlock Text="{Binding AxisTop}" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-7,0,0" Style="{StaticResource ReportChartAxisText}" />
+                                                <TextBlock Text="{Binding AxisMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource ReportChartAxisText}" />
+                                                <TextBlock Text="{Binding AxisBottom}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,-7" Style="{StaticResource ReportChartAxisText}" />
                                             </Grid>
                                             <Viewbox Grid.Column="1" Stretch="Fill">
-                                                <Canvas Width="600" Height="150">
-                                                    <Path Data="M 0,0 H 600 M 0,75 H 600" Stroke="{StaticResource RocaMayaDividerBrush}" StrokeThickness="1" />
-                                                    <Path Data="M 0,0 V 150 H 600" Stroke="{StaticResource RocaMayaBorderBrush}" StrokeThickness="1" />
+                                                <Canvas Width="600" Height="150" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
+                                                    <Path Data="M 0,0 H 600 M 0,75 H 600" Stroke="{StaticResource RocaMayaBorderBrush}" StrokeThickness="1" />
+                                                    <Path Data="M 0,0 V 150 H 600" Stroke="{StaticResource RocaMayaTextSecondaryBrush}" StrokeThickness="1" />
                                                     <Path Data="{Binding ThresholdLine}" Stroke="{StaticResource RocaMayaWarningBrush}" StrokeThickness="1.5" StrokeDashArray="5 3" />
                                                     <Path Data="{Binding Line}" Stroke="{StaticResource RocaMayaBlueSecondaryBrush}" StrokeThickness="2" />
                                                     <Path Data="{Binding Dots}" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
@@ -136,14 +136,13 @@
                                                     <DataTemplate>
                                                         <StackPanel HorizontalAlignment="Center">
                                                             <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" />
-                                                            <TextBlock Text="{Binding Value}" HorizontalAlignment="Center" FontSize="11"
-                                                                       Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                                            <TextBlock Text="{Binding Value}" Style="{StaticResource ReportChartValueText}" />
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </Grid>
-                                        <TextBlock Text="Período contable (meses)" HorizontalAlignment="Center"
+                                        <TextBlock Text="Mes contable" HorizontalAlignment="Center"
                                                    Style="{StaticResource ReportMetadataText}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,12,0,3" />
                                     </StackPanel>
@@ -384,14 +383,17 @@
                 </DataGrid>
                 <StackPanel Margin="0,14,0,4">
                     <TextBlock Text="Comparativa de activos, patrimonio y pasivos" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Monto (L)" Style="{StaticResource ReportChartAxisText}" Margin="0,0,0,6" />
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <StackPanel>
-                            <Grid Height="150" MinWidth="78" Margin="0,20,8,0">
-                                <TextBlock Text="{Binding FinancialPositionScaleTop}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
-                                <TextBlock Text="{Binding FinancialPositionScaleMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
-                                <TextBlock Text="L 0.00" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
-                            </Grid>
+                            <Border Margin="0,20,0,1" BorderThickness="0,0,1,0" BorderBrush="{StaticResource RocaMayaTextSecondaryBrush}">
+                                <Grid Height="150" MinWidth="78" Margin="0,0,8,0">
+                                    <TextBlock Text="{Binding FinancialPositionScaleTop}" VerticalAlignment="Top" HorizontalAlignment="Right" Style="{StaticResource ReportChartAxisText}" />
+                                    <TextBlock Text="{Binding FinancialPositionScaleMiddle}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource ReportChartAxisText}" />
+                                    <TextBlock Text="L 0.00" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource ReportChartAxisText}" />
+                                </Grid>
+                            </Border>
                             <Grid Height="{Binding FinancialPositionNegativeHeight}">
                                 <TextBlock Text="{Binding FinancialPositionScaleBottom}" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" Margin="0,0,8,0" />
                             </Grid>
@@ -401,11 +403,13 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Amount}" Height="20" HorizontalAlignment="Center" FontWeight="SemiBold" />
-                                        <Grid Height="150">
+                                        <TextBlock Text="{Binding Amount}" Height="20" Style="{StaticResource ReportChartValueText}" />
+                                        <Grid Height="150" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
+                                            <Border Style="{StaticResource ReportChartGuide}" VerticalAlignment="Top" Height="1" />
+                                            <Border Style="{StaticResource ReportChartGuide}" VerticalAlignment="Center" Height="1" />
                                             <Rectangle Width="48" Height="{Binding PositiveHeight}" VerticalAlignment="Bottom" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                         </Grid>
-                                        <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource RocaMayaBorderBrush}" />
+                                        <Border Style="{StaticResource ReportChartBaseline}" />
                                         <Grid Height="{Binding DataContext.FinancialPositionNegativeHeight, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                             <Rectangle Width="48" Height="{Binding NegativeHeight}" VerticalAlignment="Top" Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                         </Grid>
@@ -467,6 +471,7 @@
                     </TextBlock>
                     <StackPanel Margin="0,10,0,0">
                         <TextBlock Text="Evolución mensual" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="Monto (L)" Style="{StaticResource ReportChartAxisText}" Margin="0,0,0,6" />
                         <TextBlock Text="{Binding IncomeChartStatusMessage}" Margin="0,3,0,4">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource ReportMetadataText}">
@@ -494,15 +499,17 @@
                         </WrapPanel>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <StackPanel Margin="0,24,0,0" VerticalAlignment="Top">
-                                <Border BorderThickness="0,0,1,0" BorderBrush="{StaticResource RocaMayaBorderBrush}">
+                            <StackPanel VerticalAlignment="Top">
+                                <Border BorderThickness="0,0,1,0" BorderBrush="{StaticResource RocaMayaTextSecondaryBrush}">
                                     <Grid Height="100" Margin="0,0,8,0" MinWidth="58">
                                         <TextBlock Text="{Binding IncomeChartMaximumText}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="11" />
                                         <TextBlock Text="{Binding IncomeChartMidpointText}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" />
                                         <TextBlock Text="L 0.00" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="11" />
                                     </Grid>
                                 </Border>
-                                <TextBlock Text="{Binding IncomeChartMinimumText}" HorizontalAlignment="Right" Margin="0,0,8,0" FontSize="11" />
+                                <Grid Height="{Binding IncomeChartNegativeHeight}">
+                                    <TextBlock Text="{Binding IncomeChartMinimumText}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,8,0" FontSize="11" />
+                                </Grid>
                             </StackPanel>
                             <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                                 <ItemsControl ItemsSource="{Binding IncomeChartMonths}">
@@ -511,33 +518,39 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel MinWidth="100">
-                                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Height="24" FontWeight="SemiBold" />
-                                                <Grid Height="100" Margin="12,0">
+                                            <StackPanel Width="132">
+                                                <Grid Height="100" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
                                                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                                    <Rectangle Grid.Column="0" Height="{Binding Sales.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
+                                                    <Border Grid.ColumnSpan="3" Style="{StaticResource ReportChartGuide}" VerticalAlignment="Top" Height="1" />
+                                                    <Border Grid.ColumnSpan="3" Style="{StaticResource ReportChartGuide}" VerticalAlignment="Center" Height="1" />
+                                                    <Rectangle Grid.Column="0" Width="24" Height="{Binding Sales.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
                                                                ToolTip="{Binding Sales.Amount}" />
-                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
+                                                    <Rectangle Grid.Column="1" Width="24" Height="{Binding Costs.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
                                                                ToolTip="{Binding Costs.Amount}" />
-                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
+                                                    <Rectangle Grid.Column="2" Width="24" Height="{Binding NetIncome.AboveZero}" VerticalAlignment="Bottom" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
                                                                ToolTip="{Binding NetIncome.Amount}" />
                                                 </Grid>
-                                                <Border BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,1,0,0" />
-                                                <Grid Height="{Binding DataContext.IncomeChartNegativeHeight, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="12,0">
+                                                <Border Style="{StaticResource ReportChartBaseline}" />
+                                                <Grid Height="{Binding DataContext.IncomeChartNegativeHeight, RelativeSource={RelativeSource AncestorType=UserControl}}" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
                                                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                                    <Rectangle Grid.Column="0" Height="{Binding Sales.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
+                                                    <Rectangle Grid.Column="0" Width="24" Height="{Binding Sales.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaBluePrimaryBrush}"
                                                                ToolTip="{Binding Sales.Amount}" />
-                                                    <Rectangle Grid.Column="1" Height="{Binding Costs.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
+                                                    <Rectangle Grid.Column="1" Width="24" Height="{Binding Costs.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaWarningBrush}"
                                                                ToolTip="{Binding Costs.Amount}" />
-                                                    <Rectangle Grid.Column="2" Height="{Binding NetIncome.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
+                                                    <Rectangle Grid.Column="2" Width="24" Height="{Binding NetIncome.BelowZero}" VerticalAlignment="Top" Margin="2,0" Fill="{StaticResource RocaMayaSuccessBrush}"
                                                                ToolTip="{Binding NetIncome.Amount}" />
                                                 </Grid>
+                                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Margin="0,5,0,3" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Sales.Amount}" Style="{StaticResource ReportChartValueText}" Foreground="{StaticResource RocaMayaBluePrimaryBrush}" />
+                                                <TextBlock Text="{Binding Costs.Amount}" Style="{StaticResource ReportChartValueText}" Foreground="{StaticResource RocaMayaWarningBrush}" />
+                                                <TextBlock Text="{Binding NetIncome.Amount}" Style="{StaticResource ReportChartValueText}" Foreground="{StaticResource RocaMayaSuccessBrush}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
                         </Grid>
+                        <TextBlock Text="Mes contable" HorizontalAlignment="Center" Style="{StaticResource ReportChartAxisText}" Margin="0,5,0,0" />
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

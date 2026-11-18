@@ -26,6 +26,7 @@ public sealed class CreditsViewModel : ObservableObject
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
     public ListCollectionView CustomersWithCredit { get; }
     public ListCollectionView AgingCustomers { get; }
+    public string AgingScaleMaximum { get; private set; } = "";
     public IReadOnlyList<CreditAgingBar> AgingBars { get; private set; } = [];
     public IReadOnlyList<CreditAgingRanking> AgingRankings { get; private set; } = [];
     public string AgingActionMessage
@@ -125,7 +126,7 @@ public sealed class CreditsViewModel : ObservableObject
         var chart = new ReportChart("Saldos por tramo de antigüedad",
             ["0–30 días", "31–60 días", "61–90 días", "Más de 90 días"],
             [new("Saldo pendiente", [customers.Sum(row => row.Days0To30), customers.Sum(row => row.Days31To60),
-                customers.Sum(row => row.Days61To90), customers.Sum(row => row.Over90)])]);
+                customers.Sum(row => row.Days61To90), customers.Sum(row => row.Over90)])], "Tramo de antigüedad");
         var rankings = AgingRankings.Select(ranking => $"{ranking.Title}: " +
             (ranking.Rows.Count == 0 ? ranking.EmptyMessage
                 : string.Join(" · ", ranking.Rows.Select(row => $"{row.CustomerName} ({row.Value})")))).ToArray();
@@ -186,6 +187,7 @@ public sealed class CreditsViewModel : ObservableObject
             ("Más de 90 días", rows.Sum(row => row.Over90))
         };
         var maximum = amounts.Max(bar => bar.Amount);
+        AgingScaleMaximum = OperationalDemoStore.FormatMoney(maximum);
         AgingBars = amounts.Select(bar =>
         {
             var share = maximum == 0m ? 0d : (double)(bar.Amount / maximum);
@@ -209,6 +211,7 @@ public sealed class CreditsViewModel : ObservableObject
                     .Select(row => new CreditAgingRankEntry(row.CustomerName, row.DaysOverdueText))
                     .ToArray())
         ];
+        OnPropertyChanged(nameof(AgingScaleMaximum));
         OnPropertyChanged(nameof(AgingBars));
         OnPropertyChanged(nameof(AgingRankings));
     }

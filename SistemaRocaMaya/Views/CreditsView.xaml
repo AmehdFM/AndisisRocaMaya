@@ -243,6 +243,11 @@
                 </DataGrid>
                 <StackPanel Margin="0,14,0,6">
                     <TextBlock Text="Saldos por tramo de antigüedad" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <Grid Margin="112,0,110,3">
+                        <TextBlock Text="L 0.00" Style="{StaticResource ReportChartAxisText}" HorizontalAlignment="Left" />
+                        <TextBlock Text="Saldo pendiente (L)" Style="{StaticResource ReportChartAxisText}" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding AgingScaleMaximum}" Style="{StaticResource ReportChartAxisText}" HorizontalAlignment="Right" />
+                    </Grid>
                     <ItemsControl ItemsSource="{Binding AgingBars}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -253,14 +258,16 @@
                                         <ColumnDefinition Width="110" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
-                                    <Grid Grid.Column="1" Height="14" VerticalAlignment="Center" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
+                                    <Grid Grid.Column="1" Height="16" VerticalAlignment="Center" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding FilledWidth}" />
                                             <ColumnDefinition Width="{Binding RemainingWidth}" />
                                         </Grid.ColumnDefinitions>
-                                        <Rectangle Fill="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                        <Rectangle Fill="{StaticResource RocaMayaBlueSecondaryBrush}" RadiusX="2" RadiusY="2" />
+                                        <Border Grid.ColumnSpan="2" BorderThickness="1,0,1,0"
+                                                BorderBrush="{StaticResource RocaMayaTextSecondaryBrush}" />
                                     </Grid>
-                                    <TextBlock Grid.Column="2" Text="{Binding Amount}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Amount}" Style="{StaticResource ReportChartValueText}" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
