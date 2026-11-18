@@ -426,12 +426,13 @@ public sealed class AccountingViewModel : ObservableObject
             var transactionId = postings.Count;
             var account = sale.PaymentType == SalePaymentType.Cash ? "Caja" : "Crédito por cobrar";
             postings.Add(new(transactionId, sale.Date, sale.Ticket, "Venta de mercadería", account, sale.Total, 0m));
-            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
+            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Ingreso por venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
             var cost = saleCosts.GetValueOrDefault(sale.Id);
             if (cost > 0m)
             {
-                postings.Add(new(transactionId, sale.Date, sale.Ticket, "Costo de mercadería vendida", "Costo de ventas", cost, 0m));
-                postings.Add(new(transactionId, sale.Date, sale.Ticket, "Costo de mercadería vendida", "Inventario", 0m, cost));
+                var costTransactionId = postings.Count;
+                postings.Add(new(costTransactionId, sale.Date, sale.Ticket, "Costo de venta", "Costo de ventas", cost, 0m));
+                postings.Add(new(costTransactionId, sale.Date, sale.Ticket, "Salida de inventario", "Inventario", 0m, cost));
             }
         }
 
@@ -445,7 +446,7 @@ public sealed class AccountingViewModel : ObservableObject
         }
 
         var journalPostings = postings.OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference)
-            .ThenBy(posting => posting.TransactionId).ThenBy(posting => posting.Account);
+            .ThenBy(posting => posting.TransactionId).ThenBy(posting => posting.Credit > 0m).ThenBy(posting => posting.Account);
         foreach (var transaction in journalPostings.GroupBy(posting => posting.TransactionId))
         {
             var startsGroup = true;
