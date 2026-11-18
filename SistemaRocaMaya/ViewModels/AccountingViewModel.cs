@@ -26,7 +26,6 @@ public sealed class AccountingViewModel : ObservableObject
 
     private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
     private string _selectedSection = "Resumen contable";
-    private string _ledgerSearchText = "";
     private string _selectedLedgerAccount = "Caja";
     private int _selectedJournalYear = DateTime.Today.Year;
     private int _selectedJournalMonth = DateTime.Today.Month;
@@ -56,14 +55,13 @@ public sealed class AccountingViewModel : ObservableObject
     private decimal _reportNetIncomeAtCutoff;
 
     private readonly ObservableCollection<JournalEntryViewModel> _allJournalEntries = [];
-    private readonly ObservableCollection<LedgerEntryViewModel> _allLedgerEntries = [];
+    private readonly List<LedgerEntryViewModel> _allLedgerEntries = [];
+    private readonly Dictionary<string, decimal> _ledgerOpeningBalances = [];
 
     public AccountingViewModel()
     {
         JournalEntries = new ListCollectionView(_allJournalEntries);
         JournalEntries.Filter = FilterJournalEntry;
-        LedgerEntries = new ListCollectionView(_allLedgerEntries);
-        LedgerEntries.Filter = FilterLedgerEntry;
         KardexMovements = new ListCollectionView(_allKardexMovements);
         KardexMovements.Filter = FilterKardexMovement;
         _selectedKardexProduct = KardexProducts.FirstOrDefault(product => product.Name == "Arroz 1 libra")
@@ -195,7 +193,11 @@ public sealed class AccountingViewModel : ObservableObject
     }
 
     public ListCollectionView JournalEntries { get; }
-    public ListCollectionView LedgerEntries { get; }
+    public IReadOnlyList<LedgerEntryViewModel> LedgerEntries { get; private set; } = [];
+    public IReadOnlyList<LedgerAccountTotals> LedgerTotals { get; private set; } = [];
+    public LedgerAccountTotals? SelectedLedgerTotals { get; private set; }
+    public string LedgerTotalDebitText { get; private set; } = "";
+    public string LedgerTotalCreditText { get; private set; } = "";
 
     public IReadOnlyList<int> JournalYears { get; private set; } = [];
     public IReadOnlyList<JournalMonthOption> JournalMonths { get; } = Enumerable.Range(1, 12)
@@ -264,16 +266,6 @@ public sealed class AccountingViewModel : ObservableObject
             if (SetProperty(ref _selectedLedgerAccount, value)) RefreshLedger();
         }
     }
-
-    public string LedgerSearchText
-    {
-        get => _ledgerSearchText;
-        set
-        {
-            if (SetProperty(ref _ledgerSearchText, value)) RefreshLedger();
-        }
-    }
-
 
     public string JournalActionMessage
     {
@@ -394,6 +386,7 @@ public sealed class AccountingViewModel : ObservableObject
     {
         _allJournalEntries.Clear();
         _allLedgerEntries.Clear();
+        _ledgerOpeningBalances.Clear();
         var periodStart = DateTime.Today.AddDays(-31);
         var periodEnd = DateTime.Today;
         var saleCosts = CalculateSaleCosts();
@@ -453,14 +446,14 @@ public sealed class AccountingViewModel : ObservableObject
             ["Ingresos por ventas"] = _reportRevenue,
             ["Proveedores"] = _reportPayables
         };
-        var ledgerPostings = postings.Where(posting => IsInPeriod(posting.Date, periodStart, periodEnd)).ToArray();
         foreach (var account in LedgerAccounts)
         {
             var creditNormal = IsCreditNormal(account);
-            var entries = ledgerPostings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
-            var movement = entries.Sum(posting => creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit);
+            var entries = postings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
+            var movement = entries.Where(posting => posting.Date.Date <= periodEnd)
+                .Sum(posting => creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit);
             var balance = endingBalances.GetValueOrDefault(account) - movement;
-            _allLedgerEntries.Add(new(account, periodStart, "", "Saldo inicial", 0m, 0m, balance));
+            _ledgerOpeningBalances.Add(account, balance);
             foreach (var posting in entries)
             {
                 balance += creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit;
@@ -472,7 +465,7 @@ public sealed class AccountingViewModel : ObservableObject
         PopulateFinancialReports();
         RefreshManagementIndicators(saleCosts);
         RefreshJournalPeriod();
-        LedgerEntries.Refresh();
+        RefreshLedger();
         KardexMovements.Refresh();
         OnPropertyChanged(nameof(KardexClosingStock));
         OnPropertyChanged(nameof(KardexClosingValue));
@@ -647,12 +640,18 @@ public sealed class AccountingViewModel : ObservableObject
             rows, landscape: true);
     }
 
-    public TableReportDocument CreateLedgerReport() => new(
-        "Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)} · Búsqueda: {LedgerSearchText}",
-        [new("Fecha"), new("Concepto", 2), new("Debe", 1, true), new("Haber", 1, true), new("Saldo", 1, true)],
-        LedgerEntries.Cast<LedgerEntryViewModel>().Select(entry => new ReportRow(
-            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray(),
-        landscape: true);
+    public TableReportDocument CreateLedgerReport()
+    {
+        var totals = SelectedLedgerTotals
+            ?? throw new InvalidOperationException("Selecciona un rango de fechas válido.");
+        var rows = LedgerEntries.Select(entry => new ReportRow(
+            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText]))
+            .Append(new ReportRow(["", "Totales del período", totals.DebitText, totals.CreditText, totals.ClosingText], IsTotal: true))
+            .ToArray();
+        return new("Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)}",
+            [new("Fecha"), new("Concepto", 2), new("Debe", 1, true), new("Haber", 1, true), new("Saldo", 1, true)],
+            rows, landscape: true);
+    }
 
     public TableReportDocument CreateKardexReport()
     {
@@ -1024,19 +1023,6 @@ public sealed class AccountingViewModel : ObservableObject
     private bool IsInJournalMonth(DateTime date) =>
         date.Year == SelectedJournalYear && date.Month == SelectedJournalMonth;
 
-    private bool FilterLedgerEntry(object item)
-    {
-        if (item is not LedgerEntryViewModel entry || entry.Account != SelectedLedgerAccount) return false;
-        if (LedgerStartDate is DateTime start && entry.Date.Date < start.Date) return false;
-        if (LedgerEndDate is DateTime end && entry.Date.Date > end.Date) return false;
-
-        var query = LedgerSearchText.Trim();
-        return query.Length == 0
-            || entry.Reference.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || entry.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-            || entry.DateText.Contains(query, StringComparison.CurrentCultureIgnoreCase);
-    }
-
     private bool FilterKardexMovement(object item)
     {
         if (item is not KardexMovementViewModel movement) return false;
@@ -1093,7 +1079,45 @@ public sealed class AccountingViewModel : ObservableObject
 
     private void RefreshLedger()
     {
-        LedgerEntries.Refresh();
+        var start = LedgerStartDate?.Date ?? DateTime.MinValue;
+        var end = LedgerEndDate?.Date ?? DateTime.Today;
+        var totals = new List<LedgerAccountTotals>();
+        IReadOnlyList<LedgerEntryViewModel> selectedEntries = [];
+        LedgerAccountTotals? selectedTotals = null;
+
+        if (start <= end)
+        {
+            var entriesByAccount = _allLedgerEntries.ToLookup(entry => entry.Account);
+            foreach (var account in LedgerAccounts)
+            {
+                var entries = entriesByAccount[account];
+                var openingBalance = entries.LastOrDefault(entry => entry.Date.Date < start)?.Balance
+                    ?? _ledgerOpeningBalances.GetValueOrDefault(account);
+                var rows = entries.Where(entry => IsInPeriod(entry.Date, start, end)).ToArray();
+                var closingBalance = rows.LastOrDefault()?.Balance ?? openingBalance;
+                var accountTotals = new LedgerAccountTotals(account, openingBalance,
+                    rows.Sum(entry => entry.Debit), rows.Sum(entry => entry.Credit), closingBalance);
+                totals.Add(accountTotals);
+
+                if (account == SelectedLedgerAccount)
+                {
+                    var openingDate = LedgerStartDate?.Date ?? rows.FirstOrDefault()?.Date.Date ?? end;
+                    selectedEntries = [new(account, openingDate, "", "Saldo inicial", 0m, 0m, openingBalance), .. rows];
+                    selectedTotals = accountTotals;
+                }
+            }
+        }
+
+        LedgerEntries = selectedEntries;
+        LedgerTotals = totals;
+        SelectedLedgerTotals = selectedTotals;
+        LedgerTotalDebitText = FormatMoney(totals.Sum(account => account.Debit));
+        LedgerTotalCreditText = FormatMoney(totals.Sum(account => account.Credit));
+        OnPropertyChanged(nameof(LedgerEntries));
+        OnPropertyChanged(nameof(LedgerTotals));
+        OnPropertyChanged(nameof(SelectedLedgerTotals));
+        OnPropertyChanged(nameof(LedgerTotalDebitText));
+        OnPropertyChanged(nameof(LedgerTotalCreditText));
     }
 
     private static string FormatMoney(decimal amount) => OperationalDemoStore.FormatMoney(amount);
@@ -1144,6 +1168,14 @@ public sealed record JournalEntryViewModel(int TransactionId, DateTime Date, str
     public string TimeText => Date.ToString("HH:mm");
     public string DebitText => Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
     public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
+}
+
+public sealed record LedgerAccountTotals(string Account, decimal Opening, decimal Debit, decimal Credit, decimal Closing)
+{
+    public string OpeningText => OperationalDemoStore.FormatMoney(Opening);
+    public string DebitText => OperationalDemoStore.FormatMoney(Debit);
+    public string CreditText => OperationalDemoStore.FormatMoney(Credit);
+    public string ClosingText => OperationalDemoStore.FormatMoney(Closing);
 }
 
 public sealed record LedgerEntryViewModel(string Account, DateTime Date, string Reference, string Description, decimal Debit, decimal Credit, decimal Balance)
