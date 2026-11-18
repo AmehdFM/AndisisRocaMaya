@@ -69,7 +69,8 @@ public sealed class DashboardViewModel : ObservableObject
     private void RefreshSales()
     {
         RecentSales.Clear();
-        foreach (var sale in _store.Sales.Where(sale => sale.Date.Date == DateTime.Today).Take(5))
+        foreach (var sale in _store.Sales.Where(sale => sale.Date.Date == DateTime.Today)
+                     .OrderByDescending(sale => sale.Date).Take(5).OrderBy(sale => sale.Date))
         {
             RecentSales.Add(sale);
         }

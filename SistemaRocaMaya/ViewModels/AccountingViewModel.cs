@@ -1121,7 +1121,7 @@ public sealed class AccountingViewModel : ObservableObject
     {
         var previousDay = SelectedJournalDay;
         var days = _allJournalEntries.Where(entry => IsInJournalMonth(entry.Date))
-            .Select(entry => entry.Date.Date).Distinct().OrderByDescending(day => day).ToArray();
+            .Select(entry => entry.Date.Date).Distinct().OrderBy(day => day).ToArray();
         if (!JournalDays.SequenceEqual(days))
         {
             JournalDays = days;
@@ -1130,7 +1130,7 @@ public sealed class AccountingViewModel : ObservableObject
 
         var selectedDay = previousDay is DateTime day && days.Contains(day)
             ? day
-            : days.Select(date => (DateTime?)date).FirstOrDefault();
+            : days.Select(date => (DateTime?)date).LastOrDefault();
         if (!SetProperty(ref _selectedJournalDay, selectedDay, nameof(SelectedJournalDay)))
             OnPropertyChanged(nameof(SelectedJournalDay));
 

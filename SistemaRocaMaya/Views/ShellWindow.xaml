@@ -224,8 +224,8 @@
                                     <StackPanel>
                                         <Grid Margin="0,11">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <StackPanel><TextBlock Text="Venta · Ticket 00418" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="10:42 a. m. · Cajero" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="L 245.00" Foreground="{StaticResource RocaMayaSuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <StackPanel><TextBlock Text="Entrada de mercadería" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="9:55 a. m. · Bodega" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Inventario" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
                                         </Grid>
                                         <Border Height="1" Background="{StaticResource RocaMayaDividerBrush}" />
                                         <Grid Margin="0,11">
@@ -236,8 +236,8 @@
                                         <Border Height="1" Background="{StaticResource RocaMayaDividerBrush}" />
                                         <Grid Margin="0,11">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <StackPanel><TextBlock Text="Entrada de mercadería" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="9:55 a. m. · Bodega" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="Inventario" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
+                                            <StackPanel><TextBlock Text="Venta · Ticket 00418" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" FontWeight="SemiBold" /><TextBlock Text="10:42 a. m. · Cajero" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,3,0,0" /></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="L 245.00" Foreground="{StaticResource RocaMayaSuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                         </Grid>
                                     </StackPanel>
                                 </Border>

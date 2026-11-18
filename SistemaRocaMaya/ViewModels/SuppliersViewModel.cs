@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SistemaRocaMaya.Models;
@@ -32,6 +33,7 @@ public sealed class SuppliersViewModel : ObservableObject
             if (SetProperty(ref _selectedSupplier, value))
             {
                 SelectedSupplierPurchases = new ListCollectionView(value?.Purchases ?? new System.Collections.ObjectModel.ObservableCollection<PurchaseRecord>());
+                SelectedSupplierPurchases.SortDescriptions.Add(new(nameof(PurchaseRecord.Date), ListSortDirection.Ascending));
                 SelectedSupplierPurchases.Filter = FilterPurchase;
                 OnPropertyChanged(nameof(SelectedSupplierPurchases));
             }

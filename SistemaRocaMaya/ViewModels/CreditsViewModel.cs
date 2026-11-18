@@ -71,6 +71,7 @@ public sealed class CreditsViewModel : ObservableObject
             {
                 SelectedCustomerHistory = new ListCollectionView(value?.CreditHistory ?? new System.Collections.ObjectModel.ObservableCollection<CreditMovementRecord>());
                 SelectedCustomerHistory.Filter = FilterMovement;
+                SelectedCustomerHistory.SortDescriptions.Add(new(nameof(CreditMovementRecord.Date), ListSortDirection.Ascending));
                 OnPropertyChanged(nameof(SelectedCustomerBalanceText));
                 OnPropertyChanged(nameof(SelectedCustomerHistory));
                 OnPropertyChanged(nameof(HasSelectedCustomer));

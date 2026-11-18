@@ -131,6 +131,7 @@ public sealed class PurchasesViewModel : ObservableObject
         ProductRowsView.Filter = FilterProductRow;
         PurchasesView = CollectionViewSource.GetDefaultView(Purchases);
         PurchasesView.Filter = FilterPurchase;
+        PurchasesView.SortDescriptions.Add(new(nameof(PurchaseRecord.Date), ListSortDirection.Ascending));
         PurchaseCostRows = new ListCollectionView(_allPurchaseCostRows);
         PurchaseCostRows.Filter = FilterPurchaseCostRow;
         ExportPurchaseReportCommand = new RelayCommand(() => PdfExportService.Export(CreatePurchaseReport, "Compras_por_proveedor.pdf", message => PurchaseReportActionMessage = message));
@@ -208,7 +209,7 @@ public sealed class PurchasesViewModel : ObservableObject
 
                 if (inRange && matchesSupplier)
                 {
-                    _allPurchaseCostRows.Insert(0, new PurchaseCostHistoryRowViewModel(
+                    _allPurchaseCostRows.Add(new PurchaseCostHistoryRowViewModel(
                         purchase.Date,
                         purchase.Number,
                         purchase.Supplier.Name,

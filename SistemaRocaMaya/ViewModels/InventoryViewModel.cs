@@ -34,6 +34,7 @@ public sealed class InventoryViewModel : ObservableObject
             if (SetProperty(ref _selectedProduct, value))
             {
                 SelectedProductHistory = new ListCollectionView(value?.History ?? new System.Collections.ObjectModel.ObservableCollection<InventoryMovementRecord>());
+                SelectedProductHistory.SortDescriptions.Add(new(nameof(InventoryMovementRecord.Date), ListSortDirection.Ascending));
                 SelectedProductHistory.Filter = FilterMovement;
                 OnPropertyChanged(nameof(SelectedProductHistory));
             }

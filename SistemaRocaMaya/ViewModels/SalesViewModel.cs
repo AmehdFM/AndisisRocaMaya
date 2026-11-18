@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -66,6 +67,7 @@ public sealed class SalesViewModel : ObservableObject
     {
         CashSessions = new ListCollectionView(Store.CashSessions);
         CashSessions.Filter = FilterSession;
+        CashSessions.SortDescriptions.Add(new(nameof(CashSessionRecord.OpenedAt), ListSortDirection.Ascending));
         Store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
         SelectedSession = Store.CashSessions.FirstOrDefault();
         ExportCashReportCommand = new RelayCommand(() => PdfExportService.Export(CreateCashReport, "Ventas_por_turno.pdf", message => CashReportActionMessage = message));
