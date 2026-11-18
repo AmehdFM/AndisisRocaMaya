@@ -26,6 +26,7 @@ public sealed class AccountingViewModel : ObservableObject
 
     private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
     private string _selectedSection = "Resumen contable";
+    private int _selectedManagementIndicatorIndex;
     private string _selectedLedgerAccount = "Caja";
     private int _selectedJournalYear = DateTime.Today.Year;
     private int _selectedJournalMonth = DateTime.Today.Month;
@@ -39,10 +40,10 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime? _kardexStartDate = DateTime.Today.AddDays(-31);
     private DateTime? _kardexEndDate = DateTime.Today;
     private ProductRecord? _selectedKardexProduct;
-    private string _kardexActionMessage = "Datos de demostración";
-    private string _journalActionMessage = "Datos de demostración";
-    private string _ledgerActionMessage = "Datos de demostración";
-    private string _statementActionMessage = "Datos de demostración";
+    private string _kardexActionMessage = "";
+    private string _journalActionMessage = "";
+    private string _ledgerActionMessage = "";
+    private string _statementActionMessage = "";
     private decimal _reportRevenue;
     private decimal _reportCostOfSales;
     private decimal _reportReceivables;
@@ -106,6 +107,11 @@ public sealed class AccountingViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedSection, value))
             {
+                if (value == "Resumen contable")
+                {
+                    SelectedManagementIndicatorIndex = 0;
+                    OnPropertyChanged(nameof(SelectedManagementIndicatorIndex));
+                }
                 OnPropertyChanged(nameof(SummaryVisibility));
                 OnPropertyChanged(nameof(JournalVisibility));
                 OnPropertyChanged(nameof(LedgerVisibility));
@@ -195,9 +201,6 @@ public sealed class AccountingViewModel : ObservableObject
     public ListCollectionView JournalEntries { get; }
     public IReadOnlyList<LedgerEntryViewModel> LedgerEntries { get; private set; } = [];
     public IReadOnlyList<LedgerAccountTotals> LedgerTotals { get; private set; } = [];
-    public LedgerAccountTotals? SelectedLedgerTotals { get; private set; }
-    public string LedgerTotalDebitText { get; private set; } = "";
-    public string LedgerTotalCreditText { get; private set; } = "";
 
     public IReadOnlyList<int> JournalYears { get; private set; } = [];
     public IReadOnlyList<JournalMonthOption> JournalMonths { get; } = Enumerable.Range(1, 12)
@@ -328,6 +331,15 @@ public sealed class AccountingViewModel : ObservableObject
     ];
 
     public ObservableCollection<AccountingIndicatorViewModel> ManagementIndicators { get; } = [];
+    public int SelectedManagementIndicatorIndex
+    {
+        get => _selectedManagementIndicatorIndex;
+        set
+        {
+            if (value >= 0 && value < ManagementIndicators.Count)
+                SetProperty(ref _selectedManagementIndicatorIndex, value);
+        }
+    }
 
     public IReadOnlyList<FinancialPositionBar> FinancialPositionBars { get; private set; } = [];
     public string FinancialPositionRecommendation { get; private set; } = "";
@@ -636,20 +648,19 @@ public sealed class AccountingViewModel : ObservableObject
             ? new DateTime(SelectedJournalYear, SelectedJournalMonth, 1).ToString("MMMM yyyy", OperationalDemoStore.HondurasCulture)
             : SelectedJournalDay?.ToString("dd/MM/yyyy");
         return new("Libro Diario Contable", $"Período: {period}",
-            [new("Fecha"), new("Documento"), new("Concepto", 2), new("Cuenta", 1.5f), new("Debe", 1, true), new("Haber", 1, true)],
+            [new("Fecha"), new("Documento"), new("Concepto", 2), new("Cuenta", 1.5f), new("Abonado", 1, true), new("Acreditado", 1, true)],
             rows, landscape: true);
     }
 
     public TableReportDocument CreateLedgerReport()
     {
-        var totals = SelectedLedgerTotals
-            ?? throw new InvalidOperationException("Selecciona un rango de fechas válido.");
+        if (LedgerEntries.Count == 0)
+            throw new InvalidOperationException("Selecciona un rango de fechas válido.");
         var rows = LedgerEntries.Select(entry => new ReportRow(
-            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText]))
-            .Append(new ReportRow(["", "Totales del período", totals.DebitText, totals.CreditText, totals.ClosingText], IsTotal: true))
+            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText], entry.IsTotal))
             .ToArray();
         return new("Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)}",
-            [new("Fecha"), new("Concepto", 2), new("Debe", 1, true), new("Haber", 1, true), new("Saldo", 1, true)],
+            [new("Fecha"), new("Concepto", 2), new("Abonado", 1, true), new("Acreditado", 1, true), new("Saldo", 1, true)],
             rows, landscape: true);
     }
 
@@ -777,11 +788,11 @@ public sealed class AccountingViewModel : ObservableObject
         IncomeStatementLines.Add(new("Ventas", "Ventas al contado y a crédito", FormatMoney(_reportRevenue), false));
         IncomeStatementLines.Add(new("Costo de ventas", "Mercadería vendida a costo PEPS", FormatMoney(_reportCostOfSales), false));
         IncomeStatementLines.Add(new("Utilidad bruta", "Ventas menos costo de ventas", FormatMoney(grossProfit), true));
-        IncomeStatementLines.Add(new("Gastos operativos", "Sin gastos registrados en la demo", FormatMoney(operatingExpenses), false));
+        IncomeStatementLines.Add(new("Gastos operativos", "Sin gastos registrados", FormatMoney(operatingExpenses), false));
         IncomeStatementLines.Add(new("Utilidad operativa", "Utilidad bruta menos gastos operativos", FormatMoney(operatingProfit), true));
-        IncomeStatementLines.Add(new("Gastos financieros", "Sin intereses registrados en la demo", FormatMoney(financialExpenses), false));
+        IncomeStatementLines.Add(new("Gastos financieros", "Sin intereses registrados", FormatMoney(financialExpenses), false));
         IncomeStatementLines.Add(new("Utilidad después de intereses, antes de impuestos", "Utilidad operativa menos gastos financieros", FormatMoney(preTaxProfit), true));
-        IncomeStatementLines.Add(new("Impuestos", "Sin cálculo fiscal en la demo", FormatMoney(taxes), false));
+        IncomeStatementLines.Add(new("Impuestos", "Sin cálculo fiscal", FormatMoney(taxes), false));
         IncomeStatementLines.Add(new("Utilidad neta", "Utilidad antes de impuestos menos impuestos", FormatMoney(_reportNetIncome), true));
 
         RefreshIncomeChart(sales, saleCosts, start, end);
@@ -934,7 +945,7 @@ public sealed class AccountingViewModel : ObservableObject
             Indicator("Margen bruto", "%", months.Select(month => month.GrossMargin),
                 value => $"Por cada L 100 vendidos quedan {FormatMoney(value)} después de cubrir la mercadería."),
             Indicator("Margen neto", "%", months.Select(month => month.NetMargin),
-                value => $"Por cada L 100 vendidos, el resultado neto de la demo es {FormatMoney(value)}."),
+                value => $"Por cada L 100 vendidos, el resultado neto es {FormatMoney(value)}."),
             Indicator("Liquidez corriente", "veces", months.Select(month => month.Liquidity),
                 value => $"Por cada L 1 de pasivo corriente hay {FormatMoney(value)} en activos corrientes.", 1.5m),
             Indicator("Prueba ácida", "veces", months.Select(month => month.QuickRatio),
@@ -946,6 +957,7 @@ public sealed class AccountingViewModel : ObservableObject
         };
 
 
+        var selectedIndex = SelectedManagementIndicatorIndex;
         if (ManagementIndicators.Count == 0)
         {
             foreach (var indicator in indicators) ManagementIndicators.Add(indicator);
@@ -955,6 +967,8 @@ public sealed class AccountingViewModel : ObservableObject
             for (var index = 0; index < indicators.Length; index++)
                 ManagementIndicators[index] = indicators[index];
         }
+        SelectedManagementIndicatorIndex = selectedIndex;
+        OnPropertyChanged(nameof(SelectedManagementIndicatorIndex));
     }
 
     private static decimal? Ratio(decimal numerator, decimal denominator, decimal multiplier = 1m) =>
@@ -1083,7 +1097,6 @@ public sealed class AccountingViewModel : ObservableObject
         var end = LedgerEndDate?.Date ?? DateTime.Today;
         var totals = new List<LedgerAccountTotals>();
         IReadOnlyList<LedgerEntryViewModel> selectedEntries = [];
-        LedgerAccountTotals? selectedTotals = null;
 
         if (start <= end)
         {
@@ -1102,22 +1115,24 @@ public sealed class AccountingViewModel : ObservableObject
                 if (account == SelectedLedgerAccount)
                 {
                     var openingDate = LedgerStartDate?.Date ?? rows.FirstOrDefault()?.Date.Date ?? end;
-                    selectedEntries = [new(account, openingDate, "", "Saldo inicial", 0m, 0m, openingBalance), .. rows];
-                    selectedTotals = accountTotals;
+                    selectedEntries =
+                    [
+                        new(account, openingDate, "", "Saldo inicial", 0m, 0m, openingBalance),
+                        .. rows,
+                        new(account, end, "", "Totales del período", accountTotals.Debit, accountTotals.Credit, closingBalance, IsTotal: true)
+                    ];
                 }
             }
         }
 
         LedgerEntries = selectedEntries;
-        LedgerTotals = totals;
-        SelectedLedgerTotals = selectedTotals;
-        LedgerTotalDebitText = FormatMoney(totals.Sum(account => account.Debit));
-        LedgerTotalCreditText = FormatMoney(totals.Sum(account => account.Credit));
+        LedgerTotals = totals.Count == 0 ? [] :
+        [
+            .. totals,
+            new("Total general", 0m, totals.Sum(account => account.Debit), totals.Sum(account => account.Credit), 0m, IsTotal: true)
+        ];
         OnPropertyChanged(nameof(LedgerEntries));
         OnPropertyChanged(nameof(LedgerTotals));
-        OnPropertyChanged(nameof(SelectedLedgerTotals));
-        OnPropertyChanged(nameof(LedgerTotalDebitText));
-        OnPropertyChanged(nameof(LedgerTotalCreditText));
     }
 
     private static string FormatMoney(decimal amount) => OperationalDemoStore.FormatMoney(amount);
@@ -1170,19 +1185,19 @@ public sealed record JournalEntryViewModel(int TransactionId, DateTime Date, str
     public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
 }
 
-public sealed record LedgerAccountTotals(string Account, decimal Opening, decimal Debit, decimal Credit, decimal Closing)
+public sealed record LedgerAccountTotals(string Account, decimal Opening, decimal Debit, decimal Credit, decimal Closing, bool IsTotal = false)
 {
-    public string OpeningText => OperationalDemoStore.FormatMoney(Opening);
+    public string OpeningText => IsTotal ? "" : OperationalDemoStore.FormatMoney(Opening);
     public string DebitText => OperationalDemoStore.FormatMoney(Debit);
     public string CreditText => OperationalDemoStore.FormatMoney(Credit);
-    public string ClosingText => OperationalDemoStore.FormatMoney(Closing);
+    public string ClosingText => IsTotal ? "" : OperationalDemoStore.FormatMoney(Closing);
 }
 
-public sealed record LedgerEntryViewModel(string Account, DateTime Date, string Reference, string Description, decimal Debit, decimal Credit, decimal Balance)
+public sealed record LedgerEntryViewModel(string Account, DateTime Date, string Reference, string Description, decimal Debit, decimal Credit, decimal Balance, bool IsTotal = false)
 {
-    public string DateText => Date.ToString("dd/MM/yyyy");
-    public string DebitText => Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
-    public string CreditText => Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
+    public string DateText => IsTotal ? "" : Date.ToString("dd/MM/yyyy");
+    public string DebitText => !IsTotal && Debit == 0m ? "—" : OperationalDemoStore.FormatMoney(Debit);
+    public string CreditText => !IsTotal && Credit == 0m ? "—" : OperationalDemoStore.FormatMoney(Credit);
     public string BalanceText => OperationalDemoStore.FormatMoney(Balance);
 }
 

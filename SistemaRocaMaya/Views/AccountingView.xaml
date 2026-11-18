@@ -95,7 +95,7 @@
                             </ItemsControl>
                         </Border>
 
-                        <TabControl ItemsSource="{Binding ManagementIndicators}" SelectedIndex="0" Margin="0,8,0,0"
+                        <TabControl ItemsSource="{Binding ManagementIndicators}" SelectedIndex="{Binding SelectedManagementIndicatorIndex, Mode=TwoWay}" Margin="0,8,0,0"
                                     BorderThickness="0" Background="Transparent" Padding="0">
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
@@ -222,8 +222,8 @@
                             <DataGridTextColumn Header="HORA" Binding="{Binding TimeText}" Width="0.9*" />
                             <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.5*" />
                             <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.3*" />
-                            <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                            <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                            <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                            <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                         </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2" Text="{Binding JournalActionMessage}" Margin="0,7,0,0" FontSize="9"
@@ -260,12 +260,7 @@
                 <TabControl Grid.Row="2">
                     <TabItem Header="Detalle de la cuenta">
                         <DockPanel Margin="0,8,0,0">
-                            <WrapPanel DockPanel.Dock="Bottom" Margin="8,8,0,4">
-                                <TextBlock FontWeight="SemiBold" Margin="0,0,16,0"><Run Text="Debe " /><Run Text="{Binding SelectedLedgerTotals.DebitText, Mode=OneWay}" /></TextBlock>
-                                <TextBlock FontWeight="SemiBold" Margin="0,0,16,0"><Run Text="Haber " /><Run Text="{Binding SelectedLedgerTotals.CreditText, Mode=OneWay}" /></TextBlock>
-                                <TextBlock FontWeight="SemiBold"><Run Text="Saldo final " /><Run Text="{Binding SelectedLedgerTotals.ClosingText, Mode=OneWay}" /></TextBlock>
-                            </WrapPanel>
-                            <DataGrid ItemsSource="{Binding LedgerEntries}">
+                            <DataGrid ItemsSource="{Binding LedgerEntries}" RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
                                 <DataGrid.Resources>
                                     <Style x:Key="LedgerCellTextStyle" TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -281,8 +276,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
                                     <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
-                                    <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
+                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
                                     <DataGridTextColumn Header="SALDO" Binding="{Binding BalanceText}" Width="1.0*" ElementStyle="{StaticResource LedgerCellTextStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -290,16 +285,12 @@
                     </TabItem>
                     <TabItem Header="Totales de todas las cuentas">
                         <DockPanel Margin="0,8,0,0">
-                            <WrapPanel DockPanel.Dock="Bottom" Margin="8,8,0,4">
-                                <TextBlock FontWeight="SemiBold" Margin="0,0,16,0"><Run Text="Debe general " /><Run Text="{Binding LedgerTotalDebitText, Mode=OneWay}" /></TextBlock>
-                                <TextBlock FontWeight="SemiBold"><Run Text="Haber general " /><Run Text="{Binding LedgerTotalCreditText, Mode=OneWay}" /></TextBlock>
-                            </WrapPanel>
-                            <DataGrid ItemsSource="{Binding LedgerTotals}">
+                            <DataGrid ItemsSource="{Binding LedgerTotals}" RowStyle="{StaticResource StatementDataGridRowStyle}" CanUserSortColumns="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="CUENTA" Binding="{Binding Account}" Width="1.5*" />
                                     <DataGridTextColumn Header="SALDO INICIAL" Binding="{Binding OpeningText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                    <DataGridTextColumn Header="DEBE" Binding="{Binding DebitText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                    <DataGridTextColumn Header="HABER" Binding="{Binding CreditText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                    <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                    <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                     <DataGridTextColumn Header="SALDO FINAL" Binding="{Binding ClosingText}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -471,7 +462,7 @@
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource ReportMetadataText}">
                                 <Style.Triggers>
-                                    <Trigger Property="Text" Value="Datos de demostración">
+                                    <Trigger Property="Text" Value="">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </Trigger>
                                 </Style.Triggers>

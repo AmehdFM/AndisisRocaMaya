@@ -19,7 +19,7 @@ public sealed class CreditsViewModel : ObservableObject
     private CustomerRecord? _selectedCustomer;
     private string _agingSearchText = "";
     private DateTime _agingAsOfDate = DateTime.Today;
-    private string _agingActionMessage = "Datos de demostración · plazo ilustrativo de 30 días";
+    private string _agingActionMessage = "Plazo de crédito: 30 días.";
     private const int DemoCreditTermDays = 30;
     private readonly ObservableCollection<CreditAgingCustomerViewModel> _allAgingCustomers = [];
 

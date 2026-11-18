@@ -23,7 +23,7 @@ public sealed class PurchasesViewModel : ObservableObject
     private string _reportProductSearchText = "";
     private DateTime? _reportStartDate = DateTime.Today.AddDays(-180);
     private DateTime? _reportEndDate = DateTime.Today;
-    private string _purchaseReportActionMessage = "Consulta de demostración · compara cada costo con la compra anterior del mismo producto y proveedor.";
+    private string _purchaseReportActionMessage = "Compara cada costo con la compra anterior del mismo producto y proveedor.";
     private readonly ObservableCollection<PurchaseCostHistoryRowViewModel> _allPurchaseCostRows = [];
 
     public ObservableCollection<SupplierRecord> Suppliers => _store.Suppliers;

@@ -12,7 +12,7 @@ public sealed class SalesViewModel : ObservableObject
 {
     private DateTime? _sessionStartDate = DateTime.Today.AddDays(-30);
     private DateTime? _sessionEndDate = DateTime.Today;
-    private string _cashReportActionMessage = "Datos de demostración · Los cierres se conservan en memoria durante esta sesión.";
+    private string _cashReportActionMessage = "Los cierres se conservan en memoria durante esta sesión.";
     private CashSessionRecord? _selectedSession;
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
