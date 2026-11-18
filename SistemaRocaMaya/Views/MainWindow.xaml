@@ -105,17 +105,6 @@
             </LinearGradientBrush>
         </Grid.Background>
 
-        <Image Grid.Column="0"
-               MaxWidth="380"
-               MaxHeight="840"
-               Margin="0,0,20,0"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Center"
-               Source="{StaticResource RocaMayaLogo}"
-               Stretch="Uniform"
-               Opacity="0.2"
-               IsHitTestVisible="False" />
-
         <Border Grid.Column="1"
                 Width="430"
                 Margin="24,16"
