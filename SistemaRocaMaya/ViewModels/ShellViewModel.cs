@@ -238,12 +238,19 @@ public sealed partial class ShellViewModel : ObservableObject
     {
         MenuItems.Clear();
 
+        var isManagement = _currentRole.Nombre == "Gerencia";
         AddMenuItem("Resumen", "▦");
-        AddMenuItem("Caja", "▣");
+        if (!isManagement)
+        {
+            AddMenuItem("Caja", "▣");
+        }
         AddMenuItem("Ventas", "▣");
         AddMenuItem("Clientes", "♙");
         AddMenuItem("Crédito", "◷");
-        AddMenuItem("Inventario", "▤");
+        if (!isManagement)
+        {
+            AddMenuItem("Inventario", "▤");
+        }
         AddMenuItem("Compras", "＋");
         AddAccountingMenu();
         AddMenuItem("Configuración", "⚙");

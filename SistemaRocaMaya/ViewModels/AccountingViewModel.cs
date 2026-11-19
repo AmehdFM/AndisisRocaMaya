@@ -668,7 +668,8 @@ public sealed class AccountingViewModel : ObservableObject
         _reportEquity = _reportAssets - _reportPayables;
         var costBySale = CalculateSaleCosts();
         _reportNetIncomeAtCutoff = _store.Sales.Where(sale => sale.Date.Date <= cutoff)
-            .Sum(sale => sale.Total - costBySale.GetValueOrDefault(sale.Id));
+            .Sum(sale => sale.Total - costBySale.GetValueOrDefault(sale.Id))
+            - GetOperatingExpenses(DateTime.MinValue, cutoff).Sum(expense => expense.Amount);
         var assetMetricIndex = SummaryMetrics.ToList().FindIndex(metric => metric.Label == "ACTIVOS");
         if (assetMetricIndex >= 0) SummaryMetrics[assetMetricIndex] = new("ACTIVOS", FormatMoney(_reportAssets), "");
 
@@ -731,7 +732,8 @@ public sealed class AccountingViewModel : ObservableObject
         _reportRevenue = sales.Sum(sale => sale.Total);
         _reportCostOfSales = sales.Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
 
-        const decimal operatingExpenses = 0m;
+        var expenses = GetOperatingExpenses(start, end);
+        var operatingExpenses = expenses.Sum(expense => expense.Amount);
         const decimal financialExpenses = 0m;
         const decimal taxes = 0m;
         var grossProfit = _reportRevenue - _reportCostOfSales;
@@ -749,22 +751,50 @@ public sealed class AccountingViewModel : ObservableObject
         IncomeStatementLines.Add(new("Ventas", "Ventas al contado y a crédito", FormatMoney(_reportRevenue), false));
         IncomeStatementLines.Add(new("Costo de ventas", "Mercadería vendida a costo PEPS", FormatMoney(_reportCostOfSales), false));
         IncomeStatementLines.Add(new("Utilidad bruta", "Ventas menos costo de ventas", FormatMoney(grossProfit), true));
-        IncomeStatementLines.Add(new("Gastos operativos", "Sin gastos registrados", FormatMoney(operatingExpenses), false));
+        IncomeStatementLines.Add(new("Gastos operativos", expenses.Length == 0 ? "Sin gastos registrados" : "Total del período",
+            FormatMoney(operatingExpenses), true));
+        foreach (var account in expenses.GroupBy(expense => expense.Account).OrderBy(account => account.Key))
+        {
+            IncomeStatementLines.Add(new("", account.Key, FormatMoney(account.Sum(expense => expense.Amount)), false));
+        }
         IncomeStatementLines.Add(new("Utilidad operativa", "Utilidad bruta menos gastos operativos", FormatMoney(operatingProfit), true));
         IncomeStatementLines.Add(new("Gastos financieros", "Sin intereses registrados", FormatMoney(financialExpenses), false));
         IncomeStatementLines.Add(new("Utilidad después de intereses, antes de impuestos", "Utilidad operativa menos gastos financieros", FormatMoney(preTaxProfit), true));
         IncomeStatementLines.Add(new("Impuestos", "Sin cálculo fiscal", FormatMoney(taxes), false));
         IncomeStatementLines.Add(new("Utilidad neta", "Utilidad antes de impuestos menos impuestos", FormatMoney(_reportNetIncome), true));
 
-        RefreshIncomeChart(sales, saleCosts, start, end);
+        RefreshIncomeChart(sales, saleCosts, expenses, start, end);
     }
 
-    private void RefreshIncomeChart(IEnumerable<SaleRecord> sales, IReadOnlyDictionary<int, decimal> saleCosts, DateTime start, DateTime end)
+    private static OperatingExpense[] GetOperatingExpenses(DateTime start, DateTime end)
+    {
+        using var connection = RocaMayaDatabase.Instance.Open();
+        return connection.Query("""
+            SELECT substr(a.fecha_hora,1,10) AS fecha,c.nombre,
+                SUM(d.debito_centavos-d.credito_centavos) AS importe
+            FROM asientos_contables a JOIN asiento_detalles d ON d.asiento_id=a.id
+            JOIN cuentas_contables c ON c.id=d.cuenta_id
+            WHERE c.tipo='GASTO' AND a.fecha_hora BETWEEN @start AND @end
+            GROUP BY fecha,c.id
+            """, new { start = RocaMayaDatabase.Date(start.Date), end = RocaMayaDatabase.Date(end.Date.AddHours(23).AddMinutes(59).AddSeconds(59)) })
+            .Select(row => new OperatingExpense(RocaMayaDatabase.ReadDate((string)row.fecha + "T00:00:00"),
+                (string)row.nombre, RocaMayaDatabase.Money((long)row.importe))).ToArray();
+    }
+
+    private sealed record OperatingExpense(DateTime Date, string Account, decimal Amount);
+
+    private void RefreshIncomeChart(IEnumerable<SaleRecord> sales, IReadOnlyDictionary<int, decimal> saleCosts,
+        IEnumerable<OperatingExpense> expenses, DateTime start, DateTime end)
     {
         var totalsByMonth = sales.GroupBy(sale => new DateTime(sale.Date.Year, sale.Date.Month, 1))
             .ToDictionary(month => month.Key, month => (
                 Sales: month.Sum(sale => sale.Total),
                 Costs: month.Sum(sale => saleCosts.GetValueOrDefault(sale.Id))));
+        foreach (var month in expenses.GroupBy(expense => FirstDayOfMonth(expense.Date)))
+        {
+            var totals = totalsByMonth.GetValueOrDefault(month.Key);
+            totalsByMonth[month.Key] = (totals.Sales, totals.Costs + month.Sum(expense => expense.Amount));
+        }
         var firstMonth = new DateTime(start.Year, start.Month, 1);
         var monthCount = (end.Year - start.Year) * 12 + end.Month - start.Month + 1;
         // Keep an unbounded or very long range readable by showing its months with activity.
@@ -792,7 +822,7 @@ public sealed class AccountingViewModel : ObservableObject
         var scale = Math.Max(1m, amounts.Select(Math.Abs).DefaultIfEmpty().Max());
         IncomeChartNegativeHeight = (double)(-Math.Min(0m, amounts.DefaultIfEmpty().Min()) / scale * 100m);
         IncomeChartStatusMessage = start > end ? "El mes inicial debe ser anterior o igual al mes final."
-            : totalsByMonth.Count == 0 ? "Sin ventas en el período seleccionado."
+            : totalsByMonth.Count == 0 ? "Sin ventas ni gastos en el período seleccionado."
             : "";
         OnPropertyChanged(nameof(IncomeChartNegativeHeight));
         IncomeChartMaximumText = FormatMoney(scale);
@@ -855,6 +885,8 @@ public sealed class AccountingViewModel : ObservableObject
     private void RefreshManagementIndicators(IReadOnlyDictionary<int, decimal> saleCosts)
     {
         var currentMonth = FirstDayOfMonth(DateTime.Today);
+        var expenses = GetOperatingExpenses(currentMonth.AddMonths(-5), DateTime.Today)
+            .ToLookup(expense => FirstDayOfMonth(expense.Date));
         var months = Enumerable.Range(-5, 6).Select(offset => currentMonth.AddMonths(offset))
             .Select(month =>
             {
@@ -866,7 +898,7 @@ public sealed class AccountingViewModel : ObservableObject
                 var liquidAssets = GetCashAsOf(cutoff) + GetReceivablesAsOf(cutoff);
                 var assets = liquidAssets + inventory;
                 var payables = GetPayablesAsOf(cutoff);
-                var profit = revenue - cost; // The demo has no recorded operating expenses, interest or taxes.
+                var profit = revenue - cost - expenses[month].Sum(expense => expense.Amount);
 
                 return new
                 {

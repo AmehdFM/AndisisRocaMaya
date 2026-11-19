@@ -4119,4 +4119,62 @@ INSERT INTO secuencias_folio VALUES ('VT','20260912',12) ON CONFLICT(tipo,fecha)
 INSERT INTO secuencias_folio VALUES ('VT','20261012',9) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo = excluded.ultimo;
 INSERT INTO secuencias_folio VALUES ('VT','20261112',12) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo = excluded.ultimo;
 
+-- Gastos operativos pagados en efectivo.
+INSERT INTO cuentas_contables (codigo,nombre,tipo,naturaleza) VALUES ('800','Gasolina para planta','GASTO','DEUDORA');
+INSERT INTO cuentas_contables (codigo,nombre,tipo,naturaleza) VALUES ('900','Papelería','GASTO','DEUDORA');
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260614-0001','2026-06-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,32000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260614-0001' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,32000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260614-0001' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260614-0002','2026-06-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,9500,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260614-0002' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,9500 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260614-0002' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20260614',2) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260714-0001','2026-07-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,26500,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260714-0001' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,26500 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260714-0001' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260714-0002','2026-07-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,13000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260714-0002' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,13000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260714-0002' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20260714',2) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260814-0001','2026-08-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,41000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260814-0001' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,41000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260814-0001' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260814-0002','2026-08-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,7500,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260814-0002' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,7500 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260814-0002' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20260814',2) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260914-0001','2026-09-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,28000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260914-0001' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,28000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260914-0001' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20260914-0002','2026-09-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,14500,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260914-0002' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,14500 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20260914-0002' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20260914',2) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20261014-0001','2026-10-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,46000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261014-0001' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,46000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261014-0001' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20261014-0002','2026-10-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,12000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261014-0002' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,12000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261014-0002' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20261014',2) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20261114-0007','2026-11-14T18:01:00','Gasolina para planta',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,31000,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261114-0007' AND c.codigo='800'
+UNION ALL SELECT a.id,c.id,2,0,31000 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261114-0007' AND c.nombre='Caja';
+INSERT INTO asientos_contables (numero,fecha_hora,concepto,usuario_id) VALUES ('AS-20261114-0008','2026-11-14T18:02:00','Papelería',1);
+INSERT INTO asiento_detalles (asiento_id,cuenta_id,orden,debito_centavos,credito_centavos)
+SELECT a.id,c.id,1,8500,0 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261114-0008' AND c.codigo='900'
+UNION ALL SELECT a.id,c.id,2,0,8500 FROM asientos_contables a, cuentas_contables c WHERE a.numero='AS-20261114-0008' AND c.nombre='Caja';
+INSERT INTO secuencias_folio VALUES ('AS','20261114',8) ON CONFLICT(tipo,fecha) DO UPDATE SET ultimo=excluded.ultimo;
+
 PRAGMA user_version = 1;
