@@ -86,7 +86,7 @@ public sealed class FinancialIndicatorsDocument(DateTime cutoff, IReadOnlyList<A
             {
                 notes.Item().Text("Cómo interpretar la comparación").SemiBold();
                 notes.Item().PaddingTop(5).Text("El mes actual incluye operaciones hasta la fecha de corte. El mes anterior corresponde al mes completo.");
-                notes.Item().PaddingTop(5).Text("La variación se expresa en puntos porcentuales (pp) o veces. Un guion indica que no hay dato o referencia en la columna correspondiente.");
+                notes.Item().PaddingTop(5).Text("La variación se expresa como porcentaje respecto al mes anterior. Un guion indica que no hay dato o referencia en la columna correspondiente.");
                 notes.Item().PaddingTop(5).Text("El resultado usa las ventas y el costo registrado de la mercadería. Al no incluir gastos operativos, intereses ni impuestos, el margen neto coincide con el margen bruto.");
             });
         });

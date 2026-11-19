@@ -1000,7 +1000,7 @@ public sealed class AccountingViewModel : ObservableObject
 
         var current = values[^1];
         return new(name, current is decimal latest ? $"{latest:0.00} {unit}" : "Sin dato", unit,
-            definition, IndicatorMonthComparison.Compare(values.Count > 1 ? values[^2] : null, current, unit, lowerIsBetter),
+            definition, IndicatorMonthComparison.Compare(values.Count > 1 ? values[^2] : null, current, lowerIsBetter),
             $"{top:0.##}", $"{(top + bottom) / 2m:0.##}", $"{bottom:0.##}", line, dots, thresholdLine, thresholdLabel, periods);
     }
 

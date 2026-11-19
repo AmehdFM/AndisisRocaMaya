@@ -2,7 +2,7 @@ using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.Models;
 
-public sealed record IndicatorMonthComparison(decimal? Change, string Unit, bool LowerIsBetter)
+public sealed record IndicatorMonthComparison(decimal? Change, bool LowerIsBetter)
 {
     public string Text
     {
@@ -12,7 +12,7 @@ public sealed record IndicatorMonthComparison(decimal? Change, string Unit, bool
             if (change == 0m) return "Sin cambio";
             var direction = change > 0m ? "Subió" : "Bajó";
             var amount = Math.Abs(change).ToString("0.00", OperationalDemoStore.HondurasCulture);
-            return $"{direction} {amount} {(Unit == "%" ? "pp" : Unit)}";
+            return $"{direction} {amount} %";
         }
     }
 
@@ -23,7 +23,15 @@ public sealed record IndicatorMonthComparison(decimal? Change, string Unit, bool
         _ => LowerIsBetter ? "#24724F" : "#A52532"
     };
 
-    public static IndicatorMonthComparison Compare(decimal? previous, decimal? current, string unit, bool lowerIsBetter) =>
-        new(previous is decimal baseline && current is decimal latest ? decimal.Round(latest - baseline, 2) : null,
-            unit, lowerIsBetter);
+    public static IndicatorMonthComparison Compare(decimal? previous, decimal? current, bool lowerIsBetter)
+    {
+        if (previous is not decimal baseline || current is not decimal latest)
+            return new(null, lowerIsBetter);
+        if (baseline == latest)
+            return new(0m, lowerIsBetter);
+        if (baseline == 0m)
+            return new(null, lowerIsBetter);
+
+        return new((latest - baseline) / Math.Abs(baseline) * 100m, lowerIsBetter);
+    }
 }
