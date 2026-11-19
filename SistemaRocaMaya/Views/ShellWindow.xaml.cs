@@ -51,7 +51,7 @@ public partial class ShellWindow : Window
             return false;
         }
 
-        var dialog = new CashSessionWindow(true, store.ActiveCashSession!.ExpectedAmount)
+        var dialog = new CashSessionWindow(true, store.ActiveCashSession!.ExpectedAmount, store.ActiveCashSession.ClosingFolio)
         {
             Owner = this
         };

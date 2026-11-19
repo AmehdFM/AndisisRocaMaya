@@ -39,7 +39,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                                            <TextBlock Text="{Binding Id, StringFormat='ID: {0}'}" Margin="0,3,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                            <TextBlock Text="{Binding Id, StringFormat='Código: {0}'}" Margin="0,3,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding StockText}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Right" />
@@ -61,7 +61,7 @@
                         <StackPanel>
                             <TextBlock Text="{Binding SelectedProduct.Name, TargetNullValue='Selecciona un producto'}"
                                        FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
-                            <TextBlock Text="{Binding SelectedProduct.Id, StringFormat='ID: {0}'}" Margin="0,4,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                            <TextBlock Text="{Binding SelectedProduct.Id, StringFormat='Código: {0}'}" Margin="0,4,0,0" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                             <TextBlock Text="EXISTENCIA" FontSize="9" FontWeight="Bold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
@@ -92,7 +92,7 @@
                                         <TextBlock Grid.Column="1" Text="{Binding Movement}" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                         <TextBlock Grid.Column="2" Text="{Binding QuantityText}" Margin="0,0,12,0" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                         <TextBlock Grid.Column="3" Text="{Binding ExpirationText}" Margin="0,0,12,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                                        <TextBlock Grid.Column="4" Text="{Binding Reference}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="4" Text="{Binding DisplayReference}" ToolTip="{Binding DisplayReference}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

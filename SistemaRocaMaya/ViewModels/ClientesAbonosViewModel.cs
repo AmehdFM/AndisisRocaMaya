@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Models;
+using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -11,13 +13,7 @@ public sealed class ClientesAbonosViewModel : ObservableObject
     private ClienteCuentaViewModel? _clienteSeleccionado;
     private string _textoBusqueda = string.Empty;
 
-    public ObservableCollection<ClienteCuentaViewModel> Clientes { get; } =
-    [
-        new("María López", "0801-0000-00001", 295.00m, "L 100.00 · 18 oct. 2026"),
-        new("Carlos Mejía", "0801-0000-00002", 0.00m, "L 250.00 · 20 oct. 2026"),
-        new("Ana Martínez", "0801-0000-00003", 390.00m, "L 75.00 · 12 oct. 2026"),
-        new("José Flores", "0801-0000-00004", 125.00m, "Sin abonos registrados")
-    ];
+    public ObservableCollection<ClienteCuentaViewModel> Clientes { get; } = [];
 
     public ICollectionView ClientesFiltrados { get; }
 
@@ -82,7 +78,14 @@ public sealed class ClientesAbonosViewModel : ObservableObject
         ClientesFiltrados = CollectionViewSource.GetDefaultView(Clientes);
         ClientesFiltrados.Filter = FiltrarCliente;
         SeleccionarClienteCommand = new RelayCommand<ClienteCuentaViewModel?>(SeleccionarCliente);
-        SeleccionarCliente(Clientes[0]);
+        foreach (var customer in OperationalDemoStore.Instance.Customers)
+        {
+            var payment = customer.CreditHistory.Where(item => item.Type == CreditMovementType.Payment)
+                .OrderByDescending(item => item.Date).FirstOrDefault();
+            var lastPayment = payment is null ? "Sin abonos registrados" : $"{payment.AmountText} · {payment.Date:dd/MM/yyyy}";
+            Clientes.Add(new(customer.Name, customer.TaxOrIdentity, customer.Balance, lastPayment));
+        }
+        SeleccionarCliente(Clientes.FirstOrDefault());
     }
 
     private bool FiltrarCliente(object item)

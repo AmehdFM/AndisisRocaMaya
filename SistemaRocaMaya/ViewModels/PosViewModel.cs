@@ -47,7 +47,7 @@ public sealed class PosViewModel : ObservableObject
         : System.Windows.Visibility.Visible;
     public string CashActionLabel => IsCashOpen ? "Cerrar caja" : "Abrir caja";
     public string CashStatusText => IsCashOpen
-        ? $"Caja abierta · {_store.ActiveCashSession!.OpeningAmountText} inicial"
+        ? $"Caja abierta · {_store.ActiveCashSession!.OpeningFolio} · {_store.ActiveCashSession.OpeningAmountText} inicial"
         : "Caja cerrada";
 
     public System.Windows.Visibility CreditDetailsVisibility => SelectedPaymentMethod == "Crédito"

@@ -47,7 +47,7 @@
                 <Border Margin="0,0,0,10" Background="{StaticResource RocaMayaBlueSurfaceBrush}"
                         BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="0,0,0,1">
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="160" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel Margin="10,7,10,7">
                             <TextBlock Text="Proveedor" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,0,0,3" />
                             <ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
@@ -58,7 +58,11 @@
                             <TextBlock Text="Fecha de compra" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" Margin="0,0,0,3" />
                             <DatePicker SelectedDate="{Binding PurchaseDate}" />
                         </StackPanel>
-                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                        <StackPanel Grid.Column="2" Margin="0,7,10,7">
+                            <TextBlock Text="Factura del proveedor" FontSize="10" Margin="0,0,0,3" />
+                            <TextBox Text="{Binding SupplierInvoice, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Factura del proveedor" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
                             <TextBlock Text="{Binding StatusMessage}" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" Margin="0,0,0,4" />
                             <Button Style="{StaticResource AppPrimaryButton}" Content="Registrar compra" Command="{Binding RegisterPurchaseCommand}" />
                         </StackPanel>
@@ -199,6 +203,7 @@
                         <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="COMPRA" Binding="{Binding PurchaseNumber}" Width="0.7*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="PROVEEDOR" Binding="{Binding SupplierName}" Width="1.2*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
+                        <DataGridTextColumn Header="FACTURA" Binding="{Binding SupplierInvoice}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="PRODUCTO" Binding="{Binding ProductName}" Width="1.3*" ElementStyle="{StaticResource PurchaseReportCellStyle}" />
                         <DataGridTextColumn Header="CANTIDAD" Binding="{Binding QuantityText}" Width="0.65*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                         <DataGridTextColumn Header="COSTO UNITARIO" Binding="{Binding UnitCostText}" Width="1.0*" ElementStyle="{StaticResource PurchaseReportNumericCellStyle}" HeaderStyle="{StaticResource AppRightTableHeader}" />

@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using Dapper;
+using SistemaRocaMaya.Services;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SistemaRocaMaya.Models;
@@ -7,8 +10,9 @@ namespace SistemaRocaMaya.ViewModels;
 public sealed class SettingsViewModel : ObservableObject
 {
     private static SettingsViewModel? _instance;
-    private string _authorizationCode = "1234";
-    private string _authorizationCodeStatus = "Código inicial de demostración: 1234";
+    private readonly RocaMayaDatabase _database = RocaMayaDatabase.Instance;
+    private string _authorizationCodeHash;
+    private string _authorizationCodeStatus = "Código de autorización configurado.";
     private Usuario? _currentUser;
 
     public static SettingsViewModel Instance => _instance ??= new SettingsViewModel();
@@ -26,16 +30,15 @@ public sealed class SettingsViewModel : ObservableObject
         private set => SetProperty(ref _authorizationCodeStatus, value);
     }
 
-    public void SetCurrentUser(Usuario user) => CurrentUser = user;
-
-    public bool IsAuthorizationCodeValid(string code) => string.Equals(_authorizationCode, code, StringComparison.Ordinal);
-
-    public bool VerifyDemoPassword(Usuario user, string password) => user.Nombre switch
+    public void SetCurrentUser(Usuario user)
     {
-        "admin" => string.Equals(password, "admin", StringComparison.Ordinal),
-        "Empleado" => string.Equals(password, "Empleado1234", StringComparison.Ordinal),
-        _ => false
-    };
+        _database.CurrentUserId = user.Id;
+        CurrentUser = user;
+    }
+
+    public bool IsAuthorizationCodeValid(string code) => RocaMayaDatabase.VerifySecret(code, _authorizationCodeHash);
+
+    public bool VerifyPassword(Usuario user, string password) => RocaMayaDatabase.VerifySecret(password, user.ContrasenaHash);
 
     public bool UpdateAuthorizationCode(string code)
     {
@@ -45,7 +48,17 @@ public sealed class SettingsViewModel : ObservableObject
             return false;
         }
 
-        _authorizationCode = code;
+        var hash = RocaMayaDatabase.HashSecret(code);
+        try
+        {
+            _database.Write(db => db.Execute("UPDATE configuracion SET valor=@hash WHERE clave='autorizacion'", new { hash }));
+        }
+        catch (InvalidOperationException exception)
+        {
+            AuthorizationCodeStatus = exception.Message;
+            return false;
+        }
+        _authorizationCodeHash = hash;
         AuthorizationCodeStatus = "Código de autorización actualizado.";
         return true;
     }
@@ -55,30 +68,54 @@ public sealed class SettingsViewModel : ObservableObject
 
     public SettingsViewModel()
     {
-        var managerRole = new Rol
+        using var connection = _database.Open();
+        _authorizationCodeHash = connection.QuerySingle<string>("SELECT valor FROM configuracion WHERE clave='autorizacion'");
+        var permissions = connection.Query("""
+            SELECT rp.rol_id,p.codigo FROM rol_permisos rp JOIN permisos p ON p.id=rp.permiso_id ORDER BY p.id
+            """).ToLookup(row => (int)row.rol_id, row => (string)row.codigo);
+        foreach (var role in connection.Query<Rol>("SELECT id,nombre FROM roles ORDER BY id"))
         {
-            Id = 1,
-            Nombre = "Gerencia",
-            Permisos = ["Resumen", "Caja", "Clientes", "Compras", "Crédito", "Proveedores", "Inventario", "Contabilidad", "Ventas", "Configuración"],
-            PuedeVenderCredito = true,
-            PuedeAbrirCaja = true,
-            PuedeCrearProductos = true,
-            PuedeCrearClientes = true
-        };
-        var employeeRole = new Rol
-        {
-            Id = 2,
-            Nombre = "Empleado",
-            Permisos = ["Caja", "Clientes", "Crédito", "Inventario"],
-            PuedeVenderCredito = false,
-            PuedeAbrirCaja = false,
-            PuedeCrearProductos = false,
-            PuedeCrearClientes = false
-        };
+            var codes = permissions[role.Id].ToHashSet(StringComparer.Ordinal);
+            role.Permisos = permissions[role.Id].Where(code => !code.Contains('_')).ToList();
+            role.PuedeVenderCredito = codes.Contains("VENDER_CREDITO");
+            role.PuedeAbrirCaja = codes.Contains("ABRIR_CAJA");
+            role.PuedeCrearProductos = codes.Contains("CREAR_PRODUCTOS");
+            role.PuedeCrearClientes = codes.Contains("CREAR_CLIENTES");
+            role.PropertyChanged += PersistRolePermission;
+            Roles.Add(role);
+        }
 
-        Roles.Add(managerRole);
-        Roles.Add(employeeRole);
-        Users.Add(new Usuario { Id = 1, Nombre = "admin", RolId = managerRole.Id, Rol = managerRole, Activo = true });
-        Users.Add(new Usuario { Id = 2, Nombre = "Empleado", RolId = employeeRole.Id, Rol = employeeRole, Activo = true });
+        var roles = Roles.ToDictionary(role => role.Id);
+        foreach (var user in connection.Query<Usuario>("""
+            SELECT id,nombre_usuario AS Nombre,contrasena_hash AS ContrasenaHash,rol_id AS RolId,activo
+            FROM usuarios ORDER BY id
+            """))
+        {
+            user.Rol = roles[user.RolId];
+            user.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(Usuario.Activo))
+                    _database.Write(db => db.Execute("UPDATE usuarios SET activo=@Activo WHERE id=@Id", user));
+            };
+            Users.Add(user);
+        }
+    }
+
+    private void PersistRolePermission(object? sender, PropertyChangedEventArgs args)
+    {
+        if (sender is not Rol role) return;
+        var permission = args.PropertyName switch
+        {
+            nameof(Rol.PuedeVenderCredito) => ("VENDER_CREDITO", role.PuedeVenderCredito),
+            nameof(Rol.PuedeAbrirCaja) => ("ABRIR_CAJA", role.PuedeAbrirCaja),
+            nameof(Rol.PuedeCrearProductos) => ("CREAR_PRODUCTOS", role.PuedeCrearProductos),
+            nameof(Rol.PuedeCrearClientes) => ("CREAR_CLIENTES", role.PuedeCrearClientes),
+            _ => (null, false)
+        };
+        if (permission.Item1 is not { } code) return;
+        _database.Write(db => db.Execute(permission.Item2
+            ? "INSERT OR IGNORE INTO rol_permisos SELECT @Id,id FROM permisos WHERE codigo=@code"
+            : "DELETE FROM rol_permisos WHERE rol_id=@Id AND permiso_id=(SELECT id FROM permisos WHERE codigo=@code)",
+            new { role.Id, code }));
     }
 }

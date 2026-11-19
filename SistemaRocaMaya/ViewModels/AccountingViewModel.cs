@@ -1,3 +1,4 @@
+using Dapper;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -57,7 +58,6 @@ public sealed class AccountingViewModel : ObservableObject
 
     private readonly ObservableCollection<JournalEntryViewModel> _allJournalEntries = [];
     private readonly List<LedgerEntryViewModel> _allLedgerEntries = [];
-    private readonly Dictionary<string, decimal> _ledgerOpeningBalances = [];
 
     public AccountingViewModel()
     {
@@ -67,6 +67,11 @@ public sealed class AccountingViewModel : ObservableObject
         KardexMovements.Filter = FilterKardexMovement;
         _selectedKardexProduct = KardexProducts.FirstOrDefault(product => product.Name == "Arroz 1 libra")
             ?? KardexProducts.FirstOrDefault();
+        using (var connection = RocaMayaDatabase.Instance.Open())
+        {
+            foreach (var account in connection.Query<string>("SELECT nombre FROM cuentas_contables WHERE activa=1 ORDER BY codigo"))
+                LedgerAccounts.Add(account);
+        }
         InitializeOperationBasedReports();
         ExportJournalCommand = new RelayCommand(() => PdfExportService.Export(CreateJournalReport, "Libro_diario.pdf", message => JournalActionMessage = message));
         ExportLedgerCommand = new RelayCommand(() => PdfExportService.Export(CreateLedgerReport, "Libro_mayor.pdf", message => LedgerActionMessage = message));
@@ -267,7 +272,7 @@ public sealed class AccountingViewModel : ObservableObject
     private DateTime LedgerEndDate => LastDayOfMonth(LedgerStartDate);
     public LedgerAccountTotals? SelectedLedgerTotals { get; private set; }
 
-    public ObservableCollection<string> LedgerAccounts { get; } = ["Caja", "Crédito por cobrar", "Inventario", "Costo de ventas", "Ingresos por ventas", "Proveedores"];
+    public ObservableCollection<string> LedgerAccounts { get; } = [];
 
     public string SelectedLedgerAccount
     {
@@ -408,42 +413,20 @@ public sealed class AccountingViewModel : ObservableObject
     {
         _allJournalEntries.Clear();
         _allLedgerEntries.Clear();
-        _ledgerOpeningBalances.Clear();
-        var periodStart = DateTime.Today.AddDays(-31);
-        var periodEnd = DateTime.Today;
         var saleCosts = CalculateSaleCosts();
-        var postings = new List<AccountingPosting>();
-
-        foreach (var purchase in _store.Purchases)
-        {
-            var transactionId = postings.Count;
-            postings.Add(new(transactionId, purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Inventario", purchase.Total, 0m));
-            postings.Add(new(transactionId, purchase.Date, purchase.Number, $"Compra a {purchase.Supplier.Name}", "Proveedores", 0m, purchase.Total));
-        }
-
-        foreach (var sale in _store.Sales)
-        {
-            var transactionId = postings.Count;
-            var account = sale.PaymentType == SalePaymentType.Cash ? "Caja" : "Crédito por cobrar";
-            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Venta de mercadería", account, sale.Total, 0m));
-            postings.Add(new(transactionId, sale.Date, sale.Ticket, "Ingreso por venta de mercadería", "Ingresos por ventas", 0m, sale.Total));
-            var cost = saleCosts.GetValueOrDefault(sale.Id);
-            if (cost > 0m)
-            {
-                var costTransactionId = postings.Count;
-                postings.Add(new(costTransactionId, sale.Date, sale.Ticket, "Costo de venta", "Costo de ventas", cost, 0m));
-                postings.Add(new(costTransactionId, sale.Date, sale.Ticket, "Salida de inventario", "Inventario", 0m, cost));
-            }
-        }
-
-        foreach (var customer in _store.Customers)
-        foreach (var payment in customer.CreditHistory.Where(movement => movement.Type == CreditMovementType.Payment))
-        {
-            var transactionId = postings.Count;
-            var reference = $"AB-{customer.Id:000}-{payment.Date:MMdd}";
-            postings.Add(new(transactionId, payment.Date, reference, $"Abono recibido · {customer.Name}", "Caja", payment.Amount, 0m));
-            postings.Add(new(transactionId, payment.Date, reference, $"Abono recibido · {customer.Name}", "Crédito por cobrar", 0m, payment.Amount));
-        }
+        using var connection = RocaMayaDatabase.Instance.Open();
+        var postings = connection.Query("""
+            SELECT a.id,a.numero,a.fecha_hora,COALESCE(d.concepto,a.concepto) AS concepto,c.nombre,
+                d.debito_centavos,d.credito_centavos,COALESCE(v.ticket,p.numero,m.folio) AS origen
+            FROM asientos_contables a JOIN asiento_detalles d ON d.asiento_id=a.id
+            JOIN cuentas_contables c ON c.id=d.cuenta_id
+            LEFT JOIN ventas v ON v.id=a.venta_id LEFT JOIN compras p ON p.id=a.compra_id
+            LEFT JOIN movimientos_credito m ON m.id=a.movimiento_credito_id
+            ORDER BY a.fecha_hora,a.id,d.orden
+            """).Select(row => new AccountingPosting((int)row.id, RocaMayaDatabase.ReadDate((string)row.fecha_hora),
+                row.origen is string origin ? $"{(string)row.numero} · {origin}" : (string)row.numero,
+                (string)row.concepto, (string)row.nombre, RocaMayaDatabase.Money((long)row.debito_centavos),
+                RocaMayaDatabase.Money((long)row.credito_centavos))).ToArray();
 
         var journalPostings = postings.OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference)
             .ThenBy(posting => posting.TransactionId).ThenBy(posting => posting.Credit > 0m).ThenBy(posting => posting.Account);
@@ -458,35 +441,14 @@ public sealed class AccountingViewModel : ObservableObject
             }
         }
 
-        _reportRevenue = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => sale.Total);
-        _reportCostOfSales = _store.Sales.Where(sale => IsInPeriod(sale.Date, periodStart, periodEnd)).Sum(sale => saleCosts.GetValueOrDefault(sale.Id));
-        _reportReceivables = _store.Customers.Sum(customer => customer.Balance);
-        _reportInventory = _store.Products.SelectMany(product => product.Batches).Sum(batch => batch.Quantity * batch.UnitCost);
-        _reportCash = _store.CashSessions.OrderByDescending(session => session.ClosedAt ?? session.OpenedAt).FirstOrDefault() is { } session
-            ? session.ClosedAt is null ? session.ExpectedAmount : session.ClosingAmount
-            : 0m;
-        _reportPayables = _store.Purchases.Sum(purchase => purchase.Total);
-        _reportAssets = _reportCash + _reportReceivables + _reportInventory;
-        _reportEquity = _reportAssets - _reportPayables;
-        _reportNetIncome = _reportRevenue - _reportCostOfSales;
-
-        var endingBalances = new Dictionary<string, decimal>(StringComparer.Ordinal)
-        {
-            ["Caja"] = _reportCash,
-            ["Crédito por cobrar"] = _reportReceivables,
-            ["Inventario"] = _reportInventory,
-            ["Costo de ventas"] = _reportCostOfSales,
-            ["Ingresos por ventas"] = _reportRevenue,
-            ["Proveedores"] = _reportPayables
-        };
+        var creditAccounts = connection.Query<string>(
+            "SELECT nombre FROM cuentas_contables WHERE naturaleza='ACREEDORA'").ToHashSet(StringComparer.Ordinal);
         foreach (var account in LedgerAccounts)
         {
-            var creditNormal = IsCreditNormal(account);
-            var entries = postings.Where(posting => posting.Account == account).OrderBy(posting => posting.Date).ThenBy(posting => posting.Reference).ToArray();
-            var movement = entries.Where(posting => posting.Date.Date <= periodEnd)
-                .Sum(posting => creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit);
-            var balance = endingBalances.GetValueOrDefault(account) - movement;
-            _ledgerOpeningBalances.Add(account, balance);
+            var creditNormal = creditAccounts.Contains(account);
+            var entries = postings.Where(posting => posting.Account == account)
+                .OrderBy(posting => posting.Date).ThenBy(posting => posting.TransactionId);
+            var balance = 0m;
             foreach (var posting in entries)
             {
                 balance += creditNormal ? posting.Credit - posting.Debit : posting.Debit - posting.Credit;
@@ -545,46 +507,13 @@ public sealed class AccountingViewModel : ObservableObject
         if (e.PropertyName == nameof(OperationalDemoStore.CashSessions)) InitializeOperationBasedReports();
     }
 
-    private Dictionary<int, decimal> CalculateSaleCosts()
+    private static Dictionary<int, decimal> CalculateSaleCosts()
     {
-        var layersByProduct = new Dictionary<string, List<InventoryCostLayer>>(StringComparer.Ordinal);
-        var costsBySale = new Dictionary<int, decimal>();
-        var timeline = _store.Purchases.Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
-            .Concat(_store.Sales.Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
-            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
-
-        foreach (var item in timeline)
-        {
-            if (item.IsPurchase && item.Purchase is { } purchase)
-            {
-                foreach (var line in purchase.Lines)
-                {
-                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) layersByProduct[line.Product.Id] = layers = [];
-                    layers.Add(new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost));
-                }
-                continue;
-            }
-            if (item.Sale is not { } sale) continue;
-
-            var totalCost = 0m;
-            foreach (var line in sale.Lines)
-            {
-                if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) continue;
-                var remaining = line.Quantity;
-                foreach (var layer in layers)
-                {
-                    var consumed = Math.Min(layer.RemainingQuantity, remaining);
-                    if (consumed <= 0) continue;
-                    layer.RemainingQuantity -= consumed;
-                    remaining -= consumed;
-                    totalCost += consumed * layer.UnitCost;
-                    if (remaining == 0) break;
-                }
-            }
-            costsBySale[sale.Id] = totalCost;
-        }
-
-        return costsBySale;
+        using var connection = RocaMayaDatabase.Instance.Open();
+        return connection.Query("""
+            SELECT d.venta_id,SUM(c.cantidad*c.costo_unitario_centavos) AS costo
+            FROM costeos_venta_lote c JOIN venta_detalles d ON d.id=c.venta_detalle_id GROUP BY d.venta_id
+            """).ToDictionary(row => (int)row.venta_id, row => RocaMayaDatabase.Money((long)row.costo));
     }
 
     private void BuildKardex()
@@ -592,45 +521,41 @@ public sealed class AccountingViewModel : ObservableObject
         _allKardexMovements.Clear();
         KardexRemainingStock = [];
         if (SelectedKardexProduct is not { } product) return;
-        var layers = new List<InventoryCostLayer>();
-        var timeline = _store.Purchases.Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
-            .Concat(_store.Sales.Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
-            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
 
-        foreach (var item in timeline)
+        using var connection = RocaMayaDatabase.Instance.Open();
+        var movements = connection.Query("""
+            SELECT l.id,l.folio,l.fecha_ingreso AS fecha,l.cantidad_ingresada AS cantidad,
+                l.costo_unitario_centavos AS costo,1 AS entrada,l.id AS orden
+            FROM lotes_inventario l WHERE l.producto_id=@DatabaseId
+            UNION ALL
+            SELECT l.id,l.folio,v.fecha_hora,c.cantidad,c.costo_unitario_centavos,0,c.id
+            FROM costeos_venta_lote c JOIN lotes_inventario l ON l.id=c.lote_id
+            JOIN venta_detalles d ON d.id=c.venta_detalle_id JOIN ventas v ON v.id=d.venta_id
+            WHERE l.producto_id=@DatabaseId
+            ORDER BY fecha,entrada DESC,orden
+            """, new { product.DatabaseId });
+
+        var layers = new Dictionary<int, InventoryCostLayer>();
+        foreach (var row in movements)
         {
-            if (KardexEndDate is DateTime end && item.Date.Date > end.Date) break;
-            if (item.IsPurchase && item.Purchase is { } purchase)
-            {
-                foreach (var line in purchase.Lines.Where(line => line.Product.Id == product.Id))
-                {
-                    var layer = new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost);
-                    layers.Add(layer);
+            var date = RocaMayaDatabase.ReadDate((string)row.fecha);
+            if (KardexEndDate is DateTime end && date.Date > end.Date) break;
+            int id = (int)row.id;
+            int quantity = (int)row.cantidad;
+            var cost = RocaMayaDatabase.Money((long)row.costo);
+            var entry = (int)row.entrada == 1;
+            if (entry) layers.Add(id, new InventoryCostLayer((string)row.folio, quantity, cost));
+            else layers[id].RemainingQuantity -= quantity;
+            var layer = layers[id];
+            var total = FormatMoney(quantity * cost);
 
-                    _allKardexMovements.Add(new(purchase.Date, "Compra", layer.Lot, line.Quantity.ToString(), FormatMoney(line.UnitCost), FormatMoney(line.Quantity * line.UnitCost), "—", "—", "—", layer.RemainingQuantity.ToString(), FormatMoney(layer.UnitCost), FormatMoney(layer.RemainingQuantity * layer.UnitCost)));
-                }
-                continue;
-            }
-            if (item.Sale is not { } sale) continue;
-
-            foreach (var saleLine in sale.Lines.Where(line => line.Product.Id == product.Id))
-            {
-                var remaining = saleLine.Quantity;
-                foreach (var layer in layers)
-                {
-                    var consumed = Math.Min(layer.RemainingQuantity, remaining);
-                    if (consumed <= 0) continue;
-                    layer.RemainingQuantity -= consumed;
-                    remaining -= consumed;
-
-                    _allKardexMovements.Add(new(sale.Date, "Venta", layer.Lot, "—", "—", "—", consumed.ToString(), FormatMoney(layer.UnitCost), FormatMoney(consumed * layer.UnitCost), layer.RemainingQuantity.ToString(), FormatMoney(layer.UnitCost), FormatMoney(layer.RemainingQuantity * layer.UnitCost)));
-                    if (remaining == 0) break;
-                }
-            }
+            _allKardexMovements.Add(new(date, entry ? "Compra" : "Venta", layer.Lot,
+                entry ? quantity.ToString() : "—", entry ? FormatMoney(cost) : "—", entry ? total : "—",
+                entry ? "—" : quantity.ToString(), entry ? "—" : FormatMoney(cost), entry ? "—" : total,
+                layer.RemainingQuantity.ToString(), FormatMoney(layer.UnitCost), FormatMoney(layer.RemainingQuantity * layer.UnitCost)));
         }
-
-        KardexRemainingStock = layers.Where(layer => layer.RemainingQuantity > 0)
-            .Select(layer => new KardexStockRow(layer.RemainingQuantity, layer.UnitCost)).ToArray();
+        KardexRemainingStock = layers.Values.Where(layer => layer.RemainingQuantity > 0)
+            .Select(layer => new KardexStockRow(layer.Lot, layer.RemainingQuantity, layer.UnitCost)).ToArray();
     }
 
     private void PopulateFinancialReports()
@@ -679,9 +604,9 @@ public sealed class AccountingViewModel : ObservableObject
     {
         var totals = SelectedLedgerTotals ?? throw new InvalidOperationException("Selecciona una cuenta contable.");
         var rows = LedgerEntries.Select(entry => new ReportRow(
-            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray();
+            [entry.DateText, entry.Reference, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray();
         return new("Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)}",
-            [new("Fecha"), new("Concepto", 2), new("Abonado", 1, true), new("Acreditado", 1, true), new("Saldo", 1, true)],
+            [new("Fecha"), new("Documento", 1.8f), new("Concepto", 2), new("Abonado", 1, true), new("Acreditado", 1, true), new("Saldo", 1, true)],
             rows, landscape: true, summary: new("Totales del período", ["Abonado", "Acreditado", "Saldo final"],
                 [new([totals.DebitText, totals.CreditText, totals.ClosingText], IsTotal: true)]));
     }
@@ -700,8 +625,8 @@ public sealed class AccountingViewModel : ObservableObject
             })
         ];
         var stockRows = KardexRemainingStock.Select(layer => new ReportRow(
-            [layer.Quantity.ToString(), layer.UnitValueText, layer.TotalValueText])).ToList();
-        stockRows.Add(new([KardexRemainingStock.Sum(layer => layer.Quantity).ToString(), "—",
+            [layer.Folio, layer.Quantity.ToString(), layer.UnitValueText, layer.TotalValueText])).ToList();
+        stockRows.Add(new(["Total", KardexRemainingStock.Sum(layer => layer.Quantity).ToString(), "—",
             FormatMoney(KardexRemainingStock.Sum(layer => layer.Quantity * layer.UnitValue))], IsTotal: true));
 
         return new("Hoja de Kardex",
@@ -711,7 +636,7 @@ public sealed class AccountingViewModel : ObservableObject
                 [entry.DateText, entry.Description, entry.EntryQuantity, entry.EntryUnitCost, entry.EntryTotal,
                     entry.ExitQuantity, entry.ExitUnitCost, entry.ExitTotal, entry.BalanceQuantity, entry.BalanceUnitCost, entry.BalanceTotal])).ToArray(),
             landscape: true, summary: new("Existencias por lote al corte · total en la última fila",
-                ["Cantidad", "Valor unitario", "Valor total"], stockRows));
+                ["Lote", "Cantidad", "Valor unitario", "Valor total"], stockRows));
     }
 
     public TableReportDocument CreateIncomeStatementReport()
@@ -901,60 +826,30 @@ public sealed class AccountingViewModel : ObservableObject
         _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff).Sum(purchase => purchase.Total);
 
 
-    private decimal GetCashAsOf(DateTime cutoff)
+    private static decimal GetCashAsOf(DateTime cutoff)
     {
-        var session = _store.CashSessions.OrderBy(item => item.OpenedAt).FirstOrDefault();
-        if (session is null) return 0m;
-        var priorSales = _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash && sale.Date < session.OpenedAt).Sum(sale => sale.Total);
-        var priorPayments = _store.Customers.SelectMany(customer => customer.CreditHistory)
-            .Where(movement => movement.Type == CreditMovementType.Payment && movement.Date < session.OpenedAt).Sum(movement => movement.Amount);
-        var openingCash = session.OpeningAmount - priorSales - priorPayments;
-        var latestClose = _store.CashSessions.Where(item => item.ClosedAt is DateTime closed && closed.Date <= cutoff.Date)
-            .OrderByDescending(item => item.ClosedAt).FirstOrDefault();
-        if (latestClose is not null) return latestClose.ClosingAmount;
-        return openingCash
-            + _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash && sale.Date.Date <= cutoff.Date).Sum(sale => sale.Total)
-            + _store.Customers.SelectMany(customer => customer.CreditHistory)
-                .Where(movement => movement.Type == CreditMovementType.Payment && movement.Date.Date <= cutoff.Date).Sum(movement => movement.Amount);
+        using var connection = RocaMayaDatabase.Instance.Open();
+        var until = RocaMayaDatabase.Date(cutoff.Date.AddDays(1));
+        return RocaMayaDatabase.Money(connection.ExecuteScalar<long>("""
+            SELECT COALESCE(SUM(d.debito_centavos-d.credito_centavos),0)
+            FROM asiento_detalles d JOIN asientos_contables a ON a.id=d.asiento_id
+            JOIN cuentas_contables c ON c.id=d.cuenta_id
+            WHERE c.nombre='Caja' AND a.fecha_hora<@until
+            """, new { until }));
     }
 
-    private decimal GetInventoryValueAsOf(DateTime cutoff)
+    private static decimal GetInventoryValueAsOf(DateTime cutoff)
     {
-        var layersByProduct = new Dictionary<string, List<InventoryCostLayer>>(StringComparer.Ordinal);
-        var timeline = _store.Purchases.Where(purchase => purchase.Date.Date <= cutoff.Date)
-            .Select(purchase => (purchase.Date, Purchase: (PurchaseRecord?)purchase, Sale: (SaleRecord?)null, IsPurchase: true))
-            .Concat(_store.Sales.Where(sale => sale.Date.Date <= cutoff.Date)
-                .Select(sale => (sale.Date, Purchase: (PurchaseRecord?)null, Sale: (SaleRecord?)sale, IsPurchase: false)))
-            .OrderBy(item => item.Date).ThenBy(item => item.IsPurchase ? 0 : 1);
-
-        foreach (var item in timeline)
-        {
-            if (item.IsPurchase && item.Purchase is { } purchase)
-            {
-                foreach (var line in purchase.Lines)
-                {
-                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) layersByProduct[line.Product.Id] = layers = [];
-                    layers.Add(new InventoryCostLayer($"L-{purchase.Id:0000}", line.Quantity, line.UnitCost));
-                }
-            }
-            else if (item.Sale is { } sale)
-            {
-                foreach (var line in sale.Lines)
-                {
-                    if (!layersByProduct.TryGetValue(line.Product.Id, out var layers)) continue;
-                    var remaining = line.Quantity;
-                    foreach (var layer in layers)
-                    {
-                        var consumed = Math.Min(layer.RemainingQuantity, remaining);
-                        layer.RemainingQuantity -= consumed;
-                        remaining -= consumed;
-                        if (remaining == 0) break;
-                    }
-                }
-            }
-        }
-
-        return layersByProduct.Values.SelectMany(layers => layers).Sum(layer => layer.RemainingQuantity * layer.UnitCost);
+        using var connection = RocaMayaDatabase.Instance.Open();
+        var until = RocaMayaDatabase.Date(cutoff.Date.AddDays(1));
+        var total = connection.ExecuteScalar<long>("""
+            SELECT COALESCE(SUM((l.cantidad_ingresada-COALESCE((
+                SELECT SUM(c.cantidad) FROM costeos_venta_lote c
+                JOIN venta_detalles d ON d.id=c.venta_detalle_id JOIN ventas v ON v.id=d.venta_id
+                WHERE c.lote_id=l.id AND v.fecha_hora<@until),0))*l.costo_unitario_centavos),0)
+            FROM lotes_inventario l WHERE l.fecha_ingreso<@until
+            """, new { until });
+        return RocaMayaDatabase.Money(total);
     }
 
     private void RefreshManagementIndicators(IReadOnlyDictionary<int, decimal> saleCosts)
@@ -1079,7 +974,6 @@ public sealed class AccountingViewModel : ObservableObject
 
 
     private static bool IsInPeriod(DateTime date, DateTime start, DateTime end) => date.Date >= start.Date && date.Date <= end.Date;
-    private static bool IsCreditNormal(string account) => account is "Proveedores" or "Ingresos por ventas";
 
     private bool FilterJournalEntry(object item) =>
         item is JournalEntryViewModel entry && entry.Date.Date == SelectedJournalDay;
@@ -1150,7 +1044,7 @@ public sealed class AccountingViewModel : ObservableObject
         {
             var entries = entriesByAccount[account];
             var openingBalance = entries.LastOrDefault(entry => entry.Date.Date < start)?.Balance
-                ?? _ledgerOpeningBalances.GetValueOrDefault(account);
+                ?? 0m;
             var rows = entries.Where(entry => IsInPeriod(entry.Date, start, end)).ToArray();
             var closingBalance = rows.LastOrDefault()?.Balance ?? openingBalance;
             var accountTotals = new LedgerAccountTotals(account, openingBalance,
@@ -1241,7 +1135,7 @@ public sealed record LedgerEntryViewModel(string Account, DateTime Date, string 
     public string BalanceText => OperationalDemoStore.FormatMoney(Balance);
 }
 
-public sealed record KardexStockRow(int Quantity, decimal UnitValue)
+public sealed record KardexStockRow(string Folio, int Quantity, decimal UnitValue)
 {
     public string UnitValueText => OperationalDemoStore.FormatMoney(UnitValue);
     public string TotalValueText => OperationalDemoStore.FormatMoney(Quantity * UnitValue);

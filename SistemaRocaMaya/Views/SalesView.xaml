@@ -46,6 +46,7 @@
                       BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
                       HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
                 <DataGrid.Columns>
+                    <DataGridTextColumn Header="TURNO" Binding="{Binding Folio}" Width="1.45*" MinWidth="130" />
                     <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.1*" MinWidth="100" />
                     <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.1*" MinWidth="100" />
                     <DataGridTextColumn Header="ESPERADO" Binding="{Binding ExpectedAmountText}" Width="1*" MinWidth="75" />

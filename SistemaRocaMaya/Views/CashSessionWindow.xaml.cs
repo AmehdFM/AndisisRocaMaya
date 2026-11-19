@@ -15,11 +15,12 @@ public partial class CashSessionWindow : Window
         .Select(row => new CashDenominationCount(row.Denomination, row.Quantity))
         .ToArray();
 
-    public CashSessionWindow(bool isClosing, decimal expectedAmount = 0m)
+    public CashSessionWindow(bool isClosing, decimal expectedAmount = 0m, string? folio = null)
     {
         InitializeComponent();
         _viewModel = new CashCountViewModel(isClosing, expectedAmount);
         DataContext = _viewModel;
+        FolioText.Text = folio ?? "El folio se asigna al confirmar la apertura.";
     }
 
     private void Confirm_Click(object sender, RoutedEventArgs e) => DialogResult = true;

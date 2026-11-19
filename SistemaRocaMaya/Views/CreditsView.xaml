@@ -186,6 +186,7 @@
                                             <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding TypeLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
                                                 <TextBlock Text="{Binding Description}" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding Folio}" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding AmountText}" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
                                             <TextBlock Grid.Column="3" Text="{Binding BalanceText}" VerticalAlignment="Center" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />

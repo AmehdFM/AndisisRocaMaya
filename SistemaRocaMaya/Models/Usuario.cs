@@ -1,6 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace SistemaRocaMaya.Models;
 
-public class Usuario
+public class Usuario : ObservableObject
 {
     public int Id { get; set; }
 
@@ -13,5 +15,10 @@ public class Usuario
 
     public Rol? Rol { get; set; }
 
-    public bool Activo { get; set; } = true;
+    private bool _activo = true;
+    public bool Activo
+    {
+        get => _activo;
+        set => SetProperty(ref _activo, value);
+    }
 }

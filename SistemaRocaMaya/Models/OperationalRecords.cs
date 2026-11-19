@@ -51,18 +51,18 @@ public sealed class CustomerRecord : ObservableObject
         TaxOrIdentity = taxOrIdentity;
     }
 
-    internal void AddCredit(decimal amount, string description, DateTime date)
+    internal void AddCredit(decimal amount, string description, DateTime date, string? folio = null, DateTime? dueDate = null)
     {
         Balance += amount;
         OnPropertyChanged(nameof(BalanceText));
-        CreditHistory.Insert(0, new CreditMovementRecord(date, CreditMovementType.Charge, description, amount, Balance));
+        CreditHistory.Insert(0, new CreditMovementRecord(date, CreditMovementType.Charge, description, amount, Balance) { Folio = folio, DueDate = dueDate });
     }
 
-    internal void AddPayment(decimal amount, string description, DateTime date)
+    internal void AddPayment(decimal amount, string description, DateTime date, string? folio = null)
     {
         Balance = Math.Max(0, Balance - amount);
         OnPropertyChanged(nameof(BalanceText));
-        CreditHistory.Insert(0, new CreditMovementRecord(date, CreditMovementType.Payment, description, amount, Balance));
+        CreditHistory.Insert(0, new CreditMovementRecord(date, CreditMovementType.Payment, description, amount, Balance) { Folio = folio });
     }
 }
 
@@ -73,6 +73,8 @@ public sealed record CreditMovementRecord(
     decimal Amount,
     decimal BalanceAfter)
 {
+    public string? Folio { get; init; }
+    public DateTime? DueDate { get; init; }
     public string TypeLabel => Type == CreditMovementType.Charge ? "Cargo" : "Abono";
     public string AmountText => OperationalDemoStore.FormatMoney(Amount);
     public string BalanceText => OperationalDemoStore.FormatMoney(BalanceAfter);
@@ -82,6 +84,7 @@ public sealed class ProductRecord : ObservableObject
 {
     private int _stock;
 
+    public int DatabaseId { get; init; }
     public string Id { get; }
     public string Name { get; }
     public decimal SalePrice { get; }
@@ -118,6 +121,7 @@ public sealed class InventoryBatchRecord(
     string supplierName)
 {
     public int Id { get; } = id;
+    public string Folio { get; init; } = "";
     public int Quantity { get; internal set; } = quantity;
     public DateTime PurchaseDate { get; } = purchaseDate;
     public DateTime? ExpirationDate { get; } = expirationDate;
@@ -132,6 +136,8 @@ public sealed record InventoryMovementRecord(
     string Reference,
     DateTime? ExpirationDate)
 {
+    public string? LotFolio { get; init; }
+    public string DisplayReference => LotFolio is null ? Reference : $"{Reference} · {LotFolio}";
     public string DateText => Date.ToString("dd/MM/yyyy");
     public string QuantityText => Quantity > 0 ? $"+{Quantity}" : Quantity.ToString();
     public string ExpirationText => ExpirationDate?.ToString("dd/MM/yyyy") ?? "Sin fecha";
@@ -157,7 +163,8 @@ public sealed class PurchaseRecord(
     public SupplierRecord Supplier { get; } = supplier;
     public IReadOnlyList<PurchaseLineRecord> Lines { get; } = lines;
     public decimal Total => Lines.Sum(line => line.Quantity * line.UnitCost);
-    public string Number => $"C-{Id:0000}";
+    public required string Number { get; init; }
+    public string? SupplierInvoice { get; init; }
     public string DateText => Date.ToString("dd/MM/yyyy");
     public string TotalText => OperationalDemoStore.FormatMoney(Total);
 }
@@ -193,7 +200,7 @@ public sealed class SaleRecord(
     public CustomerRecord? Customer { get; } = customer;
     public IReadOnlyList<SaleLineRecord> Lines { get; } = lines;
     public decimal Total => Lines.Sum(line => line.Quantity * line.UnitPrice);
-    public string Ticket => $"V-{Id:0000}";
+    public required string Ticket { get; init; }
     public string DateText => Date.ToString("dd/MM/yyyy HH:mm");
     public string PaymentText => PaymentType == SalePaymentType.Cash ? "Contado" : "Crédito";
     public string CustomerName => Customer?.Name ?? "Venta de mostrador";
@@ -217,6 +224,9 @@ public sealed class CashSessionRecord(
     private decimal _cashSales;
 
     public int Id { get; } = id;
+    public required string Folio { get; init; }
+    public string OpeningFolio => $"{Folio}-AP";
+    public string ClosingFolio => $"{Folio}-CI";
     public DateTime OpenedAt { get; } = openedAt;
     public DateTime? ClosedAt
     {

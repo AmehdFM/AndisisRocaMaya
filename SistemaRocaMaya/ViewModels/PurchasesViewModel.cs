@@ -106,6 +106,13 @@ public sealed class PurchasesViewModel : ObservableObject
             }
         }
     }
+    private string _supplierInvoice = "";
+    public string SupplierInvoice
+    {
+        get => _supplierInvoice;
+        set => SetProperty(ref _supplierInvoice, value);
+    }
+
     public DateTime? PurchaseDate
     {
         get => _purchaseDate;
@@ -161,12 +168,12 @@ public sealed class PurchasesViewModel : ObservableObject
     {
         var detailed = ShowSupplierDetails;
         ReportColumn[] columns = detailed
-            ? [new("Fecha"), new("Compra", 0.8f), new("Proveedor", 1.4f), new("Producto", 1.4f), new("Cantidad", 0.7f, true),
+            ? [new("Fecha"), new("Compra", 0.8f), new("Proveedor", 1.4f), new("Factura", 1.15f), new("Producto", 1.4f), new("Cantidad", 0.7f, true),
                 new("Costo unitario", 1, true), new("Costo anterior", 1, true), new("Variación L", 1, true),
                 new("Variación %", 0.9f, true), new("Total", 1, true)]
             : [new("Fecha"), new("Producto", 2), new("Cantidad", 1, true), new("Costo", 1, true), new("Total", 1, true)];
         var rows = PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Select(row => new ReportRow(detailed
-            ? [row.DateText, row.PurchaseNumber, row.SupplierName, row.ProductName, row.QuantityText,
+            ? [row.DateText, row.PurchaseNumber, row.SupplierName, row.SupplierInvoice, row.ProductName, row.QuantityText,
                 row.UnitCostText, row.PreviousUnitCostText, row.UnitCostDifferenceText, row.UnitCostVariationText, row.LineTotalText]
             : [row.DateText, row.ProductName, row.QuantityText, row.UnitCostText, row.LineTotalText])).ToArray();
         return new("Historial de compras por proveedor",
@@ -213,6 +220,7 @@ public sealed class PurchasesViewModel : ObservableObject
                         purchase.Date,
                         purchase.Number,
                         purchase.Supplier.Name,
+                        purchase.SupplierInvoice ?? "—",
                         line.Product.Name,
                         line.Product.Id,
                         line.Quantity,
@@ -286,12 +294,13 @@ public sealed class PurchasesViewModel : ObservableObject
 
         try
         {
-            _store.RecordPurchase(SelectedSupplier, PurchaseDate.Value, inputs);
+            var purchase = _store.RecordPurchase(SelectedSupplier, PurchaseDate.Value, inputs, SupplierInvoice);
+            SupplierInvoice = "";
             foreach (var row in ProductRows)
             {
                 row.Reset();
             }
-            StatusMessage = "Compra registrada e inventario actualizado.";
+            StatusMessage = $"Compra {purchase.Number} registrada e inventario actualizado.";
             OnPropertyChanged(nameof(PurchaseTotalText));
             RegisterPurchaseCommand.NotifyCanExecuteChanged();
         }
@@ -323,6 +332,7 @@ public sealed record PurchaseCostHistoryRowViewModel(
     DateTime Date,
     string PurchaseNumber,
     string SupplierName,
+    string SupplierInvoice,
     string ProductName,
     string ProductId,
     int Quantity,

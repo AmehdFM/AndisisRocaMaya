@@ -237,12 +237,12 @@ public sealed class CreditsViewModel : ObservableObject
 
     private static CreditAgingCustomerViewModel BuildAgingCustomer(CustomerRecord customer, DateTime asOfDate)
     {
-        var openCharges = new List<(DateTime Date, decimal Remaining)>();
+        var openCharges = new List<(DateTime Date, DateTime? DueDate, decimal Remaining)>();
         foreach (var movement in customer.CreditHistory.Where(movement => movement.Date.Date <= asOfDate.Date).OrderBy(movement => movement.Date))
         {
             if (movement.Type == CreditMovementType.Charge)
             {
-                openCharges.Add((movement.Date.Date, movement.Amount));
+                openCharges.Add((movement.Date.Date, movement.DueDate, movement.Amount));
                 continue;
             }
 
@@ -251,7 +251,7 @@ public sealed class CreditsViewModel : ObservableObject
             {
                 var charge = openCharges[index];
                 var applied = Math.Min(charge.Remaining, paymentRemaining);
-                openCharges[index] = (charge.Date, charge.Remaining - applied);
+                openCharges[index] = (charge.Date, charge.DueDate, charge.Remaining - applied);
                 paymentRemaining -= applied;
             }
         }
@@ -268,7 +268,7 @@ public sealed class CreditsViewModel : ObservableObject
         }
 
         var oldest = outstanding.OrderBy(charge => charge.Date).FirstOrDefault();
-        var dueDate = oldest.Remaining > 0 ? oldest.Date.AddDays(DemoCreditTermDays) : (DateTime?)null;
+        var dueDate = oldest.Remaining > 0 ? (oldest.DueDate ?? oldest.Date.AddDays(DemoCreditTermDays)) : (DateTime?)null;
         var overdueDays = dueDate is DateTime due ? Math.Max(0, (asOfDate.Date - due.Date).Days) : 0;
         var status = overdueDays == 0 ? "Vigente" : overdueDays <= 30 ? "Mora de 1–30 días" : "Mora mayor a 30 días";
 
@@ -295,8 +295,8 @@ public sealed class CreditsViewModel : ObservableObject
 
         try
         {
-            Store.RecordCreditPayment(SelectedCustomer, amount);
-            StatusMessage = "Abono registrado.";
+            var payment = Store.RecordCreditPayment(SelectedCustomer, amount);
+            StatusMessage = $"Abono {payment.Folio} registrado.";
             OnPropertyChanged(nameof(SelectedCustomerBalanceText));
             OnPropertyChanged(nameof(HasSelectedCustomer));
             CustomersWithCredit.Refresh();

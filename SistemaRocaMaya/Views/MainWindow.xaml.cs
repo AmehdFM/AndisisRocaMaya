@@ -32,7 +32,7 @@ namespace SistemaRocaMaya.Views
                 return;
             }
 
-            if (!SettingsViewModel.Instance.VerifyDemoPassword(user, PasswordInput.Password))
+            if (!SettingsViewModel.Instance.VerifyPassword(user, PasswordInput.Password))
             {
                 MessageBox.Show(this, "La contraseña no es válida para ese usuario.",
                     "Credenciales incorrectas", MessageBoxButton.OK, MessageBoxImage.Warning);

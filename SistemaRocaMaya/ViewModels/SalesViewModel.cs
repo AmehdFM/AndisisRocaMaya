@@ -13,7 +13,7 @@ public sealed class SalesViewModel : ObservableObject
 {
     private DateTime? _sessionStartDate = DateTime.Today.AddDays(-30);
     private DateTime? _sessionEndDate = DateTime.Today;
-    private string _cashReportActionMessage = "Los cierres se conservan en memoria durante esta sesión.";
+    private string _cashReportActionMessage = "Selecciona un turno para consultar sus ventas.";
     private CashSessionRecord? _selectedSession;
 
     public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
@@ -78,13 +78,14 @@ public sealed class SalesViewModel : ObservableObject
     {
         if (SelectedSession is not { } session || !CashSessions.Contains(session))
             throw new InvalidOperationException("Selecciona una caja dentro del período consultado.");
-        return new("Ventas en efectivo por turno", $"Caja {session.Id} · Apertura: {session.OpenedText} · Cierre: {session.ClosedText}",
+        var closing = session.ClosedAt is null ? "Cierre pendiente" : $"Cierre {session.ClosingFolio}";
+        return new("Ventas en efectivo por turno", $"Turno {session.Folio} · Apertura: {session.OpenedText} · Cierre: {session.ClosedText}",
             [new("Ticket"), new("Fecha y hora", 1.5f), new("Cliente", 1.5f), new("Artículos", 0.7f, true), new("Total efectivo", 1, true)],
             SelectedCashSales.Select(sale => new ReportRow(
                 [sale.Ticket, sale.DateText, sale.CustomerName, sale.Lines.Count.ToString(), sale.TotalText])).ToArray(),
             landscape: true, notes: [
-                $"Fondo inicial: {session.OpeningAmountText} · Ventas en efectivo: {OperationalDemoStore.FormatMoney(session.CashSales)}",
-                $"Esperado: {session.ExpectedAmountText} · Contado: {session.ClosingAmountText} · Diferencia: {session.DifferenceText}"]);
+                $"Apertura {session.OpeningFolio} · Fondo inicial: {session.OpeningAmountText} · Ventas en efectivo: {OperationalDemoStore.FormatMoney(session.CashSales)}",
+                $"{closing} · Esperado: {session.ExpectedAmountText} · Contado: {session.ClosingAmountText} · Diferencia: {session.DifferenceText}"]);
     }
 
     private bool FilterSession(object item)

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SistemaRocaMaya.Services;
 
 namespace SistemaRocaMaya.ViewModels;
 
@@ -15,13 +16,7 @@ public sealed class FiadoViewModel : ObservableObject
     private bool _fiadoPreparado;
     private decimal _totalVenta;
 
-    public ObservableCollection<ClienteFiadoViewModel> Clientes { get; } =
-    [
-        new("María López", "0801-0000-00001", 245.00m),
-        new("Carlos Mejía", "0801-0000-00002", 0.00m),
-        new("Ana Martínez", "0801-0000-00003", 390.00m),
-        new("José Flores", "0801-0000-00004", 125.00m)
-    ];
+    public ObservableCollection<ClienteFiadoViewModel> Clientes { get; } = [];
 
     public ICollectionView ClientesFiltrados { get; }
 
@@ -115,6 +110,11 @@ public sealed class FiadoViewModel : ObservableObject
 
     public void PrepararVenta(decimal totalVenta)
     {
+        ClienteSeleccionado = null;
+        Clientes.Clear();
+        foreach (var customer in OperationalDemoStore.Instance.Customers)
+            Clientes.Add(new(customer.Name, customer.TaxOrIdentity, customer.Balance));
+
         TotalVenta = totalVenta;
         FiadoPreparado = false;
         MensajeEstado = ClienteSeleccionado is null

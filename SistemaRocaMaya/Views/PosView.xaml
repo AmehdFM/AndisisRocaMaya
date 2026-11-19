@@ -212,7 +212,7 @@
 
         <Border Grid.Row="2" Background="{StaticResource RocaMayaBlueSurfaceBrush}">
             <DockPanel Margin="24,0" LastChildFill="False">
-                <TextBlock Text="Prototipo · Los productos y el carrito son datos de demostración" VerticalAlignment="Center"
+                <TextBlock Text="Caja · Las ventas confirmadas se guardan en el turno activo" VerticalAlignment="Center"
                            FontSize="10" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </DockPanel>
         </Border>

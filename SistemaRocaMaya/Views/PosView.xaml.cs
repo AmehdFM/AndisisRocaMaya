@@ -117,7 +117,7 @@ public partial class PosView : UserControl
         }
 
         var expectedAmount = store.ActiveCashSession?.ExpectedAmount ?? 0m;
-        var dialog = new CashSessionWindow(isClosing, expectedAmount)
+        var dialog = new CashSessionWindow(isClosing, expectedAmount, store.ActiveCashSession?.ClosingFolio)
         {
             Owner = Window.GetWindow(this)
         };
