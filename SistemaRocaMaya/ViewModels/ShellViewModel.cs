@@ -206,7 +206,7 @@ public sealed partial class ShellViewModel : ObservableObject
             if (!_currentRole.PuedeAcceder("Contabilidad")) return;
             AccountingViewModel.SelectSection(title);
         }
-        else if (!_currentRole.PuedeAcceder(title))
+        else if (!CanAccessSection(title))
         {
             return;
         }
@@ -258,9 +258,12 @@ public sealed partial class ShellViewModel : ObservableObject
         OnPropertyChanged(nameof(InventoryMenuItem));
     }
 
+    private bool CanAccessSection(string title) =>
+        (title != "Ventas" || _currentRole.Nombre == "Gerencia") && _currentRole.PuedeAcceder(title);
+
     private void AddMenuItem(string title, string icon)
     {
-        if (_currentRole.PuedeAcceder(title))
+        if (CanAccessSection(title))
         {
             MenuItems.Add(new NavigationItemViewModel(title, icon, title));
         }
