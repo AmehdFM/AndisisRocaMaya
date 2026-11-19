@@ -44,3 +44,7 @@ Segoe UI. Título de pantalla 21 px seminegrita; botones y campos 12 px; encabez
 ## Aplicación y verificación
 
 Mantener los enlaces, permisos y comandos existentes. Revisar vistas y pestañas a 1366 × 768 y al mínimo de ventana de 1024 × 640; los gráficos y reportes conservan sus unidades y valores. El acceso conserva su composición propia e incorpora la misma marca. Los PDF mantienen su plantilla independiente de impresión.
+
+## Folios en pantalla y en reportes
+
+Usar el folio visible en las columnas y detalles que identifican una operación. Mantener la referencia de factura del proveedor en su propio campo. En los documentos del Diario y del Mayor, mostrar el folio del asiento junto al documento de origen cuando exista. [Formatos y ubicaciones](Convenciones-de-ID.md).
