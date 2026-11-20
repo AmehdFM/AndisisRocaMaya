@@ -11,7 +11,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                 <StackPanel Margin="18,0" VerticalAlignment="Center">
                     <TextBlock Text="VENTAS DE HOY" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-                    <TextBlock Text="{Binding SalesTodayText}" Margin="0,7,0,0" FontSize="23" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                    <TextBlock Text="{Binding SalesTodayText}" Margin="0,7,0,0" FontSize="23" FontWeight="Bold" Foreground="{StaticResource RocaMayaInstitutionalNavyBrush}" />
                     <TextBlock Text="{Binding SalesTodayCount, StringFormat='{}{0} ventas'}" Margin="0,3,0,0" FontSize="11" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
                 </StackPanel>
                 <Border Grid.Column="1" Background="{StaticResource RocaMayaBorderBrush}" />
@@ -77,7 +77,9 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding ExpirationDateText}" FontSize="10" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" HorizontalAlignment="Right" />
-                                        <TextBlock Text="{Binding ExpirationState}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" HorizontalAlignment="Right" />
+                                        <Border Background="{StaticResource RocaMayaChartCoralBrush}" CornerRadius="4" Padding="5,2" Margin="0,2,0,0" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding ExpirationState}" FontSize="9" Foreground="{StaticResource RocaMayaChartTextBrush}" />
+                                        </Border>
                                     </StackPanel>
                                     <Border Height="1" VerticalAlignment="Bottom" Background="{StaticResource RocaMayaDividerBrush}" Grid.ColumnSpan="2" />
                                 </Grid>

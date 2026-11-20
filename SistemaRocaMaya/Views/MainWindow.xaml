@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:SistemaRocaMaya.Views"
         mc:Ignorable="d"
         Title="Sistema Roca Maya"
+        Icon="pack://application:,,,/Assets/ConsulfarmaRocaMaya_Icon.ico"
         Height="500"
         Width="800"
         MinHeight="480"

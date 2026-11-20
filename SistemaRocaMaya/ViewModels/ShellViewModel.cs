@@ -13,6 +13,7 @@ public sealed partial class ShellViewModel : ObservableObject
     private bool _isFocusMode;
     private string _currentSectionTitle = "Resumen";
     private readonly Rol _currentRole;
+    private readonly Usuario _currentUser;
 
     public ObservableCollection<NavigationItemViewModel> MenuItems { get; } = [];
 
@@ -52,6 +53,18 @@ public sealed partial class ShellViewModel : ObservableObject
     }
 
     public string RoleLabel => _currentRole.Nombre;
+
+    public string UserName => string.IsNullOrWhiteSpace(_currentUser.Nombre) ? "Usuario activo" : _currentUser.Nombre;
+
+    public string UserDepartmentLabel => _currentRole.Nombre.Equals("Gerencia", StringComparison.OrdinalIgnoreCase)
+        || _currentRole.Nombre.Equals("Administrador", StringComparison.OrdinalIgnoreCase)
+            ? "Administrador / Gerencia"
+            : $"{_currentRole.Nombre} / Ventas";
+
+    public Visibility ManagementSettingsVisibility => IsManagementRole ? Visibility.Visible : Visibility.Collapsed;
+
+    private bool IsManagementRole => _currentRole.Nombre.Equals("Gerencia", StringComparison.OrdinalIgnoreCase)
+        || _currentRole.Nombre.Equals("Administrador", StringComparison.OrdinalIgnoreCase);
 
     public string ReturnFromFiadoLabel => "Volver al resumen";
 
@@ -115,8 +128,11 @@ public sealed partial class ShellViewModel : ObservableObject
 
     public IRelayCommand<NavigationItemViewModel?> NavigateCommand { get; }
 
+    public IRelayCommand OpenSettingsCommand { get; }
+
     public ShellViewModel(Usuario currentUser)
     {
+        _currentUser = currentUser;
         _currentRole = currentUser.Rol ?? throw new InvalidOperationException("El usuario no tiene un rol asignado.");
         PosViewModel = new PosViewModel(_currentRole);
         ToggleSidebarCommand = new RelayCommand(ToggleSidebar);
@@ -126,6 +142,7 @@ public sealed partial class ShellViewModel : ObservableObject
         ReturnFromFiadoCommand = new RelayCommand(() => SelectSection(_currentRole.PuedeAcceder("Resumen") ? "Resumen" : "Caja"));
         OpenAbonoCommand = new RelayCommand(() => SelectSection("P08 · Registrar abono"));
         NavigateCommand = new RelayCommand<NavigationItemViewModel?>(Navigate);
+        OpenSettingsCommand = new RelayCommand(() => SelectSection("Configuración"), () => IsManagementRole && _currentRole.PuedeAcceder("Configuración"));
         LoadMenuItems();
         SelectSection(_currentRole.PuedeAcceder("Resumen") ? "Resumen" : "Caja");
     }
@@ -253,13 +270,13 @@ public sealed partial class ShellViewModel : ObservableObject
         }
         AddMenuItem("Compras", "＋");
         AddAccountingMenu();
-        AddMenuItem("Configuración", "⚙");
         OnPropertyChanged(nameof(PosMenuItem));
         OnPropertyChanged(nameof(InventoryMenuItem));
     }
 
     private bool CanAccessSection(string title) =>
-        (title != "Ventas" || _currentRole.Nombre == "Gerencia") && _currentRole.PuedeAcceder(title);
+        (title != "Ventas" || IsManagementRole) && _currentRole.PuedeAcceder(title)
+        && (title != "Configuración" || IsManagementRole);
 
     private void AddMenuItem(string title, string icon)
     {

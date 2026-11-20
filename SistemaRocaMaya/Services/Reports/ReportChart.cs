@@ -9,7 +9,7 @@ public sealed record ReportChartSeries(string Name, IReadOnlyList<decimal> Value
 public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IReadOnlyList<ReportChartSeries> Series,
     string? CategoryAxisTitle = null)
 {
-    private static readonly string[] Colors = ["#245F8C", "#92531D", "#24724F"];
+    private static readonly string[] Colors = ["#93C5FD", "#FDBA74", "#86EFAC", "#C4B5FD", "#FCA5A5", "#FDE047", "#CBD5E1"];
     private const int CategoriesPerPage = 6;
     private const int PlotLeft = 110;
     private const int PlotRight = 716;
@@ -37,7 +37,7 @@ public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IRe
         double Y(decimal value) => PlotTop + (double)((maximum - value) / (maximum - minimum)) * (PlotBottom - PlotTop);
         var valueStart = PlotBottom + 38;
         var graphicHeight = valueStart + Series.Count * 15 + (CategoryAxisTitle is null ? 6 : 26);
-        var svg = new StringBuilder($"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 728 {graphicHeight}\" font-family=\"Lato\" font-size=\"12\" fill=\"#172B3A\">");
+        var svg = new StringBuilder($"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 728 {graphicHeight}\" font-family=\"Lato\" font-size=\"12\" fill=\"#1E293B\">");
         var pageTitle = Labels.Count > CategoriesPerPage
             ? $"{Title} ({start / CategoriesPerPage + 1}/{(Labels.Count + CategoriesPerPage - 1) / CategoriesPerPage})"
             : Title;
@@ -49,14 +49,14 @@ public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IRe
         }
 
         svg.Append("<text x=\"4\" y=\"65\" font-size=\"11\" font-weight=\"700\">Monto (L)</text>");
-        svg.Append($"<rect x=\"{PlotLeft}\" y=\"{PlotTop}\" width=\"{PlotRight - PlotLeft}\" height=\"{PlotBottom - PlotTop}\" fill=\"#F5F8FB\"/>");
+        svg.Append($"<rect x=\"{PlotLeft}\" y=\"{PlotTop}\" width=\"{PlotRight - PlotLeft}\" height=\"{PlotBottom - PlotTop}\" fill=\"#F8FAFC\"/>");
         var ticks = minimum < 0m && maximum > 0m
             ? new[] { minimum, minimum / 2m, 0m, maximum / 2m, maximum }
             : Enumerable.Range(0, 5).Select(tick => minimum + (maximum - minimum) * tick / 4m).ToArray();
         foreach (var amount in ticks)
         {
             var y = Number(Y(amount));
-            svg.Append($"<path d=\"M {PlotLeft - 5},{y} H {PlotRight}\" fill=\"none\" stroke=\"#C8D7E1\"/>");
+            svg.Append($"<path d=\"M {PlotLeft - 5},{y} H {PlotRight}\" fill=\"none\" stroke=\"#E2E8F0\"/>");
             svg.Append($"<text x=\"{PlotLeft - 8}\" y=\"{Number(Y(amount) + 4)}\" text-anchor=\"end\">{Escape(OperationalDemoStore.FormatMoney(amount))}</text>");
         }
 
@@ -75,10 +75,10 @@ public sealed record ReportChart(string Title, IReadOnlyList<string> Labels, IRe
                 var x = center - barWidth * Series.Count / 2 + series * barWidth;
                 var color = Colors[series % Colors.Length];
                 svg.Append($"<rect x=\"{Number(x + 1)}\" y=\"{Number(Math.Min(y, zero))}\" width=\"{Number(barWidth - 2)}\" height=\"{Number(Math.Abs(y - zero))}\" fill=\"{color}\"/>");
-                svg.Append($"<text x=\"{centerText}\" y=\"{valueStart + series * 15}\" text-anchor=\"middle\" fill=\"{color}\">{Escape(OperationalDemoStore.FormatMoney(amount))}</text>");
+                svg.Append($"<text x=\"{centerText}\" y=\"{valueStart + series * 15}\" text-anchor=\"middle\" fill=\"#1E293B\">{Escape(OperationalDemoStore.FormatMoney(amount))}</text>");
             }
         }
-        svg.Append($"<path d=\"M {PlotLeft},{PlotTop} V {PlotBottom} H {PlotRight} M {PlotLeft},{Number(zero)} H {PlotRight}\" fill=\"none\" stroke=\"#526A7A\" stroke-width=\"1.25\"/>");
+        svg.Append($"<path d=\"M {PlotLeft},{PlotTop} V {PlotBottom} H {PlotRight} M {PlotLeft},{Number(zero)} H {PlotRight}\" fill=\"none\" stroke=\"#64748B\" stroke-width=\"1\"/>");
         if (CategoryAxisTitle is { } axisTitle)
             svg.Append($"<text x=\"{(PlotLeft + PlotRight) / 2}\" y=\"{graphicHeight - 8}\" text-anchor=\"middle\" font-weight=\"700\">{Escape(axisTitle)}</text>");
         svg.Append("</svg>");

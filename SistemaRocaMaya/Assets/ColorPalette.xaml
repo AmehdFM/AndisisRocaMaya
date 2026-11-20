@@ -24,6 +24,15 @@
     <Color x:Key="RocaMayaNavigationMuted">#B7CBD8</Color>
     <Color x:Key="RocaMayaNavigationBadge">#224761</Color>
     <Color x:Key="RocaMayaOverlay">#BFF3F8FB</Color>
+    <Color x:Key="RocaMayaChartBlue">#93C5FD</Color>
+    <Color x:Key="RocaMayaChartMint">#86EFAC</Color>
+    <Color x:Key="RocaMayaChartPeach">#FDBA74</Color>
+    <Color x:Key="RocaMayaChartLavender">#C4B5FD</Color>
+    <Color x:Key="RocaMayaChartCoral">#FCA5A5</Color>
+    <Color x:Key="RocaMayaChartCream">#FDE047</Color>
+    <Color x:Key="RocaMayaChartSlate">#CBD5E1</Color>
+    <Color x:Key="RocaMayaChartText">#1E293B</Color>
+    <Color x:Key="RocaMayaInstitutionalNavy">#1E3A5F</Color>
 
     <SolidColorBrush x:Key="RocaMayaBluePrimaryBrush" Color="{StaticResource RocaMayaBluePrimary}" />
     <SolidColorBrush x:Key="RocaMayaBlueBrightBrush" Color="{StaticResource RocaMayaBlueBright}" />
@@ -49,4 +58,13 @@
     <SolidColorBrush x:Key="RocaMayaNavigationMutedBrush" Color="{StaticResource RocaMayaNavigationMuted}" />
     <SolidColorBrush x:Key="RocaMayaNavigationBadgeBrush" Color="{StaticResource RocaMayaNavigationBadge}" />
     <SolidColorBrush x:Key="RocaMayaOverlayBrush" Color="{StaticResource RocaMayaOverlay}" />
+    <SolidColorBrush x:Key="RocaMayaChartBlueBrush" Color="{StaticResource RocaMayaChartBlue}" />
+    <SolidColorBrush x:Key="RocaMayaChartMintBrush" Color="{StaticResource RocaMayaChartMint}" />
+    <SolidColorBrush x:Key="RocaMayaChartPeachBrush" Color="{StaticResource RocaMayaChartPeach}" />
+    <SolidColorBrush x:Key="RocaMayaChartLavenderBrush" Color="{StaticResource RocaMayaChartLavender}" />
+    <SolidColorBrush x:Key="RocaMayaChartCoralBrush" Color="{StaticResource RocaMayaChartCoral}" />
+    <SolidColorBrush x:Key="RocaMayaChartCreamBrush" Color="{StaticResource RocaMayaChartCream}" />
+    <SolidColorBrush x:Key="RocaMayaChartSlateBrush" Color="{StaticResource RocaMayaChartSlate}" />
+    <SolidColorBrush x:Key="RocaMayaChartTextBrush" Color="{StaticResource RocaMayaChartText}" />
+    <SolidColorBrush x:Key="RocaMayaInstitutionalNavyBrush" Color="{StaticResource RocaMayaInstitutionalNavy}" />
 </ResourceDictionary>

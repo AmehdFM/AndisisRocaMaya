@@ -27,6 +27,15 @@ public partial class ShellWindow : Window
         Close();
     }
 
+    private void UserProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (ProfileButton.ContextMenu is { } menu)
+        {
+            menu.PlacementTarget = ProfileButton;
+            menu.IsOpen = true;
+        }
+    }
+
     private void ShellWindow_Closing(object? sender, CancelEventArgs e)
     {
         if (!TryCloseOpenCashSession())

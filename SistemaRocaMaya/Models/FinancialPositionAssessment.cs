@@ -9,11 +9,11 @@ public sealed record FinancialPositionAssessment(decimal Assets, decimal Liabili
 
     public string RecommendationColor => ExternalFinancingPercent switch
     {
-        <= 30m => "#24724F",
-        <= 60m => "#805017",
-        > 60m => "#A52532",
-        _ when Assets == 0m && Liabilities > 0m => "#A52532",
-        _ => "#455D6F"
+        <= 30m => "#86EFAC",
+        <= 60m => "#FDBA74",
+        > 60m => "#FCA5A5",
+        _ when Assets == 0m && Liabilities > 0m => "#FCA5A5",
+        _ => "#CBD5E1"
     };
 
     public string Recommendation

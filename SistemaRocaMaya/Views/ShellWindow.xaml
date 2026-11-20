@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:SistemaRocaMaya.Views"
         Title="RocaMaya"
+        Icon="pack://application:,,,/Assets/ConsulfarmaRocaMaya_Icon.ico"
         Width="1360"
         Height="820"
         MinWidth="1024"
@@ -40,6 +41,37 @@
         </Style>
 
         <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource AppPrimaryButton}" />
+
+        <Style x:Key="ProfileMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Foreground" Value="{StaticResource RocaMayaChartTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="MenuItemSurface" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="26" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <ContentPresenter Content="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="MenuItemSurface" Property="Background" Value="#EAF5FB" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ProfileMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#D8E5ED" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="HasDropShadow" Value="True" />
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -167,15 +199,34 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <StackPanel Grid.Row="2" Margin="8,0,8,4">
-                    <Button Style="{StaticResource NavigationButtonStyle}" Click="SignOut_Click">
-                        <StackPanel Orientation="Horizontal" Margin="10,10">
-                            <TextBlock Text="↪" Width="28" Foreground="{StaticResource RocaMayaNavigationTextBrush}" FontSize="15" HorizontalAlignment="Center" />
-                            <TextBlock Text="Cerrar sesión" Foreground="{StaticResource RocaMayaNavigationTextBrush}" FontSize="12"
-                                       Visibility="{Binding SidebarTextVisibility}" />
+                <Button x:Name="ProfileButton" Grid.Row="2" Margin="8,0,8,10" MinHeight="54"
+                        Background="{StaticResource RocaMayaNavigationBadgeBrush}" BorderThickness="0"
+                        HorizontalContentAlignment="Stretch" Cursor="Hand" Click="UserProfile_Click"
+                        ToolTip="Perfil y opciones de usuario">
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="ProfileContextMenu" Style="{StaticResource ProfileMenuStyle}"
+                                     Placement="Top" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                            <MenuItem Header="Ajustes" Icon="⚙" Style="{StaticResource ProfileMenuItemStyle}"
+                                      Visibility="{Binding ManagementSettingsVisibility}"
+                                      Command="{Binding OpenSettingsCommand}" />
+                            <Separator Margin="6,3" Background="#E2E8F0" />
+                            <MenuItem Header="Cerrar sesión" Icon="↪" Style="{StaticResource ProfileMenuItemStyle}"
+                                      Click="SignOut_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <Grid Margin="8,7">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /><ColumnDefinition Width="18" /></Grid.ColumnDefinitions>
+                        <Border Width="30" Height="30" CornerRadius="15" Background="#3358B8E8" VerticalAlignment="Center">
+                            <TextBlock Text="♙" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Visibility="{Binding SidebarTextVisibility}">
+                            <TextBlock Text="{Binding UserName}" FontSize="11" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding UserDepartmentLabel}" Margin="0,2,0,0" FontSize="9" Foreground="{StaticResource RocaMayaNavigationMutedBrush}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                    </Button>
-                </StackPanel>
+                        <TextBlock Grid.Column="2" Text="⌃" FontSize="14" Foreground="{StaticResource RocaMayaNavigationMutedBrush}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding SidebarTextVisibility}" />
+                    </Grid>
+                </Button>
             </Grid>
         </Border>
 

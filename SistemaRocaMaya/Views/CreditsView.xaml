@@ -230,14 +230,14 @@
                                     <Border Padding="7,3" CornerRadius="3" HorizontalAlignment="Left">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{StaticResource RocaMayaSuccessSoftBrush}" />
+                                                <Setter Property="Background" Value="{StaticResource RocaMayaChartMintBrush}" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Mora de 1–30 días"><Setter Property="Background" Value="{StaticResource RocaMayaWarningSoftBrush}" /></DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Mora mayor a 30 días"><Setter Property="Background" Value="{StaticResource RocaMayaDangerSoftBrush}" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Mora de 1–30 días"><Setter Property="Background" Value="{StaticResource RocaMayaChartCreamBrush}" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Mora mayor a 30 días"><Setter Property="Background" Value="{StaticResource RocaMayaChartCoralBrush}" /></DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaBlackPrimaryBrush}" />
+                                        <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaChartTextBrush}" />
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

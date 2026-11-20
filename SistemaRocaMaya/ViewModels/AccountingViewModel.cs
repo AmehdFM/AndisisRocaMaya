@@ -654,7 +654,7 @@ public sealed class AccountingViewModel : ObservableObject
             [new("Categoría", 1.7f), new("Descripción", 2.2f), new("Cantidad", 1, true)],
             IncomeStatementLines.Select(line => new ReportRow([line.Group, line.Account, line.Amount], line.IsTotal)).ToArray(),
             chart: chart, chartCallouts: IncomePeriodChanges.Select(change => new ReportCallout(change.Label, change.Text,
-                change.IsFavorable switch { true => "#24724F", false => "#A52532", null => "#455D6F" })).ToArray());
+                change.IsFavorable switch { true => "#86EFAC", false => "#FCA5A5", null => "#CBD5E1" })).ToArray());
     }
 
     private void RefreshFinancialPositionOutput()
