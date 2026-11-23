@@ -29,6 +29,15 @@
         </Border>
         <DockPanel Grid.Row="1" Margin="0,0,0,8" LastChildFill="False">
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CanBrowseHistory}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
                 <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,8,0" />
                 <DatePicker Width="125" SelectedDate="{Binding StartDate}" AutomationProperties.Name="Desde" />
                 <TextBlock Text="Hasta" VerticalAlignment="Center" Margin="12,0,8,0" />

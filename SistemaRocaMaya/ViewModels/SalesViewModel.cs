@@ -15,12 +15,14 @@ public sealed class SalesViewModel : ObservableObject
     private DateTime? _endDate = DateTime.Today;
     private string _cashReportActionMessage = "";
 
+    public bool CanBrowseHistory { get; }
+
     public DateTime? StartDate
     {
         get => _startDate;
         set
         {
-            if (SetProperty(ref _startDate, value)) RefreshDates();
+            if (CanBrowseHistory && SetProperty(ref _startDate, value)) RefreshDates();
         }
     }
 
@@ -29,7 +31,7 @@ public sealed class SalesViewModel : ObservableObject
         get => _endDate;
         set
         {
-            if (SetProperty(ref _endDate, value)) RefreshDates();
+            if (CanBrowseHistory && SetProperty(ref _endDate, value)) RefreshDates();
         }
     }
 
@@ -44,6 +46,7 @@ public sealed class SalesViewModel : ObservableObject
         get => _selectedDate;
         set
         {
+            if (value is DateTime day && !CanBrowseHistory && day.Date != DateTime.Today) return;
             if (SetProperty(ref _selectedDate, value)) RefreshSelectedDay();
         }
     }
@@ -64,13 +67,14 @@ public sealed class SalesViewModel : ObservableObject
 
     public SalesViewModel(bool isManagement)
     {
+        CanBrowseHistory = isManagement;
         Recipient = isManagement ? "Preparado para la gerencia" : "Preparado para el auxiliar de ventas";
         ExportCashReportCommand = new RelayCommand(
             () => PdfExportService.Export(CreateCashReport, "Ventas_en_efectivo.pdf", message => CashReportActionMessage = message),
-            () => SelectedDate.HasValue);
+            CanReportSelectedDate);
         PrintCashReportCommand = new RelayCommand(
             () => ReportPrintService.Print(CreateCashReport, message => CashReportActionMessage = message),
-            () => SelectedDate.HasValue);
+            CanReportSelectedDate);
 
         _store.Sales.CollectionChanged += (_, _) => RefreshDates();
         _store.PropertyChanged += (_, args) =>
@@ -82,7 +86,7 @@ public sealed class SalesViewModel : ObservableObject
 
     public TableReportDocument CreateCashReport()
     {
-        if (SelectedDate is not { } day)
+        if (!CanReportSelectedDate() || SelectedDate is not { } day)
             throw new InvalidOperationException("Selecciona una fecha de venta.");
 
         var closedAt = GetClosedSessions(day).Select(session => session.ClosedAt)
@@ -100,10 +104,18 @@ public sealed class SalesViewModel : ObservableObject
             landscape: true, groupSeparators: true, headerCards: CashSummaryCards);
     }
 
+    private bool CanReportSelectedDate() =>
+        SelectedDate is { } day && (CanBrowseHistory || day.Date == DateTime.Today);
+
+    internal void RefreshToday()
+    {
+        if (!CanBrowseHistory && SelectedDate != DateTime.Today) RefreshDates();
+    }
+
     private void RefreshDates()
     {
         var previousDate = SelectedDate;
-        var dates = _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash).Select(sale => sale.Date.Date)
+        DateTime[] dates = !CanBrowseHistory ? [DateTime.Today] : _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash).Select(sale => sale.Date.Date)
             .Union(_store.CashSessions.Where(session => session.ClosedAt.HasValue).Select(session => session.ClosedAt!.Value.Date))
             .Where(date => (StartDate is null || date >= StartDate.Value.Date)
                 && (EndDate is null || date <= EndDate.Value.Date))
