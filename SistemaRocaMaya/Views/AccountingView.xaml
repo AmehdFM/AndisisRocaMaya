@@ -340,7 +340,6 @@
                                       CanUserSortColumns="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="FECHA" Binding="{Binding DateText}" Width="0.9*" ElementStyle="{StaticResource CenteredReportCell}" />
-                                    <DataGridTextColumn Header="DOCUMENTO" Binding="{Binding Reference}" Width="1.7*" />
                                     <DataGridTextColumn Header="CONCEPTO" Binding="{Binding Description}" Width="1.6*" ElementStyle="{StaticResource CenteredReportCell}" />
                                     <DataGridTextColumn Header="ABONADO" Binding="{Binding DebitText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" />
                                     <DataGridTextColumn Header="ACREDITADO" Binding="{Binding CreditText}" Width="1.0*" ElementStyle="{StaticResource CenteredReportCell}" />

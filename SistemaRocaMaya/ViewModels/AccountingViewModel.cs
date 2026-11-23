@@ -604,9 +604,9 @@ public sealed class AccountingViewModel : ObservableObject
     {
         var totals = SelectedLedgerTotals ?? throw new InvalidOperationException("Selecciona una cuenta contable.");
         var rows = LedgerEntries.Select(entry => new ReportRow(
-            [entry.DateText, entry.Reference, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray();
+            [entry.DateText, entry.Description, entry.DebitText, entry.CreditText, entry.BalanceText])).ToArray();
         return new("Libro Mayor", $"{SelectedLedgerAccount} · {FormatPeriod(LedgerStartDate, LedgerEndDate)}",
-            [new("Fecha"), new("Documento", 1.8f), new("Concepto", 2), new("Abonado", 1, true), new("Acreditado", 1, true), new("Saldo", 1, true)],
+            [new("Fecha"), new("Concepto", 2), new("Abonado", 1, true), new("Acreditado", 1, true), new("Saldo", 1, true)],
             rows, landscape: true, summary: new("Totales del período", ["Abonado", "Acreditado", "Saldo final"],
                 [new([totals.DebitText, totals.CreditText, totals.ClosingText], IsTotal: true)]));
     }
