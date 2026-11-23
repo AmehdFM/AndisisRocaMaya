@@ -63,6 +63,7 @@ public sealed partial class ShellViewModel : ObservableObject
             : $"{_currentRole.Nombre} / Ventas";
 
     public Visibility ManagementSettingsVisibility => IsManagementRole ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility CreditAgingVisibility => IsManagementRole ? Visibility.Visible : Visibility.Collapsed;
 
     private bool IsManagementRole => _currentRole.Nombre.Equals("Gerencia", StringComparison.OrdinalIgnoreCase)
         || _currentRole.Nombre.Equals("Administrador", StringComparison.OrdinalIgnoreCase);

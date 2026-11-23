@@ -98,12 +98,7 @@
                             Background="{StaticResource RocaMayaNavigationBadgeBrush}" CornerRadius="7"
                             VerticalAlignment="Center"
                             Visibility="{Binding SidebarTextVisibility}">
-                        <StackPanel>
-                            <TextBlock Text="VISTA DE PROTOTIPO" Foreground="{StaticResource RocaMayaNavigationMutedBrush}"
-                                       FontSize="9" FontWeight="Bold" />
-                            <TextBlock Text="{Binding RoleLabel}" Foreground="White"
-                                       FontSize="13" FontWeight="SemiBold" Margin="0,3,0,0" />
-                        </StackPanel>
+                        <TextBlock Text="{Binding RoleLabel}" Foreground="White" FontSize="13" FontWeight="SemiBold" />
                     </Border>
                     <Button Grid.Column="0" Grid.ColumnSpan="2" Margin="0" Width="32" Height="36"
                             HorizontalAlignment="{Binding SidebarToggleAlignment}"
