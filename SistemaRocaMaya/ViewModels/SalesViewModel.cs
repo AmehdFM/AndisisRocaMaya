@@ -82,10 +82,16 @@ public sealed class SalesViewModel : ObservableObject
 
     public TableReportDocument CreateCashReport()
     {
-        if (SelectedDate is null)
+        if (SelectedDate is not { } day)
             throw new InvalidOperationException("Selecciona una fecha de venta.");
 
-        return new("Ventas en efectivo por fecha", ReportContext,
+        var closedAt = GetClosedSessions(day).Select(session => session.ClosedAt)
+            .OrderBy(date => date).Select(date => $"{date:dd/MM/yyyy HH:mm:ss}").ToArray();
+        var context = closedAt.Length > 0
+            ? $"{Recipient} · {string.Join(" / ", closedAt)}"
+            : $"{Recipient} · {day:dd/MM/yyyy} · Caja sin cerrar";
+
+        return new("Ventas en efectivo por fecha", context,
             [new("Hora", 0.65f), new("Cliente", 1.4f), new("Producto", 2.2f),
                 new("Precio unitario", 1.1f, true), new("Cantidad", 0.75f, true), new("Total", 1, true)],
             SelectedCashSales.Select(row => new ReportRow(
@@ -110,6 +116,9 @@ public sealed class SalesViewModel : ObservableObject
         RefreshSelectedDay();
     }
 
+    private CashSessionRecord[] GetClosedSessions(DateTime day) =>
+        _store.CashSessions.Where(session => session.ClosedAt?.Date == day).ToArray();
+
     private void RefreshSelectedDay()
     {
         SelectedCashSales = _store.Sales
@@ -120,7 +129,7 @@ public sealed class SalesViewModel : ObservableObject
         CashSummaryCards = [];
         if (SelectedDate is { } day)
         {
-            var closedSessions = _store.CashSessions.Where(session => session.ClosedAt?.Date == day).ToArray();
+            var closedSessions = GetClosedSessions(day);
             string ClosingTotal(Func<CashSessionRecord, decimal> value) => closedSessions.Length == 0
                 ? "Sin cierre" : OperationalDemoStore.FormatMoney(closedSessions.Sum(value));
             CashSummaryCards =
