@@ -15,11 +15,12 @@ public sealed class TableReportDocument : ReportDocument
     private readonly ReportTableSummary? _summary;
     private readonly bool _groupSeparators;
     private readonly IReadOnlyList<ReportCallout> _chartCallouts;
+    private readonly IReadOnlyList<ReportCallout> _headerCards;
 
     public TableReportDocument(string title, string context, IReadOnlyList<ReportColumn> columns,
         IReadOnlyList<ReportRow> rows, bool landscape = false, IReadOnlyList<string>? notes = null,
         ReportChart? chart = null, ReportTableSummary? summary = null, bool groupSeparators = false,
-        IReadOnlyList<ReportCallout>? chartCallouts = null) : base(title, context, landscape)
+        IReadOnlyList<ReportCallout>? chartCallouts = null, IReadOnlyList<ReportCallout>? headerCards = null) : base(title, context, landscape)
     {
         if (columns.Count == 0 || rows.Any(row => row.Cells.Count != columns.Count))
             throw new ArgumentException("Las filas deben coincidir con las columnas del reporte.");
@@ -30,6 +31,7 @@ public sealed class TableReportDocument : ReportDocument
         _summary = summary;
         _groupSeparators = groupSeparators;
         _chartCallouts = chartCallouts ?? [];
+        _headerCards = headerCards ?? [];
     }
 
     protected override void ComposeContent(IContainer container)
@@ -38,6 +40,13 @@ public sealed class TableReportDocument : ReportDocument
         {
             foreach (var note in _notes)
                 column.Item().PaddingBottom(6).Text(note);
+
+            if (_headerCards.Count > 0)
+                column.Item().PaddingBottom(10).ShowEntire().Row(row =>
+                {
+                    foreach (var card in _headerCards)
+                        row.RelativeItem().PaddingRight(4).Element(card.Compose);
+                });
 
             column.Item().Table(table =>
             {

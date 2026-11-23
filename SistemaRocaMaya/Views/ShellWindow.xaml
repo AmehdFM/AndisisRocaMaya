@@ -323,7 +323,7 @@
                                  Visibility="{Binding DataContext.PurchasesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:InventoryView Grid.Row="0"
                                  Visibility="{Binding DataContext.InventoryVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <views:SalesView Grid.Row="0"
+            <views:SalesView Grid.Row="0" DataContext="{Binding SalesViewModel}"
                              Visibility="{Binding DataContext.SalesVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             <views:SettingsView Grid.Row="0"
                                 Visibility="{Binding DataContext.SettingsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />

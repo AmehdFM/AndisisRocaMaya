@@ -18,6 +18,7 @@ public sealed partial class ShellViewModel : ObservableObject
     public ObservableCollection<NavigationItemViewModel> MenuItems { get; } = [];
 
     public PosViewModel PosViewModel { get; }
+    public SalesViewModel SalesViewModel { get; }
 
     public FiadoViewModel FiadoViewModel { get; } = new();
 
@@ -135,6 +136,7 @@ public sealed partial class ShellViewModel : ObservableObject
         _currentUser = currentUser;
         _currentRole = currentUser.Rol ?? throw new InvalidOperationException("El usuario no tiene un rol asignado.");
         PosViewModel = new PosViewModel(_currentRole);
+        SalesViewModel = new SalesViewModel(IsManagementRole);
         ToggleSidebarCommand = new RelayCommand(ToggleSidebar);
         ToggleFocusCommand = new RelayCommand(ToggleFocus, CanToggleFocus);
         ExitFocusCommand = new RelayCommand(ExitFocus);
@@ -275,8 +277,9 @@ public sealed partial class ShellViewModel : ObservableObject
     }
 
     private bool CanAccessSection(string title) =>
-        (title != "Ventas" || IsManagementRole) && _currentRole.PuedeAcceder(title)
-        && (title != "Configuración" || IsManagementRole);
+        title == "Ventas"
+            ? IsManagementRole || _currentRole.Nombre.Equals("Empleado", StringComparison.OrdinalIgnoreCase)
+            : _currentRole.PuedeAcceder(title) && (title != "Configuración" || IsManagementRole);
 
     private void AddMenuItem(string title, string icon)
     {

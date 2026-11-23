@@ -4,6 +4,10 @@
              FontFamily="Segoe UI">
     <UserControl.Resources>
         <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource AppTableHeader}" />
+        <Style x:Key="SalesNumericCell" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="Margin" Value="4,2" />
+        </Style>
     </UserControl.Resources>
     <Grid Background="{StaticResource RocaMayaSurfaceBrush}" Margin="{StaticResource AppPageMargin}">
         <Grid.RowDefinitions>
@@ -16,8 +20,11 @@
             <DockPanel>
                 <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
                        Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
-                <TextBlock Text="Ventas en efectivo por fecha" Style="{StaticResource ReportHeadingText}"
-                           VerticalAlignment="Center" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Ventas en efectivo por fecha" Style="{StaticResource ReportHeadingText}" />
+                    <TextBlock Text="{Binding ReportContext}" Margin="0,4,0,0"
+                               Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
+                </StackPanel>
             </DockPanel>
         </Border>
         <DockPanel Grid.Row="1" Margin="0,0,0,8" LastChildFill="False">
@@ -45,23 +52,40 @@
                          BorderBrush="{StaticResource RocaMayaBorderBrush}" />
             </DockPanel>
             <DockPanel Grid.Column="2">
-                <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="95" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding CashClosingSummaries}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,6,0,0" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <TextBlock DockPanel.Dock="Bottom" Margin="0,8,0,0" FontWeight="SemiBold" HorizontalAlignment="Right"
-                           Text="{Binding DailyTotalText, StringFormat='Total efectivo del día: {0}'}" />
+                <ItemsControl DockPanel.Dock="Bottom" ItemsSource="{Binding CashSummaryCards}" Margin="0,8,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="5" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource RocaMayaBlueSurfaceBrush}" Padding="8" Margin="0,0,4,0"
+                                    BorderBrush="{StaticResource RocaMayaBlueSecondaryBrush}" BorderThickness="2,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="11" />
+                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <DataGrid ItemsSource="{Binding SelectedCashSales}" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
+                          CanUserAddRows="False" CanUserSortColumns="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
                           BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
                           HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StartsGroup}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{StaticResource RocaMayaBlueSecondaryBrush}" />
+                                    <Setter Property="BorderThickness" Value="0,1,0,0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="PRODUCTOS Y PRECIO UNITARIO" Binding="{Binding Products}" Width="2.4*" MinWidth="190">
+                        <DataGridTextColumn Header="HORA" Binding="{Binding Time}" Width="0.65*" MinWidth="54" />
+                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding Customer}" Width="1.4*" MinWidth="100" />
+                        <DataGridTextColumn Header="PRODUCTO" Binding="{Binding Line.ProductName}" Width="2.2*" MinWidth="125">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextWrapping" Value="Wrap" />
@@ -69,10 +93,12 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="FECHA Y HORA" Binding="{Binding Sale.DateText}" Width="1.2*" MinWidth="112" />
-                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding Sale.CustomerName}" Width="1.2*" MinWidth="100" />
-                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding Quantity}" Width="0.75*" MinWidth="75" />
-                        <DataGridTextColumn Header="TOTAL EFECTIVO" Binding="{Binding Sale.TotalText}" Width="1*" MinWidth="112" />
+                        <DataGridTextColumn Header="PRECIO UNITARIO" Binding="{Binding UnitPrice}" Width="1.1*" MinWidth="104"
+                                            ElementStyle="{StaticResource SalesNumericCell}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding Line.Quantity}" Width="0.75*" MinWidth="72"
+                                            ElementStyle="{StaticResource SalesNumericCell}" HeaderStyle="{StaticResource AppRightTableHeader}" />
+                        <DataGridTextColumn Header="TOTAL" Binding="{Binding Line.LineTotalText}" Width="1*" MinWidth="85"
+                                            ElementStyle="{StaticResource SalesNumericCell}" HeaderStyle="{StaticResource AppRightTableHeader}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
