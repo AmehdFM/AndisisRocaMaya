@@ -16,69 +16,49 @@
             <DockPanel>
                 <Image DockPanel.Dock="Right" Source="{StaticResource ReportWordmark}"
                        Style="{StaticResource ReportWordmarkImage}" Margin="16,0,0,0" />
-                <TextBlock Text="Ventas en efectivo por turno" Style="{StaticResource ReportHeadingText}"
+                <TextBlock Text="Ventas en efectivo por fecha" Style="{StaticResource ReportHeadingText}"
                            VerticalAlignment="Center" />
             </DockPanel>
         </Border>
-        <Grid Grid.Row="1" Margin="0,0,0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
-                <ColumnDefinition Width="Auto" /><ColumnDefinition Width="125" />
-                <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Text="Desde" Margin="0,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-            <DatePicker Grid.Column="1" SelectedDate="{Binding SessionStartDate, UpdateSourceTrigger=PropertyChanged}" />
-            <TextBlock Grid.Column="2" Text="Hasta" Margin="12,0,7,0" VerticalAlignment="Center" FontSize="13" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
-            <DatePicker Grid.Column="3" SelectedDate="{Binding SessionEndDate, UpdateSourceTrigger=PropertyChanged}" />
-            <Button Style="{StaticResource AppButton}" Grid.Column="5" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}"
-                    Margin="0,0,8,0" />
-            <Button Style="{StaticResource AppButton}" Grid.Column="6" Content="Imprimir" Command="{Binding PrintCashReportCommand}" />
-        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+            <Button Style="{StaticResource AppButton}" Content="Exportar PDF" Command="{Binding ExportCashReportCommand}" Margin="0,0,8,0" />
+            <Button Style="{StaticResource AppButton}" Content="Imprimir" Command="{Binding PrintCashReportCommand}" />
+        </StackPanel>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="160" />
                 <ColumnDefinition Width="12" />
-                <ColumnDefinition Width="1.1*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <DataGrid ScrollViewer.HorizontalScrollBarVisibility="Auto" ItemsSource="{Binding CashSessions}"
-                      SelectedItem="{Binding SelectedSession}" AutoGenerateColumns="False" IsReadOnly="True"
-                      CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
-                      BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
-                      HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="TURNO" Binding="{Binding Folio}" Width="1.45*" MinWidth="130" />
-                    <DataGridTextColumn Header="APERTURA" Binding="{Binding OpenedText}" Width="1.1*" MinWidth="100" />
-                    <DataGridTextColumn Header="CIERRE" Binding="{Binding ClosedText}" Width="1.1*" MinWidth="100" />
-                    <DataGridTextColumn Header="ESPERADO" Binding="{Binding ExpectedAmountText}" Width="1*" MinWidth="75" />
-                    <DataGridTextColumn Header="CONTADO" Binding="{Binding ClosingAmountText}" Width="1*" MinWidth="75" />
-                    <DataGridTextColumn Header="DIFERENCIA" Binding="{Binding DifferenceText}" Width="1*" MinWidth="75" />
-                </DataGrid.Columns>
-            </DataGrid>
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <WrapPanel Margin="0,0,0,8">
-                    <StackPanel Margin="0,0,14,4"><TextBlock Text="FONDO INICIAL" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.OpeningAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="14" FontWeight="SemiBold" /></StackPanel>
-                    <StackPanel Margin="0,0,14,4"><TextBlock Text="VENTAS EN EFECTIVO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.CashSales, StringFormat='L {0:N2}', TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="14" FontWeight="SemiBold" /></StackPanel>
-                    <StackPanel Margin="0,0,14,4"><TextBlock Text="ESPERADO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.ExpectedAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="14" FontWeight="SemiBold" /></StackPanel>
-                    <StackPanel Margin="0,0,14,4"><TextBlock Text="CONTADO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.ClosingAmountText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="14" FontWeight="SemiBold" /></StackPanel>
-                    <StackPanel Margin="0,0,14,4"><TextBlock Text="DIFERENCIA" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" /><TextBlock Text="{Binding SelectedSession.DifferenceText, TargetNullValue='L 0.00'}" Margin="0,3,0,0" FontSize="14" FontWeight="Bold" Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" /></StackPanel>
-                </WrapPanel>
-                <DataGrid Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Auto" ItemsSource="{Binding SelectedCashSales}" AutoGenerateColumns="False" IsReadOnly="True"
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Fechas" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <ListBox ItemsSource="{Binding SaleDates}" SelectedItem="{Binding SelectedDate, Mode=TwoWay}"
+                         ItemStringFormat="{}{0:dd/MM/yyyy}" AutomationProperties.Name="Fechas de ventas y cierres"
+                         BorderBrush="{StaticResource RocaMayaBorderBrush}" />
+            </DockPanel>
+            <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Bottom" Margin="0,8,0,0" FontWeight="SemiBold" HorizontalAlignment="Right"
+                           Text="{Binding DailyTotalText, StringFormat='Total efectivo del día: {0}'}" />
+                <DataGrid ItemsSource="{Binding SelectedCashSales}" AutoGenerateColumns="False" IsReadOnly="True"
                           CanUserAddRows="False" HeadersVisibility="Column" RowHeaderWidth="0" Background="White"
                           BorderBrush="{StaticResource RocaMayaBorderBrush}" GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}" VerticalGridLinesBrush="Transparent">
+                          HorizontalGridLinesBrush="{StaticResource RocaMayaDividerBrush}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="TICKET" Binding="{Binding Ticket}" Width="0.9*" />
-                        <DataGridTextColumn Header="FECHA Y HORA" Binding="{Binding DateText}" Width="1.3*" MinWidth="105" />
-                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding CustomerName}" Width="1.2*" />
-                        <DataGridTextColumn Header="ARTÍCULOS" Binding="{Binding Lines.Count}" Width="0.8*" />
-                        <DataGridTextColumn Header="TOTAL EFECTIVO" Binding="{Binding TotalText}" Width="1.1*" />
+                        <DataGridTextColumn Header="PRODUCTOS" Binding="{Binding Products}" Width="2.4*" MinWidth="145">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap" />
+                                    <Setter Property="Margin" Value="4,3" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="FECHA Y HORA" Binding="{Binding Sale.DateText}" Width="1.2*" MinWidth="112" />
+                        <DataGridTextColumn Header="CLIENTE" Binding="{Binding Sale.CustomerName}" Width="1.2*" MinWidth="100" />
+                        <DataGridTextColumn Header="CANTIDAD" Binding="{Binding Quantity}" Width="0.75*" MinWidth="75" />
+                        <DataGridTextColumn Header="TOTAL EFECTIVO" Binding="{Binding Sale.TotalText}" Width="1*" MinWidth="112" />
                     </DataGrid.Columns>
                 </DataGrid>
-            </Grid>
+            </DockPanel>
         </Grid>
         <TextBlock Grid.Row="3" Text="{Binding CashReportActionMessage}" Margin="0,7,0,0" FontSize="9"
                    Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />

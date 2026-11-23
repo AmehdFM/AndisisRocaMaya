@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using System.Collections.Specialized;
-using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SistemaRocaMaya.Models;
@@ -11,30 +8,28 @@ namespace SistemaRocaMaya.ViewModels;
 
 public sealed class SalesViewModel : ObservableObject
 {
-    private DateTime? _sessionStartDate = DateTime.Today.AddDays(-30);
-    private DateTime? _sessionEndDate = DateTime.Today;
-    private string _cashReportActionMessage = "Selecciona un turno para consultar sus ventas.";
-    private CashSessionRecord? _selectedSession;
+    private readonly OperationalDemoStore _store = OperationalDemoStore.Instance;
+    private IReadOnlyList<DateTime> _saleDates = [];
+    private DateTime? _selectedDate;
+    private string _cashReportActionMessage = "";
 
-    public OperationalDemoStore Store { get; } = OperationalDemoStore.Instance;
-    public ListCollectionView CashSessions { get; }
-    public DateTime? SessionStartDate
+    public IReadOnlyList<DateTime> SaleDates
     {
-        get => _sessionStartDate;
+        get => _saleDates;
+        private set => SetProperty(ref _saleDates, value);
+    }
+
+    public DateTime? SelectedDate
+    {
+        get => _selectedDate;
         set
         {
-            if (SetProperty(ref _sessionStartDate, value)) CashSessions.Refresh();
+            if (SetProperty(ref _selectedDate, value)) RefreshSelectedDay();
         }
     }
 
-    public DateTime? SessionEndDate
-    {
-        get => _sessionEndDate;
-        set
-        {
-            if (SetProperty(ref _sessionEndDate, value)) CashSessions.Refresh();
-        }
-    }
+    public IReadOnlyList<CashSaleRow> SelectedCashSales { get; private set; } = [];
+    public string DailyTotalText => OperationalDemoStore.FormatMoney(SelectedCashSales.Sum(row => row.Sale.Total));
 
     public string CashReportActionMessage
     {
@@ -44,66 +39,76 @@ public sealed class SalesViewModel : ObservableObject
 
     public IRelayCommand ExportCashReportCommand { get; }
     public IRelayCommand PrintCashReportCommand { get; }
-    public CashSessionRecord? SelectedSession
-    {
-        get => _selectedSession;
-        set
-        {
-            if (SetProperty(ref _selectedSession, value))
-            {
-                OnPropertyChanged(nameof(SelectedOpeningCount));
-                OnPropertyChanged(nameof(SelectedClosingCount));
-                OnPropertyChanged(nameof(SelectedCashSales));
-            }
-        }
-    }
-    public IEnumerable<CashDenominationCount> SelectedOpeningCount => SelectedSession?.OpeningCount ?? Array.Empty<CashDenominationCount>();
-    public IEnumerable<CashDenominationCount> SelectedClosingCount => SelectedSession?.ClosingCount ?? Array.Empty<CashDenominationCount>();
-    public IEnumerable<SaleRecord> SelectedCashSales => SelectedSession is null
-        ? Enumerable.Empty<SaleRecord>()
-        : SelectedSession.CashSalesDetail;
 
     public SalesViewModel()
     {
-        CashSessions = new ListCollectionView(Store.CashSessions);
-        CashSessions.Filter = FilterSession;
-        CashSessions.SortDescriptions.Add(new(nameof(CashSessionRecord.OpenedAt), ListSortDirection.Ascending));
-        Store.CashSessions.CollectionChanged += CashSessions_CollectionChanged;
-        SelectedSession = Store.CashSessions.FirstOrDefault();
-        ExportCashReportCommand = new RelayCommand(() => PdfExportService.Export(CreateCashReport, "Ventas_por_turno.pdf", message => CashReportActionMessage = message));
-        PrintCashReportCommand = new RelayCommand(() => ReportPrintService.Print(CreateCashReport, message => CashReportActionMessage = message));
+        ExportCashReportCommand = new RelayCommand(
+            () => PdfExportService.Export(CreateCashReport, "Ventas_en_efectivo.pdf", message => CashReportActionMessage = message),
+            () => SelectedDate.HasValue);
+        PrintCashReportCommand = new RelayCommand(
+            () => ReportPrintService.Print(CreateCashReport, message => CashReportActionMessage = message),
+            () => SelectedDate.HasValue);
+
+        _store.Sales.CollectionChanged += (_, _) => RefreshDates();
+        _store.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(OperationalDemoStore.CashSessions)) RefreshDates();
+        };
+        RefreshDates();
     }
 
     public TableReportDocument CreateCashReport()
     {
-        if (SelectedSession is not { } session || !CashSessions.Contains(session))
-            throw new InvalidOperationException("Selecciona una caja dentro del período consultado.");
-        var closing = session.ClosedAt is null ? "Cierre pendiente" : $"Cierre {session.ClosingFolio}";
-        return new("Ventas en efectivo por turno", $"Turno {session.Folio} · Apertura: {session.OpenedText} · Cierre: {session.ClosedText}",
-            [new("Ticket"), new("Fecha y hora", 1.5f), new("Cliente", 1.5f), new("Artículos", 0.7f, true), new("Total efectivo", 1, true)],
-            SelectedCashSales.Select(sale => new ReportRow(
-                [sale.Ticket, sale.DateText, sale.CustomerName, sale.Lines.Count.ToString(), sale.TotalText])).ToArray(),
-            landscape: true, notes: [
-                $"Apertura {session.OpeningFolio} · Fondo inicial: {session.OpeningAmountText} · Ventas en efectivo: {OperationalDemoStore.FormatMoney(session.CashSales)}",
-                $"{closing} · Esperado: {session.ExpectedAmountText} · Contado: {session.ClosingAmountText} · Diferencia: {session.DifferenceText}"]);
-    }
+        if (SelectedDate is not { } date)
+            throw new InvalidOperationException("Selecciona una fecha de venta.");
 
-    private bool FilterSession(object item)
-    {
-        if (item is not CashSessionRecord session) return false;
-        var sessionDate = (session.ClosedAt ?? session.OpenedAt).Date;
-        if (SessionStartDate is DateTime start && sessionDate < start.Date) return false;
-        if (SessionEndDate is DateTime end && sessionDate > end.Date) return false;
-        return true;
-    }
-
-    private void CashSessions_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(CashSessions));
-        CashSessions.Refresh();
-        if (e.NewItems is not null && e.NewItems.Count > 0)
+        var notes = new List<string> { $"Total efectivo del día: {DailyTotalText}" };
+        foreach (var session in _store.CashSessions.Where(session => session.ClosedAt?.Date == date)
+                     .OrderBy(session => session.ClosedAt))
         {
-            SelectedSession = (CashSessionRecord)e.NewItems[0]!;
+            notes.Add($"Cierre {session.ClosingFolio} · Fondo inicial: {session.OpeningAmountText} · " +
+                      $"Esperado: {session.ExpectedAmountText} · Contado: {session.ClosingAmountText} · Diferencia: {session.DifferenceText}");
         }
+
+        return new("Ventas en efectivo por fecha", date.ToString("dd/MM/yyyy"),
+            [new("Productos", 2.6f), new("Fecha y hora", 1.2f), new("Cliente", 1.3f),
+                new("Cantidad", 0.65f, true), new("Total efectivo", 1, true)],
+            SelectedCashSales.Select(row => new ReportRow(
+                [row.Products, row.Sale.DateText, row.Sale.CustomerName, row.Quantity.ToString(), row.Sale.TotalText])).ToArray(),
+            landscape: true, notes: notes);
     }
+
+    private void RefreshDates()
+    {
+        var previousDate = SelectedDate;
+        var dates = _store.Sales.Where(sale => sale.PaymentType == SalePaymentType.Cash).Select(sale => sale.Date.Date)
+            .Union(_store.CashSessions.Where(session => session.ClosedAt.HasValue).Select(session => session.ClosedAt!.Value.Date))
+            .OrderBy(date => date).ToArray();
+
+        if (!SaleDates.SequenceEqual(dates)) SaleDates = dates;
+        SelectedDate = previousDate is { } previous && dates.Contains(previous)
+            ? previous
+            : dates.Select(date => (DateTime?)date).LastOrDefault();
+        RefreshSelectedDay();
+    }
+
+    private void RefreshSelectedDay()
+    {
+        SelectedCashSales = _store.Sales
+            .Where(sale => sale.PaymentType == SalePaymentType.Cash && sale.Date.Date == SelectedDate)
+            .OrderBy(sale => sale.Date).ThenBy(sale => sale.Id)
+            .Select(sale => new CashSaleRow(sale)).ToArray();
+        OnPropertyChanged(nameof(SelectedCashSales));
+        OnPropertyChanged(nameof(DailyTotalText));
+        CashReportActionMessage = SelectedDate is null ? "No hay fechas disponibles."
+            : SelectedCashSales.Count == 0 ? "No hay ventas en efectivo para esta fecha." : "";
+        ExportCashReportCommand.NotifyCanExecuteChanged();
+        PrintCashReportCommand.NotifyCanExecuteChanged();
+    }
+}
+
+public sealed record CashSaleRow(SaleRecord Sale)
+{
+    public string Products => string.Join(", ", Sale.Lines.Select(line => $"{line.ProductName} × {line.Quantity}"));
+    public int Quantity => Sale.Lines.Sum(line => line.Quantity);
 }
