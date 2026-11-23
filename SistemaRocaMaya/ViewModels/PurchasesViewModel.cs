@@ -39,7 +39,7 @@ public sealed class PurchasesViewModel : ObservableObject
         .DistinctBy(product => product.Id).OrderBy(product => product.Name).ToArray();
     public bool CanSelectReportProduct => SelectedReportSupplier is not null;
     public bool HasPurchaseReport => _allPurchaseCostRows.Count > 0;
-    public decimal PurchaseChartMaximum => Math.Max(1m, _allPurchaseCostRows.Select(row => row.UnitCost).DefaultIfEmpty().Max());
+    public PurchaseCostChart? UnitCostChart { get; private set; }
     public string PurchaseReportActionMessage
     {
         get => _purchaseReportActionMessage;
@@ -185,9 +185,7 @@ public sealed class PurchasesViewModel : ObservableObject
             : [row.DateText, row.ProductName, row.QuantityText, row.UnitCostText, row.LineTotalText])).ToArray();
         return new("Historial de compras por proveedor",
             $"{SelectedReportSupplier?.Name} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · {SelectedReportProduct?.Name}",
-            columns, rows, landscape: true, chart: new ReportChart("Costo unitario por compra",
-                _allPurchaseCostRows.Select(row => row.DateText).ToArray(),
-                [new("Costo unitario", _allPurchaseCostRows.Select(row => row.UnitCost).ToArray())], "Fecha de compra"),
+            columns, rows, landscape: true, chartSvg: UnitCostChart?.RenderSvg(),
             summary: new("Totales de compras",
                 ["Compras totales", "Productos totales", "Valor total"],
                 [new([PurchaseReportPurchaseCountText, PurchaseReportLineCountText, PurchaseReportTotalText], IsTotal: true)]));
@@ -245,7 +243,12 @@ public sealed class PurchasesViewModel : ObservableObject
     private void NotifyPurchaseReportTotals()
     {
         OnPropertyChanged(nameof(HasPurchaseReport));
-        OnPropertyChanged(nameof(PurchaseChartMaximum));
+        UnitCostChart = HasPurchaseReport
+            ? new PurchaseCostChart(ReportStartDate ?? _allPurchaseCostRows[0].Date,
+                ReportEndDate ?? _allPurchaseCostRows[^1].Date,
+                _allPurchaseCostRows.Select(row => (row.Date, row.UnitCost)).ToArray())
+            : null;
+        OnPropertyChanged(nameof(UnitCostChart));
         ShowPurchaseReportCommand.NotifyCanExecuteChanged();
         ExportPurchaseReportCommand.NotifyCanExecuteChanged();
         PrintPurchaseReportCommand.NotifyCanExecuteChanged();

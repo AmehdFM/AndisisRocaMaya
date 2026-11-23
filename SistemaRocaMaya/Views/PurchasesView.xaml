@@ -250,27 +250,10 @@
                 <Border Grid.Row="5" Margin="0,8,0,0" Padding="8" Background="White"
                         BorderBrush="{StaticResource RocaMayaBorderBrush}" BorderThickness="1"
                         Visibility="{Binding HasPurchaseReport, Converter={StaticResource PurchaseReportVisibility}}">
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Costo unitario por compra (L)" FontWeight="SemiBold" Margin="0,0,0,4" />
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="112">
-                            <ItemsControl ItemsSource="{Binding PurchaseCostRows}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0,2">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="110" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding DateText}" VerticalAlignment="Center" />
-                                            <ProgressBar Grid.Column="1" Height="12" Value="{Binding UnitCost, Mode=OneWay}"
-                                                         Maximum="{Binding DataContext.PurchaseChartMaximum, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                         Foreground="{StaticResource RocaMayaBlueSecondaryBrush}" />
-                                            <TextBlock Grid.Column="2" Text="{Binding UnitCostText}" HorizontalAlignment="Right" Margin="8,0,4,0" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </DockPanel>
+                    <Viewbox Height="175" Stretch="Uniform">
+                        <views:PurchaseCostChartView Width="760" Height="230" Chart="{Binding UnitCostChart}"
+                                                     AutomationProperties.Name="Costo unitario por fecha de compra" />
+                    </Viewbox>
                 </Border>
                 <TextBlock Grid.Row="6" Text="{Binding PurchaseReportActionMessage}" Margin="0,7,0,0" FontSize="9" Foreground="{StaticResource RocaMayaTextSecondaryBrush}" />
             </Grid>

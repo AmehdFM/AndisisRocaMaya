@@ -12,6 +12,7 @@ public sealed class TableReportDocument : ReportDocument
     private readonly IReadOnlyList<ReportRow> _rows;
     private readonly IReadOnlyList<string> _notes;
     private readonly ReportChart? _chart;
+    private readonly string? _chartSvg;
     private readonly ReportTableSummary? _summary;
     private readonly bool _groupSeparators;
     private readonly IReadOnlyList<ReportCallout> _chartCallouts;
@@ -20,7 +21,8 @@ public sealed class TableReportDocument : ReportDocument
     public TableReportDocument(string title, string context, IReadOnlyList<ReportColumn> columns,
         IReadOnlyList<ReportRow> rows, bool landscape = false, IReadOnlyList<string>? notes = null,
         ReportChart? chart = null, ReportTableSummary? summary = null, bool groupSeparators = false,
-        IReadOnlyList<ReportCallout>? chartCallouts = null, IReadOnlyList<ReportCallout>? headerCards = null) : base(title, context, landscape)
+        IReadOnlyList<ReportCallout>? chartCallouts = null, IReadOnlyList<ReportCallout>? headerCards = null,
+        string? chartSvg = null) : base(title, context, landscape)
     {
         if (columns.Count == 0 || rows.Any(row => row.Cells.Count != columns.Count))
             throw new ArgumentException("Las filas deben coincidir con las columnas del reporte.");
@@ -28,6 +30,7 @@ public sealed class TableReportDocument : ReportDocument
         _rows = rows;
         _notes = notes ?? [];
         _chart = chart;
+        _chartSvg = chartSvg;
         _summary = summary;
         _groupSeparators = groupSeparators;
         _chartCallouts = chartCallouts ?? [];
@@ -107,6 +110,9 @@ public sealed class TableReportDocument : ReportDocument
                 foreach (var svg in _chart.RenderPages())
                     column.Item().PaddingTop(16).ShowEntire().Svg(svg).FitWidth();
             }
+
+            if (_chartSvg is not null)
+                column.Item().PaddingTop(16).ShowEntire().Svg(_chartSvg).FitWidth();
 
             if (_chartCallouts.Count > 0)
                 column.Item().PaddingTop(10).ShowEntire().Row(row =>
