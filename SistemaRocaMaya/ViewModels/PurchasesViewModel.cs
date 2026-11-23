@@ -19,11 +19,11 @@ public sealed class PurchasesViewModel : ObservableObject
     private string _statusMessage = "";
     private string _productSearchText = "";
     private string _historySearchText = "";
-    private string _selectedReportSupplier = "Todos los proveedores";
-    private string _reportProductSearchText = "";
+    private SupplierRecord? _selectedReportSupplier;
+    private ProductRecord? _selectedReportProduct;
     private DateTime? _reportStartDate = DateTime.Today.AddDays(-180);
     private DateTime? _reportEndDate = DateTime.Today;
-    private string _purchaseReportActionMessage = "Compara cada costo con la compra anterior del mismo producto y proveedor.";
+    private string _purchaseReportActionMessage = "";
     private readonly ObservableCollection<PurchaseCostHistoryRowViewModel> _allPurchaseCostRows = [];
 
     public ObservableCollection<SupplierRecord> Suppliers => _store.Suppliers;
@@ -32,30 +32,37 @@ public sealed class PurchasesViewModel : ObservableObject
     public ICollectionView ProductRowsView { get; }
     public ICollectionView PurchasesView { get; }
     public ListCollectionView PurchaseCostRows { get; }
-    public ObservableCollection<string> ReportSupplierNames { get; } = ["Todos los proveedores"];
+    public IReadOnlyList<SupplierRecord> ReportSuppliers => Suppliers.OrderBy(supplier => supplier.Name).ToArray();
+    public IReadOnlyList<ProductRecord> ReportProducts => Purchases
+        .Where(purchase => purchase.Supplier.Id == SelectedReportSupplier?.Id)
+        .SelectMany(purchase => purchase.Lines).Select(line => line.Product)
+        .DistinctBy(product => product.Id).OrderBy(product => product.Name).ToArray();
+    public bool CanSelectReportProduct => SelectedReportSupplier is not null;
+    public bool HasPurchaseReport => _allPurchaseCostRows.Count > 0;
+    public decimal PurchaseChartMaximum => Math.Max(1m, _allPurchaseCostRows.Select(row => row.UnitCost).DefaultIfEmpty().Max());
     public string PurchaseReportActionMessage
     {
         get => _purchaseReportActionMessage;
         private set => SetProperty(ref _purchaseReportActionMessage, value);
     }
-    public string SelectedReportSupplier
+    public SupplierRecord? SelectedReportSupplier
     {
         get => _selectedReportSupplier;
         set
         {
-            if (SetProperty(ref _selectedReportSupplier, value)) RefreshPurchaseCostRows();
+            if (!SetProperty(ref _selectedReportSupplier, value)) return;
+            SelectedReportProduct = null;
+            OnPropertyChanged(nameof(ReportProducts));
+            OnPropertyChanged(nameof(CanSelectReportProduct));
+            ClearPurchaseReport();
         }
     }
-    public string ReportProductSearchText
+    public ProductRecord? SelectedReportProduct
     {
-        get => _reportProductSearchText;
+        get => _selectedReportProduct;
         set
         {
-            if (SetProperty(ref _reportProductSearchText, value))
-            {
-                PurchaseCostRows.Refresh();
-                NotifyPurchaseReportTotals();
-            }
+            if (SetProperty(ref _selectedReportProduct, value)) ClearPurchaseReport();
         }
     }
     public DateTime? ReportStartDate
@@ -63,7 +70,7 @@ public sealed class PurchasesViewModel : ObservableObject
         get => _reportStartDate;
         set
         {
-            if (SetProperty(ref _reportStartDate, value)) RefreshPurchaseCostRows();
+            if (SetProperty(ref _reportStartDate, value)) ClearPurchaseReport();
         }
     }
     public DateTime? ReportEndDate
@@ -71,12 +78,13 @@ public sealed class PurchasesViewModel : ObservableObject
         get => _reportEndDate;
         set
         {
-            if (SetProperty(ref _reportEndDate, value)) RefreshPurchaseCostRows();
+            if (SetProperty(ref _reportEndDate, value)) ClearPurchaseReport();
         }
     }
     public string PurchaseReportTotalText => OperationalDemoStore.FormatMoney(PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Sum(row => row.LineTotal));
     public string PurchaseReportPurchaseCountText => PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Select(row => row.PurchaseNumber).Distinct().Count().ToString();
     public string PurchaseReportLineCountText => PurchaseCostRows.Cast<PurchaseCostHistoryRowViewModel>().Count().ToString();
+    public IRelayCommand ShowPurchaseReportCommand { get; }
     public IRelayCommand ExportPurchaseReportCommand { get; }
     public IRelayCommand PrintPurchaseReportCommand { get; }
     public string ProductSearchText
@@ -140,12 +148,12 @@ public sealed class PurchasesViewModel : ObservableObject
         PurchasesView.Filter = FilterPurchase;
         PurchasesView.SortDescriptions.Add(new(nameof(PurchaseRecord.Date), ListSortDirection.Ascending));
         PurchaseCostRows = new ListCollectionView(_allPurchaseCostRows);
-        PurchaseCostRows.Filter = FilterPurchaseCostRow;
-        ExportPurchaseReportCommand = new RelayCommand(() => PdfExportService.Export(CreatePurchaseReport, "Compras_por_proveedor.pdf", message => PurchaseReportActionMessage = message));
-        PrintPurchaseReportCommand = new RelayCommand(() => ReportPrintService.Print(CreatePurchaseReport, message => PurchaseReportActionMessage = message));
+        ShowPurchaseReportCommand = new RelayCommand(RefreshPurchaseCostRows,
+            () => SelectedReportSupplier is not null && SelectedReportProduct is not null);
+        ExportPurchaseReportCommand = new RelayCommand(() => PdfExportService.Export(CreatePurchaseReport, "Compras_por_proveedor.pdf", message => PurchaseReportActionMessage = message), () => HasPurchaseReport);
+        PrintPurchaseReportCommand = new RelayCommand(() => ReportPrintService.Print(CreatePurchaseReport, message => PurchaseReportActionMessage = message), () => HasPurchaseReport);
         _store.Purchases.CollectionChanged += Purchases_CollectionChanged;
         _store.Suppliers.CollectionChanged += Suppliers_CollectionChanged;
-        foreach (var supplier in Suppliers) ReportSupplierNames.Add(supplier.Name);
         foreach (var product in _store.Products)
         {
             AddRow(product);
@@ -153,7 +161,6 @@ public sealed class PurchasesViewModel : ObservableObject
         _store.Products.CollectionChanged += Products_CollectionChanged;
         RegisterPurchaseCommand = new RelayCommand(RegisterPurchase, CanRegisterPurchase);
         SelectedSupplier = Suppliers.FirstOrDefault();
-        RefreshPurchaseCostRows();
     }
 
     private bool _showSupplierDetails;
@@ -177,8 +184,11 @@ public sealed class PurchasesViewModel : ObservableObject
                 row.UnitCostText, row.PreviousUnitCostText, row.UnitCostDifferenceText, row.UnitCostVariationText, row.LineTotalText]
             : [row.DateText, row.ProductName, row.QuantityText, row.UnitCostText, row.LineTotalText])).ToArray();
         return new("Historial de compras por proveedor",
-            $"{SelectedReportSupplier} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · Producto: {ReportProductSearchText}",
-            columns, rows, landscape: true, summary: new("Totales de compras",
+            $"{SelectedReportSupplier?.Name} · {ReportStartDate:dd/MM/yyyy} – {ReportEndDate:dd/MM/yyyy} · {SelectedReportProduct?.Name}",
+            columns, rows, landscape: true, chart: new ReportChart("Costo unitario por compra",
+                _allPurchaseCostRows.Select(row => row.DateText).ToArray(),
+                [new("Costo unitario", _allPurchaseCostRows.Select(row => row.UnitCost).ToArray())], "Fecha de compra"),
+            summary: new("Totales de compras",
                 ["Compras totales", "Productos totales", "Valor total"],
                 [new([PurchaseReportPurchaseCountText, PurchaseReportLineCountText, PurchaseReportTotalText], IsTotal: true)]));
     }
@@ -194,51 +204,51 @@ public sealed class PurchasesViewModel : ObservableObject
             || purchase.Number.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
             || purchase.DateText.Contains(HistorySearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
-    private bool FilterPurchaseCostRow(object item) => item is PurchaseCostHistoryRowViewModel row
-        && (string.IsNullOrWhiteSpace(ReportProductSearchText)
-            || row.ProductName.Contains(ReportProductSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)
-            || row.ProductId.Contains(ReportProductSearchText.Trim(), StringComparison.CurrentCultureIgnoreCase));
+    private void ClearPurchaseReport()
+    {
+        _allPurchaseCostRows.Clear();
+        PurchaseReportActionMessage = "";
+        NotifyPurchaseReportTotals();
+    }
 
     private void RefreshPurchaseCostRows()
     {
-        _allPurchaseCostRows.Clear();
-        var previousUnitCosts = new Dictionary<(int SupplierId, string ProductId), decimal>();
-        foreach (var purchase in Purchases.OrderBy(purchase => purchase.Date).ThenBy(purchase => purchase.Id))
+        ClearPurchaseReport();
+        if (SelectedReportSupplier is not { } supplier || SelectedReportProduct is not { } product) return;
+        if (ReportStartDate?.Date > ReportEndDate?.Date)
         {
-            foreach (var line in purchase.Lines)
-            {
-                var key = (purchase.Supplier.Id, line.Product.Id);
-                var hasPrevious = previousUnitCosts.TryGetValue(key, out var previousCost);
-                var inRange = (ReportStartDate is not DateTime start || purchase.Date.Date >= start.Date)
-                    && (ReportEndDate is not DateTime end || purchase.Date.Date <= end.Date);
-                var matchesSupplier = SelectedReportSupplier == "Todos los proveedores"
-                    || purchase.Supplier.Name == SelectedReportSupplier;
+            PurchaseReportActionMessage = "La fecha inicial debe ser anterior o igual a la fecha final.";
+            return;
+        }
 
-                if (inRange && matchesSupplier)
+        decimal? previousCost = null;
+        foreach (var purchase in Purchases.Where(purchase => purchase.Supplier.Id == supplier.Id)
+                     .OrderBy(purchase => purchase.Date).ThenBy(purchase => purchase.Id))
+        {
+            foreach (var line in purchase.Lines.Where(line => line.Product.Id == product.Id))
+            {
+                if ((ReportStartDate is not DateTime start || purchase.Date.Date >= start.Date)
+                    && (ReportEndDate is not DateTime end || purchase.Date.Date <= end.Date))
                 {
                     _allPurchaseCostRows.Add(new PurchaseCostHistoryRowViewModel(
-                        purchase.Date,
-                        purchase.Number,
-                        purchase.Supplier.Name,
-                        purchase.SupplierInvoice ?? "—",
-                        line.Product.Name,
-                        line.Product.Id,
-                        line.Quantity,
-                        line.UnitCost,
-                        previousCost,
-                        hasPrevious));
+                        purchase.Date, purchase.Number, supplier.Name, purchase.SupplierInvoice ?? "—",
+                        product.Name, product.Id, line.Quantity, line.UnitCost, previousCost.GetValueOrDefault(),
+                        previousCost.HasValue));
                 }
-
-                previousUnitCosts[key] = line.UnitCost;
+                previousCost = line.UnitCost;
             }
         }
 
-        PurchaseCostRows.Refresh();
         NotifyPurchaseReportTotals();
     }
 
     private void NotifyPurchaseReportTotals()
     {
+        OnPropertyChanged(nameof(HasPurchaseReport));
+        OnPropertyChanged(nameof(PurchaseChartMaximum));
+        ShowPurchaseReportCommand.NotifyCanExecuteChanged();
+        ExportPurchaseReportCommand.NotifyCanExecuteChanged();
+        PrintPurchaseReportCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(PurchaseReportTotalText));
         OnPropertyChanged(nameof(PurchaseReportPurchaseCountText));
         OnPropertyChanged(nameof(PurchaseReportLineCountText));
@@ -247,17 +257,15 @@ public sealed class PurchasesViewModel : ObservableObject
     private void Purchases_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         PurchasesView.Refresh();
-        RefreshPurchaseCostRows();
+        var product = SelectedReportProduct;
+        var hadResults = HasPurchaseReport;
+        OnPropertyChanged(nameof(ReportProducts));
+        if (product is not null && ReportProducts.Contains(product)) SelectedReportProduct = product;
+        if (hadResults) RefreshPurchaseCostRows();
     }
 
-    private void Suppliers_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.NewItems is null) return;
-        foreach (SupplierRecord supplier in e.NewItems)
-        {
-            if (!ReportSupplierNames.Contains(supplier.Name)) ReportSupplierNames.Add(supplier.Name);
-        }
-    }
+    private void Suppliers_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+        OnPropertyChanged(nameof(ReportSuppliers));
 
     public void AddRow(ProductRecord product)
     {
