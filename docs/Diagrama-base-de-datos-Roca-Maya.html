@@ -12,6 +12,9 @@ h1 {margin:0;font-size:clamp(22px,3vw,32px)} p {margin:8px 0}
 nav {display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
 button {border:1px solid #829caf;border-radius:6px;background:white;color:#173249;padding:7px 12px;font:inherit;cursor:pointer}
 button:hover {background:#e2eef7}
+.mermaid-source {max-width:1040px;margin:16px auto;padding:0 16px 16px}
+.mermaid-source summary {cursor:pointer;font-weight:650}
+.mermaid-source pre {padding:16px;overflow:auto;background:white;border:1px solid #b8cad7;border-radius:6px}
 main {height:72vh;overflow:auto;padding:16px;background:#f7fafc}
 svg {display:block;max-width:none;height:auto}
 </style>
@@ -27,6 +30,7 @@ svg {display:block;max-width:none;height:auto}
 <button type="button" id="fit">Ajustar al ancho</button>
 <button type="button" id="original">Tamaño original</button>
 <output id="level" aria-live="polite"></output>
+<a href="#codigo-mermaid">Código Mermaid</a>
 </nav>
 </header>
 <main tabindex="0" aria-label="Diagrama desplazable">
@@ -1017,6 +1021,220 @@ svg {display:block;max-width:none;height:auto}
 </svg>
 
 </main>
+<details class="mermaid-source" id="codigo-mermaid" open>
+<summary>Código Mermaid del diagrama</summary>
+<p>Copia el bloque completo, desde <code>erDiagram</code>, para editarlo en Mermaid. En el código, <strong>UK</strong> indica un valor único. Las relaciones muestran si la clave foránea admite nulo y cuántas filas pueden enlazarse.</p>
+<pre><code>erDiagram
+    asiento_detalles {
+        INTEGER id PK
+        INTEGER asiento_id FK
+        INTEGER cuenta_id FK
+        INTEGER orden
+        TEXT concepto &quot;admite NULL&quot;
+        INTEGER debito_centavos
+        INTEGER credito_centavos
+    }
+    asientos_contables {
+        INTEGER id PK
+        TEXT numero UK
+        TEXT fecha_hora
+        TEXT concepto
+        INTEGER usuario_id FK
+        INTEGER compra_id FK &quot;admite NULL&quot;
+        INTEGER venta_id FK &quot;admite NULL&quot;
+        INTEGER movimiento_credito_id FK &quot;admite NULL&quot;
+    }
+    clientes {
+        INTEGER id PK
+        TEXT nombre
+        TEXT telefono &quot;admite NULL&quot;
+        INTEGER tipo_cliente_id FK
+        TEXT identidad_o_rtn &quot;admite NULL&quot;
+        INTEGER activo
+    }
+    compra_detalles {
+        INTEGER id PK
+        INTEGER compra_id FK
+        INTEGER producto_id FK
+        INTEGER cantidad
+        INTEGER costo_unitario_centavos
+    }
+    compras {
+        INTEGER id PK
+        TEXT numero UK
+        INTEGER proveedor_id FK
+        INTEGER usuario_id FK
+        TEXT fecha_hora
+        TEXT referencia_factura &quot;admite NULL&quot;
+    }
+    configuracion {
+        TEXT clave PK
+        TEXT valor
+    }
+    consumos_lote {
+        INTEGER id PK
+        INTEGER venta_detalle_id FK
+        INTEGER lote_id FK
+        INTEGER cantidad
+    }
+    conteos_caja {
+        INTEGER turno_id PK, FK
+        INTEGER momento_id PK, FK
+        INTEGER denominacion_centavos PK
+        INTEGER cantidad
+    }
+    costeos_venta_lote {
+        INTEGER id PK
+        INTEGER venta_detalle_id FK
+        INTEGER lote_id FK
+        INTEGER cantidad
+        INTEGER costo_unitario_centavos
+    }
+    cuentas_contables {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT nombre UK
+        TEXT tipo
+        TEXT naturaleza
+        INTEGER activa
+    }
+    lotes_inventario {
+        INTEGER id PK
+        TEXT folio UK
+        INTEGER producto_id FK
+        INTEGER compra_detalle_id FK &quot;admite NULL&quot;
+        TEXT fecha_ingreso
+        TEXT fecha_vencimiento &quot;admite NULL&quot;
+        INTEGER cantidad_ingresada
+        INTEGER costo_unitario_centavos
+    }
+    momentos_conteo_caja {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT nombre
+    }
+    movimientos_credito {
+        INTEGER id PK
+        TEXT folio UK &quot;admite NULL&quot;
+        INTEGER cliente_id FK
+        INTEGER venta_id FK &quot;admite NULL&quot;
+        INTEGER usuario_id FK
+        TEXT fecha_hora
+        INTEGER tipo_movimiento_id FK
+        INTEGER importe_centavos
+        TEXT fecha_vencimiento &quot;admite NULL&quot;
+        TEXT concepto
+    }
+    permisos {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT descripcion
+    }
+    productos {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT nombre
+        INTEGER precio_venta_centavos
+        INTEGER activo
+    }
+    proveedores {
+        INTEGER id PK
+        TEXT nombre
+        TEXT telefono &quot;admite NULL&quot;
+        TEXT contacto &quot;admite NULL&quot;
+        INTEGER activo
+    }
+    rol_permisos {
+        INTEGER rol_id PK, FK
+        INTEGER permiso_id PK, FK
+    }
+    roles {
+        INTEGER id PK
+        TEXT nombre UK
+    }
+    secuencias_folio {
+        TEXT tipo PK
+        TEXT fecha PK
+        INTEGER ultimo
+    }
+    tipos_cliente {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT nombre
+    }
+    tipos_movimiento_credito {
+        INTEGER id PK
+        TEXT codigo UK
+        TEXT nombre
+    }
+    turnos_caja {
+        INTEGER id PK
+        TEXT folio UK
+        INTEGER abierto_por_usuario_id FK
+        INTEGER cerrado_por_usuario_id FK &quot;admite NULL&quot;
+        TEXT apertura_fecha_hora
+        TEXT cierre_fecha_hora &quot;admite NULL&quot;
+        TEXT folio_apertura &quot;generada&quot;
+        TEXT folio_cierre &quot;generada&quot;
+    }
+    usuarios {
+        INTEGER id PK
+        TEXT nombre_usuario UK
+        TEXT contrasena_hash
+        INTEGER rol_id FK
+        INTEGER activo
+    }
+    venta_detalles {
+        INTEGER id PK
+        INTEGER venta_id FK
+        INTEGER producto_id FK
+        INTEGER cantidad
+        INTEGER precio_unitario_centavos
+    }
+    ventas {
+        INTEGER id PK
+        TEXT ticket UK
+        INTEGER turno_id FK
+        INTEGER usuario_id FK
+        INTEGER cliente_id FK &quot;admite NULL&quot;
+        TEXT fecha_hora
+        TEXT tipo_pago
+    }
+
+    asientos_contables ||..o{ asiento_detalles : &quot;asiento_id&quot;
+    cuentas_contables ||..o{ asiento_detalles : &quot;cuenta_id&quot;
+    usuarios ||..o{ asientos_contables : &quot;usuario_id&quot;
+    compras |o..o{ asientos_contables : &quot;compra_id&quot;
+    ventas |o..o{ asientos_contables : &quot;venta_id&quot;
+    movimientos_credito |o..o{ asientos_contables : &quot;movimiento_credito_id&quot;
+    tipos_cliente ||..o{ clientes : &quot;tipo_cliente_id&quot;
+    compras ||..o{ compra_detalles : &quot;compra_id&quot;
+    productos ||..o{ compra_detalles : &quot;producto_id&quot;
+    proveedores ||..o{ compras : &quot;proveedor_id&quot;
+    usuarios ||..o{ compras : &quot;usuario_id&quot;
+    venta_detalles ||..o{ consumos_lote : &quot;venta_detalle_id&quot;
+    lotes_inventario ||..o{ consumos_lote : &quot;lote_id&quot;
+    turnos_caja ||--o{ conteos_caja : &quot;turno_id&quot;
+    momentos_conteo_caja ||--o{ conteos_caja : &quot;momento_id&quot;
+    venta_detalles ||..o{ costeos_venta_lote : &quot;venta_detalle_id&quot;
+    lotes_inventario ||..o{ costeos_venta_lote : &quot;lote_id&quot;
+    productos ||..o{ lotes_inventario : &quot;producto_id&quot;
+    compra_detalles |o..o{ lotes_inventario : &quot;compra_detalle_id&quot;
+    clientes ||..o{ movimientos_credito : &quot;cliente_id&quot;
+    ventas |o..o{ movimientos_credito : &quot;venta_id&quot;
+    usuarios ||..o{ movimientos_credito : &quot;usuario_id&quot;
+    tipos_movimiento_credito ||..o{ movimientos_credito : &quot;tipo_movimiento_id&quot;
+    roles ||--o{ rol_permisos : &quot;rol_id&quot;
+    permisos ||--o{ rol_permisos : &quot;permiso_id&quot;
+    usuarios ||..o{ turnos_caja : &quot;abierto_por_usuario_id&quot;
+    usuarios |o..o{ turnos_caja : &quot;cerrado_por_usuario_id&quot;
+    roles ||..o{ usuarios : &quot;rol_id&quot;
+    ventas ||..o{ venta_detalles : &quot;venta_id&quot;
+    productos ||..o{ venta_detalles : &quot;producto_id&quot;
+    turnos_caja ||..o{ ventas : &quot;turno_id&quot;
+    usuarios ||..o{ ventas : &quot;usuario_id&quot;
+    clientes |o..o{ ventas : &quot;cliente_id&quot;</code></pre>
+</details>
 <script>
 const viewer = document.querySelector('main');
 const diagram = viewer.querySelector('svg');
